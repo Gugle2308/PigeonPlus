@@ -10,6 +10,8 @@
   "block.anvilcraft_pigeon_plus.compressed_air": "压缩空气",
   "block.anvilcraft_pigeon_plus.feed_spreader": "饲料撒布器",
   "block.anvilcraft_pigeon_plus.gaseous_biogas": "沼气",
+  "block.anvilcraft_pigeon_plus.giant_firework": "巨型烟花",
+  "entity.anvilcraft_pigeon_plus.giant_firework": "巨型烟花",
   "block.anvilcraft_pigeon_plus.liquefied_biogas": "液化沼气",
   "block.anvilcraft_pigeon_plus.liquid_oxygen": "液氧",
   "block.anvilcraft_pigeon_plus.liquid_hydrogen": "液氢",

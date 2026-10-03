@@ -1,0 +1,77 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"parent": "anvilcraft_pigeon_plus:block/giant_fireworks_template",
+	"textures": {
+		"wool": "minecraft:block/white_wool",
+		"particle": "minecraft:block/white_wool"
+	},
+	"elements": [
+		{
+			"from": [-12, -16, -12],
+			"to": [28, 0, 28],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 16, 0]},
+			"color": 1,
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#wool"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#wool"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#wool"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#wool"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#wool"}
+			}
+		},
+		{
+			"from": [-16, 0, -16],
+			"to": [32, 8, 32],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 32, 0]},
+			"color": 0,
+			"faces": {
+				"north": {"uv": [0, 8, 16, 16], "texture": "#wool"},
+				"east": {"uv": [0, 8, 16, 16], "texture": "#wool"},
+				"south": {"uv": [0, 8, 16, 16], "texture": "#wool"},
+				"west": {"uv": [0, 8, 16, 16], "texture": "#wool"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#wool"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#wool"}
+			}
+		},
+		{
+			"from": [-12, 8, -12],
+			"to": [28, 16, 28],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 40, 0]},
+			"color": 0,
+			"faces": {
+				"north": {"uv": [0, 8, 16, 16], "texture": "#wool"},
+				"east": {"uv": [0, 8, 16, 16], "texture": "#wool"},
+				"south": {"uv": [0, 8, 16, 16], "texture": "#wool"},
+				"west": {"uv": [0, 8, 16, 16], "texture": "#wool"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#wool"}
+			}
+		},
+		{
+			"from": [-8, 16, -8],
+			"to": [24, 24, 24],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 44, 0]},
+			"color": 0,
+			"faces": {
+				"north": {"uv": [0, 4, 16, 12], "texture": "#wool"},
+				"east": {"uv": [0, 4, 16, 12], "texture": "#wool"},
+				"south": {"uv": [0, 4, 16, 12], "texture": "#wool"},
+				"west": {"uv": [0, 4, 16, 12], "texture": "#wool"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#wool"}
+			}
+		},
+		{
+			"from": [-4, 24, -4],
+			"to": [20, 32, 20],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 52, 0]},
+			"color": 0,
+			"faces": {
+				"north": {"uv": [0, 4, 16, 12], "texture": "#wool"},
+				"east": {"uv": [0, 4, 16, 12], "texture": "#wool"},
+				"south": {"uv": [0, 4, 16, 12], "texture": "#wool"},
+				"west": {"uv": [0, 4, 16, 12], "texture": "#wool"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#wool"}
+			}
+		}
+	]
+}

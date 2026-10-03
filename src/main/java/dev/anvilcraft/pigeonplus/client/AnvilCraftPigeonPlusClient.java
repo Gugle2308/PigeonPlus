@@ -60,6 +60,10 @@ public class AnvilCraftPigeonPlusClient {
     public static final AddonClientConfig CLIENT_CONFIG = ConfigManager.register(AnvilCraftPigeonPlus.MOD_ID, AddonClientConfig::new);
 
     public AnvilCraftPigeonPlusClient(IEventBus modBus, ModContainer container) {
+        // 必须早于 ModelEvent.ModifyBakingResult：anvillib 的 cube 模块在该事件里
+        // 烘焙 ModelSelections 快照，登记晚了本轮就没有本模组的模型几何，
+        // 精确拾取与准星描边都要等下次资源重载才生效。
+        AddonCubeSelection.enableOwnNamespace();
         modBus.addListener(this::onRegisterAdditionalModels);
         modBus.addListener(this::onRegisterBER);
         modBus.addListener(this::onClientSetup);

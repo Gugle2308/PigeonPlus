@@ -26,7 +26,9 @@
     "client.KeyboardInputMixin",
     "client.LargeCauldronBlockEntityRendererMixin",
     "client.LargeFluidTankBlockEntityRendererMixin",
-    "client.MinecraftClientMixin"
+    "client.MinecraftClientMixin",
+    "client.ModelBlockSelectionMixin",
+    "client.ModelSelectionBakeryMixin"
   ],
   "injectors": {
     "defaultRequire": 1

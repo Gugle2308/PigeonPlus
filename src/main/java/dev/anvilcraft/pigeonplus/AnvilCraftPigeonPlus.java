@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import dev.anvilcraft.pigeonplus.block.entity.ModBlockEntities;
 import dev.anvilcraft.pigeonplus.data.AddonDatagen;
 import dev.anvilcraft.pigeonplus.init.AddonBlocks;
+import dev.anvilcraft.pigeonplus.init.AddonEntities;
 import dev.anvilcraft.pigeonplus.init.AddonFluids;
 import dev.anvilcraft.pigeonplus.init.AddonInteractionMap;
 import dev.anvilcraft.pigeonplus.init.AddonItemGroups;
@@ -39,6 +40,7 @@ public class AnvilCraftPigeonPlus {
         AddonRecipeTypes.register(modEventBus);
         AddonBlocks.register();
         AddonItems.register();
+        AddonEntities.register();
         AddonDatagen.init();
         ModCriterionTriggers.register(modEventBus);
         ModBlockEntities.register(modEventBus);

@@ -5,12 +5,16 @@ import dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus;
 import dev.anvilcraft.pigeonplus.block.AnvilPumpBlock;
 import dev.anvilcraft.pigeonplus.block.BlenderBlock;
 import dev.anvilcraft.pigeonplus.block.FeedSpreaderBlock;
+import dev.anvilcraft.pigeonplus.block.GiantFireworkBlock;
 import dev.anvilcraft.pigeonplus.block.MixedBiomassCauldronBlock;
 import dev.anvilcraft.pigeonplus.block.NozzleBlock;
 import dev.anvilcraft.pigeonplus.block.PigeonAnvilBlock;
 import dev.anvilcraft.pigeonplus.block.StasisBeaconBlock;
+import dev.anvilcraft.pigeonplus.block.state.GiantFireworkPart;
 import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
+import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
+import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -18,6 +22,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
@@ -162,6 +167,34 @@ public class AddonBlocks {
         .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.CAULDRONS)
         .onRegister(block -> Item.BY_BLOCK.put(block, Items.CAULDRON))
+        .register();
+
+    /**
+     * 巨型烟花：整体多方块，一个方块占据 3×3×9 = 81 格。
+     *
+     * <p>blockstate 按 {@code part} 分支：每段中列的中心格用真实模型，其余用空模型。
+     * 之所以把「用哪个模型」编码进 {@code part} 而不是另开属性，是因为 AnvilCraft 烘焙
+     * 多方块描边时只做 {@code state.setValue(part, p)}，模型必须由 {@code part} 唯一决定，
+     * 否则放置预览拿不到框线、只能退回虚影。
+     */
+    public static final BlockEntry<GiantFireworkBlock> GIANT_FIREWORK = REGISTRUM
+        .block("giant_firework", GiantFireworkBlock::new)
+        .initialProperties(() -> Blocks.WHITE_WOOL)
+        .properties(properties -> properties
+            .sound(SoundType.WOOL)
+            .noOcclusion()
+            .isViewBlocking((state, level, pos) -> false))
+        .blockstate((ctx, provider) -> provider.getVariantBuilder(ctx.getEntry()).forAllStates(state ->
+            ConfiguredModel.builder()
+                .modelFile(provider.models().getExistingFile(AnvilCraftPigeonPlus.of(
+                    "block/giant_fireworks_" + state.getValue(GiantFireworkBlock.PART).getModelName())))
+                .build()))
+        .loot(SimpleMultiPartBlock::loot)
+        .item(SimpleMultiPartBlockItem<GiantFireworkPart>::new)
+        .model((ctx, prov) -> prov.withExistingParent(
+            ctx.getName(), AnvilCraftPigeonPlus.of("block/giant_fireworks_top")))
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static void register() {
