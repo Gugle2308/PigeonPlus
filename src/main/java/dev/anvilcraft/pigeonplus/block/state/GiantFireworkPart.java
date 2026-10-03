@@ -97,9 +97,7 @@ public enum GiantFireworkPart implements ISimpleMultiPartBlockState<GiantFirewor
         return horizontal + vertical;
     }
 
-    /**
-     * 按偏移查部件，越界返回 {@code null}。
-     */
+    /** 按偏移查部件，越界返回 {@code null}。 */
     @Nullable
     public static GiantFireworkPart findByOffset(int offsetX, int offsetY, int offsetZ) {
         return Arrays.stream(GiantFireworkPart.values())
@@ -139,9 +137,7 @@ public enum GiantFireworkPart implements ISimpleMultiPartBlockState<GiantFirewor
         return this.name;
     }
 
-    /**
-     * 结构方块旋转时的部件换算。若目标偏移不存在则回退到自身，避免返回 null 破坏状态定义。
-     */
+    /** 结构方块旋转时的部件换算，目标偏移不存在则回退到自身（避免返回 null 破坏状态定义）。 */
     public GiantFireworkPart rotate(Rotation rotation) {
         GiantFireworkPart result = switch (rotation) {
             case NONE -> this;
@@ -152,9 +148,7 @@ public enum GiantFireworkPart implements ISimpleMultiPartBlockState<GiantFirewor
         return result == null ? this : result;
     }
 
-    /**
-     * 结构方块镜像时的部件换算，同样对不存在的目标做了回退。
-     */
+    /** 结构方块镜像时的部件换算，同样对不存在的目标做了回退。 */
     public GiantFireworkPart mirror(Mirror mirror) {
         GiantFireworkPart result = switch (mirror) {
             case NONE -> this;
@@ -169,27 +163,21 @@ public enum GiantFireworkPart implements ISimpleMultiPartBlockState<GiantFirewor
         return this.name;
     }
 
-    /**
-     * 该部件所处的模型分段（0=底段 Y0-2，1=中段 Y3-5，2=顶段 Y6-8）。
-     */
+    /** 该部件所处的模型分段（0=底段 Y0-2，1=中段 Y3-5，2=顶段 Y6-8）。 */
     public int getSegment() {
         return this.offsetY / 3;
     }
 
-    /**
-     * 该部件是否是其所在 3×3 层里承载整段模型的那一格（每段中列的中心，Y=1/4/7）。
-     */
+    /** 该部件是否是其所在 3×3 层里承载整段模型的那一格（每段中列的中心，Y=1/4/7）。 */
     public boolean isModelAnchor() {
         return this.offsetX == 0 && this.offsetZ == 0 && this.offsetY % 3 == 1;
     }
 
     /**
-     * 该部件对应的模型后缀：锚点部件返回 {@code bottom/middle/top}，
-     * 其余部件返回 {@code part}（空模型）。
+     * 模型后缀：锚点部件返回 {@code bottom/middle/top}，其余返回 {@code part}（空模型）。
      *
-     * <p>模型选择编码在 {@code part} 里而非另开属性，这样 AnvilCraft 的
-     * {@code ModelSelectionBakery} 用 {@code state.setValue(part, p)} 遍历部件时
-     * 就能解析到正确模型，多方块描边（放置预览框线）才拿得到几何。
+     * <p>把模型选择编码在 {@code part} 属性里，AnvilCraft 的 {@code ModelSelectionBakery}
+     * 遍历部件时才能解析到正确模型，多方块描边（放置预览框线）才拿得到几何。
      */
     public String getModelName() {
         if (!this.isModelAnchor()) {
@@ -202,9 +190,7 @@ public enum GiantFireworkPart implements ISimpleMultiPartBlockState<GiantFirewor
         };
     }
 
-    /**
-     * 该部件是否为主部件（底层中心），用于碰撞箱与掉落判定。
-     */
+    /** 该部件是否为主部件（底层中心），用于碰撞箱与掉落判定。 */
     public boolean isMainPart() {
         return this.offsetX == 0 && this.offsetY == 0 && this.offsetZ == 0;
     }

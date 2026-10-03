@@ -175,6 +175,10 @@ public class AnvilCraftPigeonPlusClient {
             AnvilCraftPigeonPlus.MOD_ID, "block/feed_spreader_bucket");
         ResourceLocation feedSpreaderPiston = ResourceLocation.fromNamespaceAndPath(
             AnvilCraftPigeonPlus.MOD_ID, "block/feed_spreader_piston");
+        // 点燃后实体用的底段模型。它不是任何方块状态的模型，所以要单独登记，
+        // 否则实体渲染器取不到、箭体下半段会消失。
+        ResourceLocation litGiantFireworksBottom = ResourceLocation.fromNamespaceAndPath(
+            AnvilCraftPigeonPlus.MOD_ID, "block/lit_giant_fireworks_bottom");
         event.register(new ModelResourceLocation(bottom, "standalone"));
         event.register(new ModelResourceLocation(top, "standalone"));
         event.register(new ModelResourceLocation(anvilPumpPiston, "standalone"));
@@ -182,6 +186,7 @@ public class AnvilCraftPigeonPlusClient {
         event.register(new ModelResourceLocation(largeCauldronBottom, "standalone"));
         event.register(new ModelResourceLocation(feedSpreaderBucket, "standalone"));
         event.register(new ModelResourceLocation(feedSpreaderPiston, "standalone"));
+        event.register(ModelResourceLocation.standalone(litGiantFireworksBottom));
     }
 
     private void onRegisterBER(EntityRenderersEvent.RegisterRenderers event) {

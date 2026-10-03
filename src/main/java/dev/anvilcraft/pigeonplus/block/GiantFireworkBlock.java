@@ -2,6 +2,7 @@ package dev.anvilcraft.pigeonplus.block;
 
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
+import dev.anvilcraft.pigeonplus.block.entity.GiantFireworkBlockEntity;
 import dev.anvilcraft.pigeonplus.block.state.GiantFireworkPart;
 import dev.anvilcraft.pigeonplus.entity.GiantFireworkEntity;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
@@ -9,24 +10,36 @@ import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.FireworkExplosion;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -34,22 +47,28 @@ import java.util.List;
 import java.util.Map;
 
 public class GiantFireworkBlock extends SimpleMultiPartBlock<GiantFireworkPart>
-    implements IHammerRemovable {
+    implements IHammerRemovable, EntityBlock {
     public static final MapCodec<GiantFireworkBlock> CODEC = simpleCodec(GiantFireworkBlock::new);
     public static final EnumProperty<GiantFireworkPart> PART =
         EnumProperty.create("part", GiantFireworkPart.class);
     
+    /**
+     * 整支火箭的碰撞轮廓，由三段模型的 elements 逐盒平移而来（1/16 单位，以主部件角为原点）。
+     *
+     * <p>手写近似会与模型脱节——底部中段是<b>空腔</b>，早先的版本把它当成实心而把底部堵死了。
+     * 改动模型后必须同步这里，否则碰撞箱会与外观不符。
+     */
     private static final AABB[] GLOBAL_SHAPE = {
-        new AABB(11.0, 0.0, 11.0, 23.0, 32.0, 23.0),      // bottom el1：底部立柱（Y0~2 仅此一柱）
-        new AABB(-12.0, 32.0, -12.0, 28.0, 48.0, 28.0),   // bottom el2：箭体下段
-        new AABB(1.0, 25.0, 5.0, 3.0, 32.0, 7.0),         // bottom el3：侧壁小凸起
-        new AABB(0.0, 18.0, 4.0, 2.0, 25.0, 6.0),         // bottom el4：侧壁小凸起
-        new AABB(-12.0, 48.0, -12.0, 28.0, 96.0, 28.0),   // middle el1：箭体中段
-        new AABB(-12.0, 96.0, -12.0, 28.0, 112.0, 28.0),  // top el1：箭体上段
-        new AABB(-16.0, 112.0, -16.0, 32.0, 120.0, 32.0), // top el2：尾翼环（全箭最宽，3 格）
-        new AABB(-12.0, 120.0, -12.0, 28.0, 128.0, 28.0), // top el3
-        new AABB(-8.0, 128.0, -8.0, 24.0, 136.0, 24.0),   // top el4：收窄
-        new AABB(-4.0, 136.0, -4.0, 20.0, 144.0, 20.0),   // top el5：箭尖
+        new AABB(11.0, 0.0, 11.0, 23.0, 32.0, 23.0),       // bottom el1：底部立柱（Y0~2 仅此一柱）
+        new AABB(-8.0, 32.0, -8.0, 24.0, 48.0, 24.0),      // bottom el2：箭体下段
+        new AABB(1.0, 25.0, 5.0, 3.0, 32.0, 7.0),          // bottom el3：侧壁小凸起
+        new AABB(0.0, 18.0, 4.0, 2.0, 25.0, 6.0),          // bottom el4：侧壁小凸起
+        new AABB(-8.0, 48.0, -8.0, 24.0, 96.0, 24.0),      // middle el1：箭体中段
+        new AABB(-16.0, 112.0, -16.0, 32.0, 118.0, 32.0),  // top el1：尾翼环（全箭最宽，3 格）
+        new AABB(-12.0, 118.0, -12.0, 28.0, 125.0, 28.0),  // top el2
+        new AABB(-8.0, 125.0, -8.0, 24.0, 133.0, 24.0),    // top el3：收窄
+        new AABB(-4.0, 133.0, -4.0, 20.0, 142.0, 20.0),    // top el4：箭尖
+        new AABB(-8.0, 96.0, -8.0, 24.0, 112.0, 24.0),     // top el5：接中段
     };
 
     private static final Map<GiantFireworkPart, VoxelShape> SHAPES = createShapes();
@@ -80,20 +99,16 @@ public class GiantFireworkBlock extends SimpleMultiPartBlock<GiantFireworkPart>
         return GiantFireworkPart.values();
     }
 
-    /**
-     * 主部件是底层中心，因此整个结构相对主部件只在 Y 轴正向延伸。
-     */
+    /** 主部件是底层中心，所以结构相对主部件只往 Y 正方向延伸。 */
     @Override
     public Vec3i getMainPartOffset() {
         return Vec3i.ZERO;
     }
 
     /**
-     * 单个部件贴合模型的碰撞形状。
-     *
-     * <p>该形状同时被 {@code getCollisionShape}（实体碰撞）与
-     * {@code getOcclusionShape}（遮挡/光照）使用，并被
-     * {@code AbstractMultiPartBlock#getMultiPartShape} 按部件偏移合并成整支火箭的形状。
+     * 单个部件贴合模型的碰撞形状。同时供 {@code getCollisionShape}（实体碰撞）与
+     * {@code getOcclusionShape}（遮挡/光照）使用，并由 {@link AbstractMultiPartBlock#getMultiPartShape}
+     * 按部件偏移合并成整支火箭的形状。
      */
     @Override
     public VoxelShape getPartShape(BlockState state) {
@@ -113,19 +128,14 @@ public class GiantFireworkBlock extends SimpleMultiPartBlock<GiantFireworkPart>
     }
 
     /**
-     * 右键点火发射。
+     * 交互分流：铁砧锤 {@code PASS}（让 {@link IHammerRemovable} 拆除生效）、
+     * 烟火之星装填、空手点火发射、其它物品 {@code PASS}（便于贴脸放方块）。
      *
-     * <p>顺序必须是<b>先拆结构、再生实体</b>：实体碰撞箱是 3×3×9，
-     * 若先放实体，它会立刻把这 81 格方块当成阻挡，下一 tick 就判定撞击而原地炸掉。
+     * <p>铁砧锤必须让路：方块交互在物品 {@code useOn} 之前执行
+     * （见 {@code ServerPlayerGameMode#useItemOn}），这里的 {@code CONSUME}
+     * 会抢在锤子拆除逻辑前，导致拿锤子右键反而把烟花射出去。
      *
-     * <p>结构被消耗掉、不返还物品——这符合烟花火箭「点着就没了」的语义。
-     * 也正因如此不调用 {@code dropResources}，否则拆掉的每一格都会掉一个方块。
-     *
-     * <h3>为什么先让铁砧锤走</h3>
-     * 方块交互在物品 {@code useOn} <b>之前</b>执行（见 {@code ServerPlayerGameMode#useItemOn}），
-     * 所以这里的 {@code CONSUME} 会抢在铁砧锤的拆除逻辑前面，
-     * 导致 {@code IHammerRemovable} 对本方块失效、拿锤子右键反而把它射出去。
-     * 因此手持铁砧锤时直接 {@code PASS}，把机会还给锤子。
+     * <p>只有空手才发射，否则玩家想靠着火箭垫方块时会误射。
      */
     @Override
     public InteractionResult use(
@@ -136,9 +146,22 @@ public class GiantFireworkBlock extends SimpleMultiPartBlock<GiantFireworkPart>
         InteractionHand hand,
         BlockHitResult hit
     ) {
-        if (player.getItemInHand(hand).getItem() instanceof AnvilHammerItem) {
+        ItemStack held = player.getItemInHand(hand);
+        if (held.getItem() instanceof AnvilHammerItem) {
             return InteractionResult.PASS;
         }
+        if (held.is(Items.FIREWORK_STAR)) {
+            if (level.isClientSide()) {
+                return InteractionResult.SUCCESS;
+            }
+            return level instanceof ServerLevel serverLevel
+                ? this.installStar(serverLevel, pos, state, player, held)
+                : InteractionResult.PASS;
+        }
+        if (!held.isEmpty()) {
+            return InteractionResult.PASS;
+        }
+
         if (level.isClientSide()) {
             // 客户端提前返回成功，避免手臂不摆动；真正的逻辑在服务端。
             return InteractionResult.SUCCESS;
@@ -147,9 +170,89 @@ public class GiantFireworkBlock extends SimpleMultiPartBlock<GiantFireworkPart>
             return InteractionResult.PASS;
         }
         BlockPos mainPos = this.getMainPartPos(pos, state);
+        // 必须在拆结构之前读取：拆掉主部件会连带移除方块实体。
+        List<FireworkExplosion> explosions = level.getBlockEntity(mainPos)
+            instanceof GiantFireworkBlockEntity fireworks
+            ? fireworks.getExplosions()
+            : List.of();
         this.removePartsAndUpdate(level, pos);
-        GiantFireworkEntity.launch(serverLevel, mainPos, player);
+        GiantFireworkEntity.launch(serverLevel, mainPos, player, explosions);
         return InteractionResult.CONSUME;
+    }
+
+    /** 装填一个烟火之星，只取出其中的 {@link FireworkExplosion} 存进方块实体。 */
+    private InteractionResult installStar(
+        ServerLevel level,
+        BlockPos pos,
+        BlockState state,
+        Player player,
+        ItemStack stack
+    ) {
+        BlockPos mainPos = this.getMainPartPos(pos, state);
+        if (!(level.getBlockEntity(mainPos) instanceof GiantFireworkBlockEntity fireworks)) {
+            return InteractionResult.PASS;
+        }
+        if (fireworks.isFull()) {
+            player.displayClientMessage(
+                Component.translatable(
+                    "message.anvilcraft_pigeon_plus.giant_firework.full",
+                    GiantFireworkBlockEntity.MAX_STARS
+                ),
+                true
+            );
+            return InteractionResult.FAIL;
+        }
+        FireworkExplosion explosion = stack.get(DataComponents.FIREWORK_EXPLOSION);
+        if (explosion == null) {
+            explosion = FireworkExplosion.DEFAULT;
+        }
+        if (!fireworks.addExplosion(explosion)) {
+            return InteractionResult.FAIL;
+        }
+        if (!player.getAbilities().instabuild) {
+            stack.shrink(1);
+        }
+        level.playSound(
+            null, mainPos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS,
+            1.0F, 1.0F
+        );
+        player.displayClientMessage(
+            Component.translatable(
+                "message.anvilcraft_pigeon_plus.giant_firework.installed",
+                fireworks.getStarCount(),
+                GiantFireworkBlockEntity.MAX_STARS
+            ),
+            true
+        );
+        return InteractionResult.CONSUME;
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        // 整个多方块一体，只在主部件（底层中心）挂方块实体。
+        return this.isMainPart(state) ? new GiantFireworkBlockEntity(pos, state) : null;
+    }
+
+    /**
+     * 拆除时把已装填的烟火之星还回来。
+     *
+     * <p>战利品表只为主部件产出方块本体、方块实体也只在主部件上，所以只在正确拆除主部件时生效；
+     * 拆其它部件会由 {@code AbstractMultiPartBlock#updateShape} 连带清掉整座结构，装填物仍会丢失——
+     * 与巨型铁砧等原版多方块一致。
+     */
+    @Override
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        List<ItemStack> drops = super.getDrops(state, params);
+        if (params.getOptionalParameter(LootContextParams.BLOCK_ENTITY)
+            instanceof GiantFireworkBlockEntity fireworks) {
+            for (FireworkExplosion explosion : fireworks.getExplosions()) {
+                ItemStack star = new ItemStack(Items.FIREWORK_STAR);
+                star.set(DataComponents.FIREWORK_EXPLOSION, explosion);
+                drops.add(star);
+            }
+        }
+        return drops;
     }
 
     @Override
