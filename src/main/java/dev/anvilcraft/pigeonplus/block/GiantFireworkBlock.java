@@ -6,6 +6,7 @@ import dev.anvilcraft.pigeonplus.block.entity.GiantFireworkBlockEntity;
 import dev.anvilcraft.pigeonplus.block.state.GiantFireworkPart;
 import dev.anvilcraft.pigeonplus.entity.GiantFireworkEntity;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import net.minecraft.core.BlockPos;
