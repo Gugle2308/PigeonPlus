@@ -16,8 +16,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -130,13 +132,17 @@ public class GiantFireworkBlock extends SimpleMultiPartBlock<GiantFireworkPart>
 
     /**
      * 交互分流：铁砧锤 {@code PASS}（让 {@link IHammerRemovable} 拆除生效）、
-     * 烟火之星装填、空手点火发射、其它物品 {@code PASS}（便于贴脸放方块）。
+     * 烟火之星装填、打火石/火焰弹点火、其它物品 {@code PASS}。
+     *
+     * <p>点火必须用打火石或火焰弹，和 TNT 一致——空手右键不再发射，
+     * 这样靠着火箭垫方块或误触时不会把整支烟花射出去。
      *
      * <p>铁砧锤必须让路：方块交互在物品 {@code useOn} 之前执行
      * （见 {@code ServerPlayerGameMode#useItemOn}），这里的 {@code CONSUME}
-     * 会抢在锤子拆除逻辑前，导致拿锤子右键反而把烟花射出去。
+     * 会抢在锤子拆除逻辑前，导致拿锤子右键反而把它射出去。
      *
-     * <p>只有空手才发射，否则玩家想靠着火箭垫方块时会误射。
+     * <p>AnvilCraft 的 {@code SimpleMultiPartBlock} 把 {@code useItemOn} 与
+     * {@code useWithoutItem} 都转发到本方法（见其字节码），所以空手与持物都会走到这里。
      */
     @Override
     public InteractionResult use(
@@ -159,10 +165,25 @@ public class GiantFireworkBlock extends SimpleMultiPartBlock<GiantFireworkPart>
                 ? this.installStar(serverLevel, pos, state, player, held)
                 : InteractionResult.PASS;
         }
-        if (!held.isEmpty()) {
+        if (!held.is(Items.FLINT_AND_STEEL) && !held.is(Items.FIRE_CHARGE)) {
             return InteractionResult.PASS;
         }
+        return this.ignite(state, level, pos, player, hand, held);
+    }
 
+    /**
+     * 打火石 / 火焰弹点火发射，并像 TNT 那样消耗点火物。
+     *
+     * <p>打火石掉 1 点耐久、火焰弹消耗 1 个；创造模式两者都不消耗。
+     */
+    private InteractionResult ignite(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        ItemStack held
+    ) {
         if (level.isClientSide()) {
             // 客户端提前返回成功，避免手臂不摆动；真正的逻辑在服务端。
             return InteractionResult.SUCCESS;
@@ -178,6 +199,15 @@ public class GiantFireworkBlock extends SimpleMultiPartBlock<GiantFireworkPart>
             : List.of();
         this.removePartsAndUpdate(level, pos);
         GiantFireworkEntity.launch(serverLevel, mainPos, player, explosions);
+        // 与 TNT 一致：创造模式不消耗
+        if (!player.getAbilities().instabuild) {
+            if (held.is(Items.FLINT_AND_STEEL)) {
+                held.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+            } else {
+                held.consume(1, player);
+            }
+        }
+        player.awardStat(Stats.ITEM_USED.get(held.getItem()));
         return InteractionResult.CONSUME;
     }
 

@@ -1,5 +1,6 @@
 package dev.anvilcraft.pigeonplus.entity;
 
+import dev.anvilcraft.pigeonplus.client.render.GiantFireworkBurst;
 import dev.anvilcraft.pigeonplus.init.AddonEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -12,6 +13,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -48,8 +50,13 @@ public class GiantFireworkEntity extends Entity {
     private static final double DRAG = 0.985;
     /** 末速上限（格/tick），防止引信被调很长时速度失控。 */
     private static final double MAX_SPEED = 3.5;
-    /** 默认引信时长（tick）。 */
-    public static final int DEFAULT_FUSE = 120;
+    /**
+     * 默认引信时长（tick）。
+     *
+     * <p>取 93 是为了让爆点落在发射点上方约 80 格。推力曲线未动，
+     * 所以「先慢后快」的形状与原先完全一致，只是提前收尾、总高变矮。
+     */
+    public static final int DEFAULT_FUSE = 93;
     /** 爆炸对实体的作用半径。 */
     private static final float BLAST_RADIUS = 12.0F;
     /** 箭体半径，用于撒尾焰粒子。 */
@@ -87,12 +94,17 @@ public class GiantFireworkEntity extends Entity {
     private static final EntityDataAccessor<Boolean> DATA_DETONATING =
         SynchedEntityData.defineId(GiantFireworkEntity.class, EntityDataSerializers.BOOLEAN);
 
-    /** 装填 2 颗烟火之星时的分散半径（格）。 */
-    private static final double SPREAD_BASE = 3.0;
+    /**
+     * 装填 1 颗烟火之星时的分散半径（格）。
+     *
+     * <p>即便只装 1 颗也留出体积——它同样会炸成
+     * {@link GiantFireworkBurst#BALLS_PER_STAR} 个球，挤在一点上就白拆了。
+     */
+    private static final double SPREAD_BASE = 5.0;
     /** 每多装 1 颗额外增加的分散半径（格）。 */
-    private static final double SPREAD_PER_STAR = 1.0;
-    /** 分散半径上限（格）。 */
-    private static final double SPREAD_MAX = 18.0;
+    private static final double SPREAD_PER_STAR = 1.5;
+    /** 分散半径上限（格）。16 颗即 64 球，铺开到 27 格左右。 */
+    private static final double SPREAD_MAX = 27.0;
 
     /** 点燃者，仅用于爆炸伤害的归因（可为 null）。 */
     @Nullable
@@ -457,9 +469,13 @@ public class GiantFireworkEntity extends Entity {
     }
 
     /**
-     * 播放第 {@code index} 颗烟火之星的爆炸，各给一个球面偏移避免爆点重合
-     * （原版 {@code FireworkParticles.Starter} 会把整份列表从同一点发出，会糊成一团）。
-     * 空装填则照常调用一次，走 {@code ClientLevel#createFireworks} 的白烟分支。
+     * 播放第 {@code index} 颗烟火之星的爆炸——展开为 {@link GiantFireworkBurst#BALLS_PER_STAR} 个球。
+     *
+     * <p>这 4 个球<b>不与本星位置绑定</b>：64 个球（16 星）全部在整个爆炸体积内随机撒开，
+     * 所以观感是「一大团散开的球」而非「每处挤 4 个」。位置用固定种子生成，
+     * 保证各客户端看到的排布一致。
+     *
+     * <p>空装填则照常调用一次，走 {@code ClientLevel#createFireworks} 的白烟分支。
      */
     private void spawnBurst(int index) {
         List<FireworkExplosion> explosions = this.getExplosions();
@@ -472,35 +488,47 @@ public class GiantFireworkEntity extends Entity {
         if (index < 0 || index >= explosions.size()) {
             return;
         }
-        int total = explosions.size();
-        Vec3 offset = spreadOffset(index, total, spreadRadius(total));
-        this.level().createFireworks(
-            this.getX() + offset.x,
-            this.blastY() + offset.y,
-            this.getZ() + offset.z,
-            0.0, 0.0, 0.0,
-            List.of(explosions.get(index))
-        );
+        FireworkExplosion explosion = explosions.get(index);
+        double radius = spreadRadius(explosions.size());
+        // 以爆炸序号作种子的固定随机源：与实体自身的 random 无关，
+        // 因此两端/多次渲染结果稳定，不会出现「同一发烟花排布乱跳」。
+        RandomSource random = RandomSource.create(this.getId() * 31L + index);
+        for (int ball = 0; ball < GiantFireworkBurst.BALLS_PER_STAR; ball++) {
+            Vec3 offset = randomOffset(random, radius);
+            GiantFireworkBurst.spawn(
+                this.level(),
+                random,
+                this.getX() + offset.x,
+                this.blastY() + offset.y,
+                this.getZ() + offset.z,
+                explosion,
+                GiantFireworkBurst.ballScale(random, GiantFireworkBurst.randomScale(random))
+            );
+        }
     }
 
     /**
-     * 球面均匀分布（黄金角 / Fibonacci 球）。用黄金角而非按经纬度等分，
-     * 后者会在两极堆积、装填数一多就两头挤中间稀。
+     * 在半径为 {@code radius} 的球内均匀取一点。
+     *
+     * <p>立方的根号是为了让点在<b>体积</b>上均匀：直接取 {@code r × random()} 会让点往球心堆积
+     * （半径越小、球壳越小，却分到同样多的点），看起来中心过密。
      */
-    private static Vec3 spreadOffset(int index, int total, double radius) {
-        if (total <= 1 || radius <= 0.0) {
+    private static Vec3 randomOffset(RandomSource random, double radius) {
+        if (radius <= 0.0) {
             return Vec3.ZERO;
         }
-        double goldenAngle = Math.PI * (3.0 - Math.sqrt(5.0));
-        double vertical = 1.0 - 2.0 * (index + 0.5) / total;
-        double ring = Math.sqrt(Math.max(0.0, 1.0 - vertical * vertical));
-        double theta = goldenAngle * index;
-        return new Vec3(Math.cos(theta) * ring, vertical, Math.sin(theta) * ring).scale(radius);
+        // 方向：球面均匀（z 均匀 + 方位角均匀，避免两极堆积）
+        double z = random.nextDouble() * 2.0 - 1.0;
+        double ring = Math.sqrt(Math.max(0.0, 1.0 - z * z));
+        double theta = random.nextDouble() * Math.PI * 2.0;
+        // 半径：立方根，保证体积均匀
+        double r = radius * Math.cbrt(random.nextDouble());
+        return new Vec3(Math.cos(theta) * ring * r, z * r, Math.sin(theta) * ring * r);
     }
 
-    /** 分散半径：装填越多铺得越开；上限避免 16 颗散成 19 格开外的独立烟花。 */
+    /** 分散半径：装填越多铺得越开。 */
     private static double spreadRadius(int total) {
-        if (total <= 1) {
+        if (total <= 0) {
             return 0.0;
         }
         return Math.min(SPREAD_MAX, SPREAD_BASE + SPREAD_PER_STAR * (total - 1));
