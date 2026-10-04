@@ -1,7 +1,7 @@
 package dev.anvilcraft.pigeonplus.entity;
 
 import dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus;
-import dev.anvilcraft.pigeonplus.client.render.LargeFireworkBurst;
+import dev.anvilcraft.pigeonplus.client.render.LargeFireworksRocketBurst;
 import dev.anvilcraft.pigeonplus.init.AddonEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -54,7 +54,7 @@ import java.util.List;
  *
  * <p>同理，{@link #life} 不做网络同步：两端各自从 0 起算，才能算出同样的推力曲线。
  */
-public class LargeFireworkEntity extends Entity {
+public class LargeFireworksRocketEntity extends Entity {
     /** 点火初速（格/tick）。取小值，否则看不出起飞那一下的「慢」。 */
     private static final double LAUNCH_SPEED = 0.10;
     /** 点火时的基础推力（格/tick²）。 */
@@ -97,7 +97,7 @@ public class LargeFireworkEntity extends Entity {
     private int life;
 
     private static final EntityDataAccessor<Integer> DATA_FUSE =
-        SynchedEntityData.defineId(LargeFireworkEntity.class, EntityDataSerializers.INT);
+        SynchedEntityData.defineId(LargeFireworksRocketEntity.class, EntityDataSerializers.INT);
 
     /**
      * 装填的烟火之星，用「带 FIREWORKS 组件的烟花火箭物品」承载。
@@ -106,7 +106,7 @@ public class LargeFireworkEntity extends Entity {
      * 而 ITEM_STACK 自带存档与网络同步（原版 {@code FireworkRocketEntity} 也这么做）。
      */
     private static final EntityDataAccessor<ItemStack> DATA_FIREWORKS_ITEM =
-        SynchedEntityData.defineId(LargeFireworkEntity.class, EntityDataSerializers.ITEM_STACK);
+        SynchedEntityData.defineId(LargeFireworksRocketEntity.class, EntityDataSerializers.ITEM_STACK);
 
     /** 起爆后每颗烟火之星之间的间隔（tick）。 */
     private static final int BURST_INTERVAL = 2;
@@ -115,13 +115,13 @@ public class LargeFireworkEntity extends Entity {
 
     /** 是否已进入起爆阶段。客户端据此停尾焰并隐藏箭体。 */
     private static final EntityDataAccessor<Boolean> DATA_DETONATING =
-        SynchedEntityData.defineId(LargeFireworkEntity.class, EntityDataSerializers.BOOLEAN);
+        SynchedEntityData.defineId(LargeFireworksRocketEntity.class, EntityDataSerializers.BOOLEAN);
 
     /**
      * 装填 1 颗烟火之星时的分散半径（格）。
      *
      * <p>即便只装 1 颗也留出体积——它同样会炸成
-     * {@link LargeFireworkBurst#BALLS_PER_STAR} 个球，挤在一点上就白拆了。
+     * {@link LargeFireworksRocketBurst#BALLS_PER_STAR} 个球，挤在一点上就白拆了。
      */
     private static final double SPREAD_BASE = 5.0;
     /** 每多装 1 颗额外增加的分散半径（格）。 */
@@ -138,7 +138,7 @@ public class LargeFireworkEntity extends Entity {
      * <p>用 {@code DIRECTION} 序列化器（原版自带），无需自定义网络编码。
      */
     private static final EntityDataAccessor<Direction> DATA_FACING =
-        SynchedEntityData.defineId(LargeFireworkEntity.class, EntityDataSerializers.DIRECTION);
+        SynchedEntityData.defineId(LargeFireworksRocketEntity.class, EntityDataSerializers.DIRECTION);
 
     /** 点燃者，仅用于爆炸伤害的归因（可为 null）。 */
     @Nullable
@@ -153,13 +153,13 @@ public class LargeFireworkEntity extends Entity {
     /** 客户端：是否已喷过点火烟团（只在起飞瞬间放一次）。 */
     private boolean trailStarted;
 
-    public LargeFireworkEntity(EntityType<? extends LargeFireworkEntity> type, Level level) {
+    public LargeFireworksRocketEntity(EntityType<? extends LargeFireworksRocketEntity> type, Level level) {
         super(type, level);
         this.blocksBuilding = false;
     }
 
-    public LargeFireworkEntity(Level level, double x, double y, double z, int fuse) {
-        this(AddonEntities.LARGE_FIREWORK.get(), level);
+    public LargeFireworksRocketEntity(Level level, double x, double y, double z, int fuse) {
+        this(AddonEntities.LARGE_FIREWORKS_ROCKET.get(), level);
         this.setPos(x, y, z);
         this.xo = x;
         this.yo = y;
@@ -187,14 +187,14 @@ public class LargeFireworkEntity extends Entity {
     }
 
     /** 在指定主部件位置点火发射并返回新实体。{@code facing} 取自方块状态，发射后沿用。 */
-    public static LargeFireworkEntity launch(
+    public static LargeFireworksRocketEntity launch(
         ServerLevel level,
         BlockPos mainPos,
         Direction facing,
         @Nullable Entity owner,
         List<FireworkExplosion> explosions
     ) {
-        LargeFireworkEntity firework = new LargeFireworkEntity(
+        LargeFireworksRocketEntity firework = new LargeFireworksRocketEntity(
             level,
             mainPos.getX() + 0.5,
             mainPos.getY(),
@@ -517,7 +517,7 @@ public class LargeFireworkEntity extends Entity {
     }
 
     /**
-     * 播放第 {@code index} 颗烟火之星的爆炸——展开为 {@link LargeFireworkBurst#BALLS_PER_STAR} 个球。
+     * 播放第 {@code index} 颗烟火之星的爆炸——展开为 {@link LargeFireworksRocketBurst#BALLS_PER_STAR} 个球。
      *
      * <p>这 4 个球<b>不与本星位置绑定</b>：64 个球（16 星）全部在整个爆炸体积内随机撒开，
      * 所以观感是「一大团散开的球」而非「每处挤 4 个」。位置用固定种子生成，
@@ -541,16 +541,16 @@ public class LargeFireworkEntity extends Entity {
         // 以爆炸序号作种子的固定随机源：与实体自身的 random 无关，
         // 因此两端/多次渲染结果稳定，不会出现「同一发烟花排布乱跳」。
         RandomSource random = RandomSource.create(this.getId() * 31L + index);
-        for (int ball = 0; ball < LargeFireworkBurst.BALLS_PER_STAR; ball++) {
+        for (int ball = 0; ball < LargeFireworksRocketBurst.BALLS_PER_STAR; ball++) {
             Vec3 offset = randomOffset(random, radius);
-            LargeFireworkBurst.spawn(
+            LargeFireworksRocketBurst.spawn(
                 this.level(),
                 random,
                 this.getX() + offset.x,
                 this.blastY() + offset.y,
                 this.getZ() + offset.z,
                 explosion,
-                LargeFireworkBurst.ballScale(random, LargeFireworkBurst.randomScale(random))
+                LargeFireworksRocketBurst.ballScale(random, LargeFireworksRocketBurst.randomScale(random))
             );
         }
     }

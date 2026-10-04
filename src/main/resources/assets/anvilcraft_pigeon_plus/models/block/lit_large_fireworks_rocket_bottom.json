@@ -3,8 +3,8 @@
 	"credit": "Made with Blockbench",
 	"parent": "minecraft:block/block",
 	"textures": {
-		"particle": "anvilcraft_pigeon_plus:block/large_fireworks",
-		"wool": "anvilcraft_pigeon_plus:block/large_fireworks"
+		"particle": "anvilcraft_pigeon_plus:block/large_fireworks_rocket",
+		"wool": "anvilcraft_pigeon_plus:block/large_fireworks_rocket"
 	},
 	"elements": [
 		{

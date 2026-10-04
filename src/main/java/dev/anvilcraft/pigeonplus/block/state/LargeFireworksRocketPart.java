@@ -19,7 +19,7 @@ import java.util.Arrays;
  * <p>由枚举常量顺序保证 {@link #values()} 的「底层 3×3 → 逐层向上」排列，
  * {@code getParts()} 依赖这一点来做放置与拆除。
  */
-public enum LargeFireworkPart implements ISimpleMultiPartBlockState<LargeFireworkPart> {
+public enum LargeFireworksRocketPart implements ISimpleMultiPartBlockState<LargeFireworksRocketPart> {
     // Y = 0（底层，主部件所在层）
     Y0_WN(-1, 0, -1), Y0_N(0, 0, -1), Y0_EN(1, 0, -1),
     Y0_W(-1, 0, 0), Y0_C(0, 0, 0), Y0_E(1, 0, 0),
@@ -64,14 +64,14 @@ public enum LargeFireworkPart implements ISimpleMultiPartBlockState<LargeFirewor
     private final int offsetX;
     private final int offsetY;
     private final int offsetZ;
-    private LargeFireworkPart clockwise90;
-    private LargeFireworkPart clockwise180;
-    private LargeFireworkPart clockwise270;
-    private LargeFireworkPart mirrorX;
-    private LargeFireworkPart mirrorZ;
+    private LargeFireworksRocketPart clockwise90;
+    private LargeFireworksRocketPart clockwise180;
+    private LargeFireworksRocketPart clockwise270;
+    private LargeFireworksRocketPart mirrorX;
+    private LargeFireworksRocketPart mirrorZ;
 
     static {
-        for (LargeFireworkPart part : LargeFireworkPart.values()) {
+        for (LargeFireworksRocketPart part : LargeFireworksRocketPart.values()) {
             int x = part.offsetX;
             int y = part.offsetY;
             int z = part.offsetZ;
@@ -83,7 +83,7 @@ public enum LargeFireworkPart implements ISimpleMultiPartBlockState<LargeFirewor
         }
     }
 
-    LargeFireworkPart(int offsetX, int offsetY, int offsetZ) {
+    LargeFireworksRocketPart(int offsetX, int offsetY, int offsetZ) {
         this.name = "y" + offsetY + "_" + horizontalSuffix(offsetX, offsetZ);
         this.offsetX = offsetX;
         this.offsetY = offsetY;
@@ -99,8 +99,8 @@ public enum LargeFireworkPart implements ISimpleMultiPartBlockState<LargeFirewor
 
     /** 按偏移查部件，越界返回 {@code null}。 */
     @Nullable
-    public static LargeFireworkPart findByOffset(int offsetX, int offsetY, int offsetZ) {
-        return Arrays.stream(LargeFireworkPart.values())
+    public static LargeFireworksRocketPart findByOffset(int offsetX, int offsetY, int offsetZ) {
+        return Arrays.stream(LargeFireworksRocketPart.values())
             .filter(part -> part.offsetX == offsetX)
             .filter(part -> part.offsetY == offsetY)
             .filter(part -> part.offsetZ == offsetZ)
@@ -138,8 +138,8 @@ public enum LargeFireworkPart implements ISimpleMultiPartBlockState<LargeFirewor
     }
 
     /** 结构方块旋转时的部件换算，目标偏移不存在则回退到自身（避免返回 null 破坏状态定义）。 */
-    public LargeFireworkPart rotate(Rotation rotation) {
-        LargeFireworkPart result = switch (rotation) {
+    public LargeFireworksRocketPart rotate(Rotation rotation) {
+        LargeFireworksRocketPart result = switch (rotation) {
             case NONE -> this;
             case CLOCKWISE_90 -> this.clockwise90;
             case CLOCKWISE_180 -> this.clockwise180;
@@ -149,8 +149,8 @@ public enum LargeFireworkPart implements ISimpleMultiPartBlockState<LargeFirewor
     }
 
     /** 结构方块镜像时的部件换算，同样对不存在的目标做了回退。 */
-    public LargeFireworkPart mirror(Mirror mirror) {
-        LargeFireworkPart result = switch (mirror) {
+    public LargeFireworksRocketPart mirror(Mirror mirror) {
+        LargeFireworksRocketPart result = switch (mirror) {
             case NONE -> this;
             case LEFT_RIGHT -> this.mirrorZ;
             case FRONT_BACK -> this.mirrorX;

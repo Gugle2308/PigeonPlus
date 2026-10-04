@@ -1,13 +1,14 @@
 package dev.anvilcraft.pigeonplus.event;
 
 import dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus;
-import dev.anvilcraft.pigeonplus.block.LargeFireworkBlock;
-import dev.anvilcraft.pigeonplus.block.state.LargeFireworkPart;
+import dev.anvilcraft.pigeonplus.block.LargeFireworksRocketBlock;
+import dev.anvilcraft.pigeonplus.block.state.LargeFireworksRocketPart;
 import dev.anvilcraft.pigeonplus.init.AddonBlocks;
-import dev.anvilcraft.pigeonplus.multiblock.LargeFireworkStructure;
+import dev.anvilcraft.pigeonplus.multiblock.LargeFireworksRocketStructure;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.api.event.GiantAnvilEvent;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.util.AnvilUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -26,19 +27,21 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.Tags;
 
+import java.util.List;
+
 /**
  * 大型烟花的多方块转换／合成（特判）。
  * {@code mainPos.offset(x - 1, y, z - 1)}。
  */
 @EventBusSubscriber(modid = AnvilCraftPigeonPlus.MOD_ID)
-public class LargeFireworkConversionEventListener {
-    private static final int HEIGHT = LargeFireworkStructure.HEIGHT;
-    private static final int HALF = LargeFireworkStructure.HALF;
-    private static final String[][] PATTERN = LargeFireworkStructure.PATTERN;
+public class LargeFireworksRocketConversionEventListener {
+    private static final int HEIGHT = LargeFireworksRocketStructure.HEIGHT;
+    private static final int HALF = LargeFireworksRocketStructure.HALF;
+    private static final String[][] PATTERN = LargeFireworksRocketStructure.PATTERN;
     /** 图案中楼梯所在的层。 */
     private static final int FIN_LAYER = 7;
 
-    private LargeFireworkConversionEventListener() {
+    private LargeFireworksRocketConversionEventListener() {
     }
 
     /** 巨型铁砧砸下时检查正下方结构；四个水平朝向都试，玩家搭反也能触发。 */
@@ -101,7 +104,7 @@ public class LargeFireworkConversionEventListener {
     }
 
     private static boolean isStair(char symbol) {
-        return LargeFireworkStructure.isStair(symbol);
+        return LargeFireworksRocketStructure.isStair(symbol);
     }
 
     /**
@@ -112,11 +115,11 @@ public class LargeFireworkConversionEventListener {
             || actual.getValue(StairBlock.HALF) != Half.BOTTOM) {
             return false;
         }
-        Direction expected = LargeFireworkStructure.appearance(
-            rotation.rotate(LargeFireworkStructure.baseFacing(symbol)),
-            LargeFireworkStructure.expectedShape(x, z)
+        Direction expected = LargeFireworksRocketStructure.appearance(
+            rotation.rotate(LargeFireworksRocketStructure.baseFacing(symbol)),
+            LargeFireworksRocketStructure.expectedShape(x, z)
         );
-        Direction got = LargeFireworkStructure.appearance(
+        Direction got = LargeFireworksRocketStructure.appearance(
             actual.getValue(StairBlock.FACING), actual.getValue(StairBlock.SHAPE)
         );
         return expected == got;
@@ -138,14 +141,14 @@ public class LargeFireworkConversionEventListener {
     private static void placeFirework(Level level, BlockPos centerPos, Direction facing) {
         BlockPos mainPos = mainPos(centerPos);
         int flags = Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE;
-        for (LargeFireworkPart part : LargeFireworkPart.values()) {
-            BlockState state = AddonBlocks.LARGE_FIREWORK.get().defaultBlockState()
-                .setValue(LargeFireworkBlock.PART, part)
-                .setValue(LargeFireworkBlock.FACING, facing);
+        for (LargeFireworksRocketPart part : LargeFireworksRocketPart.values()) {
+            BlockState state = AddonBlocks.LARGE_FIREWORKS_ROCKET.get().defaultBlockState()
+                .setValue(LargeFireworksRocketBlock.PART, part)
+                .setValue(LargeFireworksRocketBlock.FACING, facing);
             level.setBlock(mainPos.offset(part.getOffset()), state, flags);
         }
         for (BlockPos pos : fireworkBounds(mainPos)) {
-            level.updateNeighborsAt(pos, AddonBlocks.LARGE_FIREWORK.get());
+            level.updateNeighborsAt(pos, AddonBlocks.LARGE_FIREWORKS_ROCKET.get());
         }
         playSound(level, centerPos);
     }
@@ -164,7 +167,15 @@ public class LargeFireworkConversionEventListener {
                 }
             }
         }
-        Block.popResource(level, centerPos.above(), new ItemStack(AddonBlocks.LARGE_FIREWORK));
+        // 掉落点必须避开巨型铁砧：铁砧占据 pos±1，即 centerPos.above() 那一层，
+        // 物品生成在实心方块里会被挤出去（看起来就是「被挤飞」）。
+        // 这里照搬 AnvilCraft 的 MultiblockRecipe#assemble：
+        // base.relative(Axis.Y, -size / 2).getCenter()，也就是掉在结构的中部。
+        AnvilUtil.dropItems(
+            List.of(new ItemStack(AddonBlocks.LARGE_FIREWORKS_ROCKET)),
+            level,
+            centerPos.relative(Direction.Axis.Y, -HEIGHT / 2).getCenter()
+        );
         playSound(level, centerPos);
     }
 
@@ -198,7 +209,7 @@ public class LargeFireworkConversionEventListener {
     /**
      * 按水平旋转换算偏移，Y 不变。
      *
-     * <p>公式须与 {@link LargeFireworkPart} 的静态换算同手性（{@code clockwise90 = (-z, x)}），
+     * <p>公式须与 {@link LargeFireworksRocketPart} 的静态换算同手性（{@code clockwise90 = (-z, x)}），
      * 这样匹配用的旋转与写进 {@code FACING} 的朝向才是同一套。
      */
     private static Vec3i rotateOffset(Rotation rotation, int x, int y, int z) {

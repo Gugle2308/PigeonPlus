@@ -2,9 +2,9 @@ package dev.anvilcraft.pigeonplus.block;
 
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
-import dev.anvilcraft.pigeonplus.block.entity.LargeFireworkBlockEntity;
-import dev.anvilcraft.pigeonplus.block.state.LargeFireworkPart;
-import dev.anvilcraft.pigeonplus.entity.LargeFireworkEntity;
+import dev.anvilcraft.pigeonplus.block.entity.LargeFireworksRocketBlockEntity;
+import dev.anvilcraft.pigeonplus.block.state.LargeFireworksRocketPart;
+import dev.anvilcraft.pigeonplus.entity.LargeFireworksRocketEntity;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
@@ -53,11 +53,11 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-public class LargeFireworkBlock extends SimpleMultiPartBlock<LargeFireworkPart>
+public class LargeFireworksRocketBlock extends SimpleMultiPartBlock<LargeFireworksRocketPart>
     implements IHammerRemovable, EntityBlock {
-    public static final MapCodec<LargeFireworkBlock> CODEC = simpleCodec(LargeFireworkBlock::new);
-    public static final EnumProperty<LargeFireworkPart> PART =
-        EnumProperty.create("part", LargeFireworkPart.class);
+    public static final MapCodec<LargeFireworksRocketBlock> CODEC = simpleCodec(LargeFireworksRocketBlock::new);
+    public static final EnumProperty<LargeFireworksRocketPart> PART =
+        EnumProperty.create("part", LargeFireworksRocketPart.class);
     /**
      * 水平朝向。
      *
@@ -91,13 +91,13 @@ public class LargeFireworkBlock extends SimpleMultiPartBlock<LargeFireworkPart>
      * <p>朝向会改变部件的世界坐标位置（{@code offsetFrom}），所以裁剪基准也跟着转；
      * 这里预先按 4 个朝向各算一份，避免每次查询都重算。
      */
-    private static final Map<Direction, Map<LargeFireworkPart, VoxelShape>> SHAPES_BY_FACING =
+    private static final Map<Direction, Map<LargeFireworksRocketPart, VoxelShape>> SHAPES_BY_FACING =
         createShapesByFacing();
 
-    public LargeFireworkBlock(Properties properties) {
+    public LargeFireworksRocketBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
-            .setValue(PART, LargeFireworkPart.Y0_C)
+            .setValue(PART, LargeFireworksRocketPart.Y0_C)
             .setValue(FACING, Direction.NORTH));
     }
 
@@ -112,13 +112,13 @@ public class LargeFireworkBlock extends SimpleMultiPartBlock<LargeFireworkPart>
     }
 
     @Override
-    public Property<LargeFireworkPart> getPart() {
+    public Property<LargeFireworksRocketPart> getPart() {
         return PART;
     }
 
     @Override
-    public LargeFireworkPart[] getParts() {
-        return LargeFireworkPart.values();
+    public LargeFireworksRocketPart[] getParts() {
+        return LargeFireworksRocketPart.values();
     }
 
     /**
@@ -163,7 +163,7 @@ public class LargeFireworkBlock extends SimpleMultiPartBlock<LargeFireworkPart>
      */
     @Override
     public BlockState getModelHolderState(BlockState original) {
-        return original.setValue(PART, LargeFireworkPart.Y1_C);
+        return original.setValue(PART, LargeFireworksRocketPart.Y1_C);
     }
 
     /**
@@ -230,11 +230,11 @@ public class LargeFireworkBlock extends SimpleMultiPartBlock<LargeFireworkPart>
         BlockPos mainPos = this.getMainPartPos(pos, state);
         // 必须在拆结构之前读取：拆掉主部件会连带移除方块实体。
         List<FireworkExplosion> explosions = level.getBlockEntity(mainPos)
-            instanceof LargeFireworkBlockEntity fireworks
+            instanceof LargeFireworksRocketBlockEntity fireworks
             ? fireworks.getExplosions()
             : List.of();
         this.removePartsAndUpdate(level, pos);
-        LargeFireworkEntity.launch(serverLevel, mainPos, state.getValue(FACING), player, explosions);
+        LargeFireworksRocketEntity.launch(serverLevel, mainPos, state.getValue(FACING), player, explosions);
         // 与 TNT 一致：创造模式不消耗
         if (!player.getAbilities().instabuild) {
             if (held.is(Items.FLINT_AND_STEEL)) {
@@ -256,14 +256,14 @@ public class LargeFireworkBlock extends SimpleMultiPartBlock<LargeFireworkPart>
         ItemStack stack
     ) {
         BlockPos mainPos = this.getMainPartPos(pos, state);
-        if (!(level.getBlockEntity(mainPos) instanceof LargeFireworkBlockEntity fireworks)) {
+        if (!(level.getBlockEntity(mainPos) instanceof LargeFireworksRocketBlockEntity fireworks)) {
             return InteractionResult.PASS;
         }
         if (fireworks.isFull()) {
             player.displayClientMessage(
                 Component.translatable(
-                    "message.anvilcraft_pigeon_plus.large_firework.full",
-                    LargeFireworkBlockEntity.MAX_STARS
+                    "message.anvilcraft_pigeon_plus.large_fireworks_rocket.full",
+                    LargeFireworksRocketBlockEntity.MAX_STARS
                 ),
                 true
             );
@@ -285,9 +285,9 @@ public class LargeFireworkBlock extends SimpleMultiPartBlock<LargeFireworkPart>
         );
         player.displayClientMessage(
             Component.translatable(
-                "message.anvilcraft_pigeon_plus.large_firework.installed",
+                "message.anvilcraft_pigeon_plus.large_fireworks_rocket.installed",
                 fireworks.getStarCount(),
-                LargeFireworkBlockEntity.MAX_STARS
+                LargeFireworksRocketBlockEntity.MAX_STARS
             ),
             true
         );
@@ -298,7 +298,7 @@ public class LargeFireworkBlock extends SimpleMultiPartBlock<LargeFireworkPart>
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         // 整个多方块一体，只在主部件（底层中心）挂方块实体。
-        return this.isMainPart(state) ? new LargeFireworkBlockEntity(pos, state) : null;
+        return this.isMainPart(state) ? new LargeFireworksRocketBlockEntity(pos, state) : null;
     }
 
     /**
@@ -312,7 +312,7 @@ public class LargeFireworkBlock extends SimpleMultiPartBlock<LargeFireworkPart>
     public List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
         List<ItemStack> drops = super.getDrops(state, params);
         if (params.getOptionalParameter(LootContextParams.BLOCK_ENTITY)
-            instanceof LargeFireworkBlockEntity fireworks) {
+            instanceof LargeFireworksRocketBlockEntity fireworks) {
             for (FireworkExplosion explosion : fireworks.getExplosions()) {
                 ItemStack star = new ItemStack(Items.FIREWORK_STAR);
                 star.set(DataComponents.FIREWORK_EXPLOSION, explosion);
@@ -350,11 +350,11 @@ public class LargeFireworkBlock extends SimpleMultiPartBlock<LargeFireworkPart>
             .setValue(FACING, mirror.mirror(state.getValue(FACING)));
     }
 
-    private static Map<Direction, Map<LargeFireworkPart, VoxelShape>> createShapesByFacing() {
-        Map<Direction, Map<LargeFireworkPart, VoxelShape>> byFacing = new EnumMap<>(Direction.class);
+    private static Map<Direction, Map<LargeFireworksRocketPart, VoxelShape>> createShapesByFacing() {
+        Map<Direction, Map<LargeFireworksRocketPart, VoxelShape>> byFacing = new EnumMap<>(Direction.class);
         for (Direction facing : Direction.Plane.HORIZONTAL) {
-            Map<LargeFireworkPart, VoxelShape> shapes = new EnumMap<>(LargeFireworkPart.class);
-            for (LargeFireworkPart part : LargeFireworkPart.values()) {
+            Map<LargeFireworksRocketPart, VoxelShape> shapes = new EnumMap<>(LargeFireworksRocketPart.class);
+            for (LargeFireworksRocketPart part : LargeFireworksRocketPart.values()) {
                 shapes.put(part, slicePartShape(part, facing));
             }
             byFacing.put(facing, shapes);
@@ -370,7 +370,7 @@ public class LargeFireworkBlock extends SimpleMultiPartBlock<LargeFireworkPart>
      * （侧壁两个小凸起只在一侧），只旋转格位会让碰撞箱与旋转后的模型错位。
      * 旋转中心取 3×3 的中点（即 8/16 格处），与模型绕 Y 轴自转的中心一致。
      */
-    private static VoxelShape slicePartShape(LargeFireworkPart part, Direction facing) {
+    private static VoxelShape slicePartShape(LargeFireworksRocketPart part, Direction facing) {
         double minX = part.getOffsetX() * 16.0;
         double minY = part.getOffsetY() * 16.0;
         double minZ = part.getOffsetZ() * 16.0;

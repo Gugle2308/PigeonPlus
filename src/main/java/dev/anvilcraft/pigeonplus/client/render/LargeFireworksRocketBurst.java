@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * 巨型烟花的单个烟花球：按随机倍率放大后播放。
  *
- * <p>球的位置由调用方决定（见 {@code LargeFireworkEntity#spawnBurst}）——
+ * <p>球的位置由调用方决定（见 {@code LargeFireworksRocketEntity#spawnBurst}）——
  * 一颗烟火之星炸出 4 个球，这 4 个球与其它星的球一起在整个爆炸体积里随机撒开，
  * 而不是挤在这颗星附近。
  *
@@ -31,7 +31,7 @@ import java.util.List;
  * <p>球的大小由 <b>speed</b> 决定（radius 只决定粒子数与壳层分辨率），
  * 因此半径必须与 speed 同倍率放大，否则球变大反而变稀。
  */
-public final class LargeFireworkBurst {
+public final class LargeFireworksRocketBurst {
     /** 每颗烟火之星炸出的球数；装填上限 16 颗即最多 64 球。 */
     public static final int BALLS_PER_STAR = 4;
     /** 最小倍率 = 原版大小。 */
@@ -69,7 +69,7 @@ public final class LargeFireworkBurst {
         {0.2, 0.0}, {0.4, 0.0}, {0.4, -0.6}, {0.2, -0.6}, {0.2, -0.4}, {0.0, -0.4}
     };
 
-    private LargeFireworkBurst() {
+    private LargeFireworksRocketBurst() {
     }
 
     /** 随机倍率，下限为原版大小。 */

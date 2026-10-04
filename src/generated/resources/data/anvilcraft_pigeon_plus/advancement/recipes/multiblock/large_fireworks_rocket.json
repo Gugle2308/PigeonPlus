@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft_pigeon_plus:multiblock/large_firework"
+        "recipe": "anvilcraft_pigeon_plus:multiblock/large_fireworks_rocket"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft_pigeon_plus:multiblock/large_firework"
+      "anvilcraft_pigeon_plus:multiblock/large_fireworks_rocket"
     ]
   }
 }

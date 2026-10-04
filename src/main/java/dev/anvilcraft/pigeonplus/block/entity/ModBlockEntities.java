@@ -34,9 +34,9 @@ public class ModBlockEntities {
         BLOCK_ENTITIES.register("nozzle_exhaust", () ->
             BlockEntityType.Builder.of(NozzleExhaustBlockEntity::new, AddonBlocks.NOZZLE.get()).build(null));
 
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LargeFireworkBlockEntity>> LARGE_FIREWORK =
-        BLOCK_ENTITIES.register("large_firework", () ->
-            BlockEntityType.Builder.of(LargeFireworkBlockEntity::new, AddonBlocks.LARGE_FIREWORK.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LargeFireworksRocketBlockEntity>> LARGE_FIREWORKS_ROCKET =
+        BLOCK_ENTITIES.register("large_fireworks_rocket", () ->
+            BlockEntityType.Builder.of(LargeFireworksRocketBlockEntity::new, AddonBlocks.LARGE_FIREWORKS_ROCKET.get()).build(null));
 
     public static void register(IEventBus bus) {
         BLOCK_ENTITIES.register(bus);

@@ -5,12 +5,12 @@ import dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus;
 import dev.anvilcraft.pigeonplus.block.AnvilPumpBlock;
 import dev.anvilcraft.pigeonplus.block.BlenderBlock;
 import dev.anvilcraft.pigeonplus.block.FeedSpreaderBlock;
-import dev.anvilcraft.pigeonplus.block.LargeFireworkBlock;
+import dev.anvilcraft.pigeonplus.block.LargeFireworksRocketBlock;
 import dev.anvilcraft.pigeonplus.block.MixedBiomassCauldronBlock;
 import dev.anvilcraft.pigeonplus.block.NozzleBlock;
 import dev.anvilcraft.pigeonplus.block.PigeonAnvilBlock;
 import dev.anvilcraft.pigeonplus.block.StasisBeaconBlock;
-import dev.anvilcraft.pigeonplus.block.state.LargeFireworkPart;
+import dev.anvilcraft.pigeonplus.block.state.LargeFireworksRocketPart;
 import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
@@ -178,8 +178,8 @@ public class AddonBlocks {
         .onRegister(block -> Item.BY_BLOCK.put(block, Items.CAULDRON))
         .register();
 
-    public static final BlockEntry<LargeFireworkBlock> LARGE_FIREWORK = REGISTRUM
-        .block("large_firework", LargeFireworkBlock::new)
+    public static final BlockEntry<LargeFireworksRocketBlock> LARGE_FIREWORKS_ROCKET = REGISTRUM
+        .block("large_fireworks_rocket", LargeFireworksRocketBlock::new)
         .initialProperties(() -> Blocks.WHITE_WOOL)
         .properties(properties -> properties
             .sound(SoundType.WOOL)
@@ -188,14 +188,17 @@ public class AddonBlocks {
         .blockstate((ctx, provider) -> provider.getVariantBuilder(ctx.getEntry()).forAllStates(state ->
             ConfiguredModel.builder()
                 .modelFile(provider.models().getExistingFile(AnvilCraftPigeonPlus.of(
-                    "block/large_fireworks_" + state.getValue(LargeFireworkBlock.PART).getModelName())))
-                .rotationY(rotationY(state.getValue(LargeFireworkBlock.FACING)))
+                    "block/large_fireworks_rocket_" + state.getValue(LargeFireworksRocketBlock.PART).getModelName())))
+                .rotationY(rotationY(state.getValue(LargeFireworksRocketBlock.FACING)))
                 .build()))
         .loot(SimpleMultiPartBlock::loot)
-        .item(SimpleMultiPartBlockItem<LargeFireworkPart>::new)
-        // 物品模型用专门的 item/large_fireworks（Blockbench 独立模型），沿用其自带的 display。
+        .item(SimpleMultiPartBlockItem<LargeFireworksRocketPart>::new)
+        // 物品模型分两层：手写的 Blockbench 模型 item/large_fireworks_rocket_model（自带 display），
+        // 与这里生成的 item/large_fireworks_rocket 包装（parent 指向它）。
+        // 两层不能同名：Registrum 必定为方块生成物品模型，同名会让 src/main 与 src/generated
+        // 出现重复条目导致 processResources 失败，且包装会退化成自引用。
         .model((ctx, prov) -> prov.withExistingParent(
-            ctx.getName(), AnvilCraftPigeonPlus.of("item/large_fireworks")))
+            ctx.getName(), AnvilCraftPigeonPlus.of("item/large_fireworks_rocket_model")))
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();

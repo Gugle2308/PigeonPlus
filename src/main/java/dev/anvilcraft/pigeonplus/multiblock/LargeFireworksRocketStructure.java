@@ -1,15 +1,15 @@
 package dev.anvilcraft.pigeonplus.multiblock;
 
-import dev.anvilcraft.pigeonplus.block.state.LargeFireworkPart;
+import dev.anvilcraft.pigeonplus.block.state.LargeFireworksRocketPart;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.properties.StairsShape;
 
 /**
  * 大型烟花多方块的结构定义与楼梯形状推导，供转换特判与 JEI 展示配方共用。
  */
-public final class LargeFireworkStructure {
+public final class LargeFireworksRocketStructure {
     /** 结构高度。 */
-    public static final int HEIGHT = LargeFireworkPart.HEIGHT;
+    public static final int HEIGHT = LargeFireworksRocketPart.HEIGHT;
     /** 3×3 水平居中所需的半宽。 */
     public static final int HALF = 1;
     /** 图案中楼梯所在的层。 */
@@ -35,7 +35,7 @@ public final class LargeFireworkStructure {
      */
     private static final StairsShape[][] EXPECTED_SHAPES = buildExpectedShapes();
 
-    private LargeFireworkStructure() {
+    private LargeFireworksRocketStructure() {
     }
 
     /** 图案里 {@code (x, z)} 处楼梯的期望形状；非楼梯格返回 {@code null}。 */

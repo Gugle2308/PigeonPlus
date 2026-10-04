@@ -44,7 +44,7 @@ public final class AddonCubeSelection {
     /**
      * 把个别方块列入精确拾取黑名单。
      *
-     * <p><b>不能在模组构造期调用</b>：{@code AddonBlocks.LARGE_FIREWORK.get()} 在方块注册完成前
+     * <p><b>不能在模组构造期调用</b>：{@code AddonBlocks.LARGE_FIREWORKS_ROCKET.get()} 在方块注册完成前
      * 会抛 {@code NullPointerException: Trying to access unbound value}。
      * 因此由 {@code ModelEvent.ModifyBakingResult} 的 HIGHEST 监听调用——
      * cube 模块的烘焙在同事件的 LOWEST（见其 {@code CubeModelEvents#prepare}），
@@ -60,6 +60,6 @@ public final class AddonCubeSelection {
         excluded = true;
         // 巨型烟花是 3×3×9 的整体结构，逐格精确拾取反而难以点到想要的位置，
         // 因此退回原版整格拾取。
-        CubeSelection.exclude(AddonBlocks.LARGE_FIREWORK.get());
+        CubeSelection.exclude(AddonBlocks.LARGE_FIREWORKS_ROCKET.get());
     }
 }

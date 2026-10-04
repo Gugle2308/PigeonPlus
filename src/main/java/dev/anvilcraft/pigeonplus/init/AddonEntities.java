@@ -1,8 +1,8 @@
 package dev.anvilcraft.pigeonplus.init;
 
 import dev.anvilcraft.lib.v2.registrum.util.entry.EntityEntry;
-import dev.anvilcraft.pigeonplus.client.renderer.entity.LargeFireworkRenderer;
-import dev.anvilcraft.pigeonplus.entity.LargeFireworkEntity;
+import dev.anvilcraft.pigeonplus.client.renderer.entity.LargeFireworksRocketRenderer;
+import dev.anvilcraft.pigeonplus.entity.LargeFireworksRocketEntity;
 import net.minecraft.world.entity.MobCategory;
 
 import static dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus.REGISTRUM;
@@ -16,14 +16,14 @@ import static dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus.REGISTRUM;
  */
 public class AddonEntities {
     /** 尺寸 3×3×9，与模型轮廓一致。{@code updateInterval(1)} 是因为实体一直在加速。 */
-    public static final EntityEntry<LargeFireworkEntity> LARGE_FIREWORK = REGISTRUM
-        .<LargeFireworkEntity>entity("large_firework", LargeFireworkEntity::new, MobCategory.MISC)
+    public static final EntityEntry<LargeFireworksRocketEntity> LARGE_FIREWORKS_ROCKET = REGISTRUM
+        .<LargeFireworksRocketEntity>entity("large_fireworks_rocket", LargeFireworksRocketEntity::new, MobCategory.MISC)
         .properties(builder -> builder
             .sized(3.0F, 9.0F)
             .clientTrackingRange(16)
             .updateInterval(1)
             .fireImmune())
-        .renderer(() -> LargeFireworkRenderer::new)
+        .renderer(() -> LargeFireworksRocketRenderer::new)
         .register();
 
     public static void register() {

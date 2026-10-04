@@ -2,10 +2,10 @@
 	"format_version": "1.9.0",
 	"credit": "Made with Blockbench",
 	"textures": {
-		"0": "anvilcraft_pigeon_plus:item/large_fireworks_item_bottom",
-		"1": "anvilcraft_pigeon_plus:item/large_fireworks_item_side",
-		"2": "anvilcraft_pigeon_plus:item/large_fireworks_item_top",
-		"particle": "anvilcraft_pigeon_plus:item/large_fireworks_item_bottom"
+		"0": "anvilcraft_pigeon_plus:item/large_fireworks_rocket_item_bottom",
+		"1": "anvilcraft_pigeon_plus:item/large_fireworks_rocket_item_side",
+		"2": "anvilcraft_pigeon_plus:item/large_fireworks_rocket_item_top",
+		"particle": "anvilcraft_pigeon_plus:item/large_fireworks_rocket_item_bottom"
 	},
 	"elements": [
 		{

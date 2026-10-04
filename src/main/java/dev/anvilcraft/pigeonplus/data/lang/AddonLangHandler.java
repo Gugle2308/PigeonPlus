@@ -60,11 +60,11 @@ public class AddonLangHandler {
         );
         provider.add("gui.anvilcraft_pigeon_plus.category.blending", "Blending");
         provider.add(
-            "message.anvilcraft_pigeon_plus.large_firework.installed",
+            "message.anvilcraft_pigeon_plus.large_fireworks_rocket.installed",
             "Loaded firework star %s/%s"
         );
         provider.add(
-            "message.anvilcraft_pigeon_plus.large_firework.full",
+            "message.anvilcraft_pigeon_plus.large_fireworks_rocket.full",
             "This large firework is already full (%s stars)"
         );
         provider.add("gui.anvilcraft_pigeon_plus.category.gas_liquefaction", "Gas Liquefaction");
