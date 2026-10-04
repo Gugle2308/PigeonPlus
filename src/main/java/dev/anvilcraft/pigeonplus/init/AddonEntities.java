@@ -3,6 +3,8 @@ package dev.anvilcraft.pigeonplus.init;
 import dev.anvilcraft.lib.v2.registrum.util.entry.EntityEntry;
 import dev.anvilcraft.pigeonplus.client.renderer.entity.LargeFireworksRocketRenderer;
 import dev.anvilcraft.pigeonplus.entity.LargeFireworksRocketEntity;
+import dev.anvilcraft.pigeonplus.entity.LargeFireworksRocketSeatEntity;
+import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.world.entity.MobCategory;
 
 import static dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus.REGISTRUM;
@@ -24,6 +26,20 @@ public class AddonEntities {
             .updateInterval(1)
             .fireImmune())
         .renderer(() -> LargeFireworksRocketRenderer::new)
+        .register();
+
+    /**
+     * 火箭顶上的座位，让玩家能坐到火箭顶面。
+     */
+    public static final EntityEntry<LargeFireworksRocketSeatEntity> LARGE_FIREWORKS_ROCKET_SEAT = REGISTRUM
+        .<LargeFireworksRocketSeatEntity>entity(
+            "large_fireworks_rocket_seat", LargeFireworksRocketSeatEntity::new, MobCategory.MISC)
+        .properties(builder -> builder
+            .sized(0.5F, 0.5F)
+            .clientTrackingRange(16)
+            .noSummon()
+            .fireImmune())
+        .renderer(() -> NoopRenderer::new)
         .register();
 
     public static void register() {

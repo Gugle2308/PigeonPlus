@@ -19,6 +19,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.item.ItemStack;
@@ -616,6 +617,13 @@ public class LargeFireworksRocketEntity extends Entity {
             .resultOrPartial(error -> AnvilCraftPigeonPlus.LOGGER.warn(
                 "巨型烟花：无法读取朝向，按北处理：{}", error))
             .ifPresent(this::setFacing);
+    }
+
+    /**
+     * 乘客坐在火箭顶面。
+    @Override
+    protected Vec3 getPassengerAttachmentPoint(Entity passenger, EntityDimensions dimensions, float partialTick) {
+        return new Vec3(0.0, BODY_HEIGHT, 0.0);
     }
 
     @Override

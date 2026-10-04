@@ -38,6 +38,7 @@
   "enchantment.anvilcraft_pigeon_plus.doomfist": "Doomfist",
   "enchantment.anvilcraft_pigeon_plus.doomfist.desc": "Turns the Anvil Hammer into a pure weapon: it can no longer rotate or break blocks, open a portable anvil, rocket jump, or act as goggles.",
   "entity.anvilcraft_pigeon_plus.large_fireworks_rocket": "Large Fireworks Rocket",
+  "entity.anvilcraft_pigeon_plus.large_fireworks_rocket_seat": "Large Fireworks Rocket Seat",
   "gui.anvilcraft_pigeon_plus.category.blending": "Blending",
   "gui.anvilcraft_pigeon_plus.category.gas_liquefaction": "Gas Liquefaction",
   "gui.anvilcraft_pigeon_plus.gas_liquefaction.fill_then": "After Full",

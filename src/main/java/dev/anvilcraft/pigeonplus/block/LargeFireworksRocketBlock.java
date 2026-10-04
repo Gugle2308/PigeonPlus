@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.anvilcraft.pigeonplus.block.entity.LargeFireworksRocketBlockEntity;
 import dev.anvilcraft.pigeonplus.block.state.LargeFireworksRocketPart;
 import dev.anvilcraft.pigeonplus.entity.LargeFireworksRocketEntity;
+import dev.anvilcraft.pigeonplus.entity.LargeFireworksRocketSeatEntity;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
@@ -20,6 +21,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -201,10 +203,75 @@ public class LargeFireworksRocketBlock extends SimpleMultiPartBlock<LargeFirewor
                 ? this.installStar(serverLevel, pos, state, player, held)
                 : InteractionResult.PASS;
         }
-        if (!held.is(Items.FLINT_AND_STEEL) && !held.is(Items.FIRE_CHARGE)) {
+        if (held.is(Items.FLINT_AND_STEEL) || held.is(Items.FIRE_CHARGE)) {
+            return this.ignite(state, level, pos, player, hand, held);
+        }
+        // 空手右键：坐到火箭顶上（已坐着则起身）
+        if (held.isEmpty()) {
+            return this.sitOrStand(level, pos, state, player);
+        }
+        return InteractionResult.PASS;
+    }
+
+    /**
+     * 空手右键坐到火箭顶上；已经坐着则起身。
+     */
+    private InteractionResult sitOrStand(Level level, BlockPos pos, BlockState state, Player player) {
+        if (player.isShiftKeyDown()) {
             return InteractionResult.PASS;
         }
-        return this.ignite(state, level, pos, player, hand, held);
+        if (level.isClientSide()) {
+            // 客户端提前返回成功，避免手臂不摆动；真正的逻辑在服务端。
+            return InteractionResult.SUCCESS;
+        }
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return InteractionResult.PASS;
+        }
+        if (player.getVehicle() instanceof LargeFireworksRocketSeatEntity) {
+            player.stopRiding();
+            return InteractionResult.CONSUME;
+        }
+        BlockPos top = this.getMainPartPos(pos, state).above(LargeFireworksRocketPart.HEIGHT);
+        for (LargeFireworksRocketSeatEntity seat : this.seatsAt(serverLevel, top)) {
+            if (seat.isVehicle()) {
+                return InteractionResult.PASS;
+            }
+            player.startRiding(seat, true);
+            return InteractionResult.CONSUME;
+        }
+        // 座位落在结构顶面中心（顶面那一格的上面一格）。
+        LargeFireworksRocketSeatEntity seat = new LargeFireworksRocketSeatEntity(
+            serverLevel, top.getX() + 0.5, top.getY(), top.getZ() + 0.5);
+        serverLevel.addFreshEntity(seat);
+        player.startRiding(seat, true);
+        return InteractionResult.CONSUME;
+    }
+
+    /** 结构顶面附近的座位实体，正常情况下最多一个。 */
+    private List<LargeFireworksRocketSeatEntity> seatsAt(ServerLevel level, BlockPos top) {
+        return level.getEntitiesOfClass(LargeFireworksRocketSeatEntity.class, new AABB(top).inflate(2.0));
+    }
+
+    /**
+     * 把座位上的人接下来并清掉座位实体；没人坐则返回 {@code null}。
+     *
+     * <p>必须在 {@link #removePartsAndUpdate} <b>之前</b>调用：结构一拆，
+     * 座位的「脚下不是火箭就自毁」检查会先把它清掉，乘客也会一并被弹开。
+     */
+    @Nullable
+    private Entity detachRider(ServerLevel level, BlockPos mainPos) {
+        Entity rider = null;
+        for (LargeFireworksRocketSeatEntity seat
+            : this.seatsAt(level, mainPos.above(LargeFireworksRocketPart.HEIGHT))) {
+            if (rider == null && !seat.getPassengers().isEmpty()) {
+                rider = seat.getPassengers().getFirst();
+            }
+            seat.discard();
+        }
+        if (rider != null) {
+            rider.stopRiding();
+        }
+        return rider;
     }
 
     /**
@@ -233,8 +300,16 @@ public class LargeFireworksRocketBlock extends SimpleMultiPartBlock<LargeFirewor
             instanceof LargeFireworksRocketBlockEntity fireworks
             ? fireworks.getExplosions()
             : List.of();
+        // 也要在拆结构之前：座位上的人先接下来，等下转移到飞行实体上。
+        Entity rider = this.detachRider(serverLevel, mainPos);
         this.removePartsAndUpdate(level, pos);
-        LargeFireworksRocketEntity.launch(serverLevel, mainPos, state.getValue(FACING), player, explosions);
+        LargeFireworksRocketEntity rocket =
+            LargeFireworksRocketEntity.launch(serverLevel, mainPos, state.getValue(FACING), player, explosions);
+        if (rider != null) {
+            // 强制上马：乘客自身的 canRide 检查（例如潜行）在这里不适用。
+            // 刻意不给免伤——坐在火箭顶上被自己的烟花炸死是预期行为。
+            rider.startRiding(rocket, true);
+        }
         // 与 TNT 一致：创造模式不消耗
         if (!player.getAbilities().instabuild) {
             if (held.is(Items.FLINT_AND_STEEL)) {
