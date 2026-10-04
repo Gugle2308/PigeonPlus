@@ -9,5 +9,6 @@ public class AddonRecipeHandler {
         AddonItemInjectRecipeLoader.init(provider);
         AddonFluidMixingRecipeLoader.init(provider);
         AddonGasLiquefactionRecipeLoader.init(provider);
+        AddonMultiblockRecipeLoader.init(provider);
     }
 }

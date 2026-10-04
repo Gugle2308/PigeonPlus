@@ -24,13 +24,22 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 
 import static dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus.REGISTRUM;
 
 public class AddonBlocks {
+    /** 纸块的顶/底面贴图。 */
+    private static final ResourceLocation PAPER_BLOCK_END =
+        AnvilCraftPigeonPlus.of("block/paper_block");
+    /** 纸块的侧面贴图。 */
+    private static final ResourceLocation PAPER_BLOCK_SIDE =
+        AnvilCraftPigeonPlus.of("block/paper_block_side");
+
     static {
         REGISTRUM.defaultCreativeTab(AddonItemGroups.ADDON_ITEMS.getKey());
     }
@@ -169,14 +178,6 @@ public class AddonBlocks {
         .onRegister(block -> Item.BY_BLOCK.put(block, Items.CAULDRON))
         .register();
 
-    /**
-     * 巨型烟花：整体多方块，一个方块占据 3×3×9 = 81 格。
-     *
-     * <p>blockstate 按 {@code part} 分支：每段中列的中心格用真实模型，其余用空模型。
-     * 之所以把「用哪个模型」编码进 {@code part} 而不是另开属性，是因为 AnvilCraft 烘焙
-     * 多方块描边时只做 {@code state.setValue(part, p)}，模型必须由 {@code part} 唯一决定，
-     * 否则放置预览拿不到框线、只能退回虚影。
-     */
     public static final BlockEntry<LargeFireworkBlock> LARGE_FIREWORK = REGISTRUM
         .block("large_firework", LargeFireworkBlock::new)
         .initialProperties(() -> Blocks.WHITE_WOOL)
@@ -197,6 +198,47 @@ public class AddonBlocks {
             ctx.getName(), AnvilCraftPigeonPlus.of("item/large_fireworks")))
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<Block> PAPER_BLOCK = REGISTRUM
+        .block("paper_block", Block::new)
+        .initialProperties(() -> Blocks.WHITE_WOOL)
+        .blockstate((ctx, provider) -> provider.simpleBlock(
+            ctx.getEntry(),
+            provider.models().getExistingFile(AnvilCraftPigeonPlus.of("block/paper_block"))))
+        .item(BlockItem::new)
+        .model((ctx, prov) -> prov.withExistingParent(
+            ctx.getName(), AnvilCraftPigeonPlus.of("block/paper_block")))
+        .build()
+        .tag(BlockTags.WOOL)
+        .register();
+
+    public static final BlockEntry<StairBlock> PAPER_BLOCK_STAIRS = REGISTRUM
+        .block("paper_block_stairs", properties ->
+            new StairBlock(PAPER_BLOCK.get().defaultBlockState(), properties))
+        .initialProperties(() -> Blocks.WHITE_WOOL)
+        .blockstate((ctx, provider) -> provider.stairsBlock(
+            ctx.getEntry(), PAPER_BLOCK_SIDE, PAPER_BLOCK_END, PAPER_BLOCK_END))
+        .item(BlockItem::new)
+        .model((ctx, prov) -> prov.withExistingParent(
+            ctx.getName(), AnvilCraftPigeonPlus.of("block/paper_block_stairs")))
+        .build()
+        .tag(BlockTags.WOOL)
+        .register();
+
+    public static final BlockEntry<SlabBlock> PAPER_BLOCK_SLAB = REGISTRUM
+        .block("paper_block_slab", SlabBlock::new)
+        .initialProperties(() -> Blocks.WHITE_WOOL)
+        .blockstate((ctx, provider) -> provider.slabBlock(
+            ctx.getEntry(),
+            AnvilCraftPigeonPlus.of("block/paper_block"),
+            PAPER_BLOCK_SIDE, PAPER_BLOCK_END, PAPER_BLOCK_END))
+        .loot((tables, block) -> tables.add(block, tables.createSlabItemTable(block)))
+        .item(BlockItem::new)
+        .model((ctx, prov) -> prov.withExistingParent(
+            ctx.getName(), AnvilCraftPigeonPlus.of("block/paper_block_slab")))
+        .build()
+        .tag(BlockTags.WOOL)
         .register();
 
     public static void register() {
