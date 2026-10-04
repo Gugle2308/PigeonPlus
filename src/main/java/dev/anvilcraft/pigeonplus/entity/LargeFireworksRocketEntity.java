@@ -4,6 +4,7 @@ import dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus;
 import dev.anvilcraft.pigeonplus.client.render.LargeFireworksRocketBurst;
 import dev.anvilcraft.pigeonplus.init.AddonEntities;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
+import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
@@ -45,16 +46,6 @@ import java.util.List;
 
 /**
  * 大型烟花发射后的实体。造型复用方块的模型，发射前后外观一致。
- *
- * <p>位置 = 主部件底面中心 {@code (x+0.5, y, z+0.5)}，碰撞箱 3×3×9。
- * 推力随时间递增，所以先慢后快；引信烧完或撞到方块即炸，不破坏地形。
- *
- * <h2>位置由服务端独占，客户端只负责插值</h2>
- * 只有服务端跑推力积分并判定起爆；客户端收到位置包后做插值（见 {@link #lerpTo}）。
- *
- * <p><b>不要</b>改成两端各跑一份物理。{@code life} 不参与网络同步，两端从各自的起点计数，
- * 一旦错开，随 {@code life} 递增的推力就会让位移量持续不同，客户端位置不断偏离服务端、
- * 又被位置包拽回来——表现就是升空时「一卡一卡」。
  */
 public class LargeFireworksRocketEntity extends Entity {
     /** 点火初速（格/tick）。取小值，否则看不出起飞那一下的「慢」。 */
@@ -112,6 +103,7 @@ public class LargeFireworksRocketEntity extends Entity {
     /**
      * 已飞行 tick 数。
      */
+    @Getter
     private int life;
 
     /**
@@ -259,10 +251,6 @@ public class LargeFireworksRocketEntity extends Entity {
         this.entityData.set(DATA_DETONATING, detonating);
     }
 
-    public int getLife() {
-        return this.life;
-    }
-
     private void setLife(int life) {
         this.life = life;
     }
@@ -404,9 +392,6 @@ public class LargeFireworksRocketEntity extends Entity {
             return false;
         }
         MinecraftServer server = overworld.getServer();
-        if (server == null) {
-            return false;
-        }
         ServerLevel mun = server.getLevel(MUN_LEVEL);
         if (mun == null) {
             return false;
