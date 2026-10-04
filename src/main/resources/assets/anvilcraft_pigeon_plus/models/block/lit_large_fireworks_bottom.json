@@ -1,10 +1,10 @@
 {
 	"format_version": "1.9.0",
 	"credit": "Made with Blockbench",
-	"parent": "anvilcraft_pigeon_plus:block/giant_fireworks_template",
+	"parent": "minecraft:block/block",
 	"textures": {
-		"particle": "anvilcraft_pigeon_plus:block/giant_fireworks",
-		"wool": "anvilcraft_pigeon_plus:block/giant_fireworks"
+		"particle": "anvilcraft_pigeon_plus:block/large_fireworks",
+		"wool": "anvilcraft_pigeon_plus:block/large_fireworks"
 	},
 	"elements": [
 		{

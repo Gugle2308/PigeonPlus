@@ -13,18 +13,18 @@
           "type": "minecraft:item",
           "conditions": [
             {
-              "block": "anvilcraft_pigeon_plus:giant_firework",
+              "block": "anvilcraft_pigeon_plus:large_firework",
               "condition": "minecraft:block_state_property",
               "properties": {
                 "part": "y0_c"
               }
             }
           ],
-          "name": "anvilcraft_pigeon_plus:giant_firework"
+          "name": "anvilcraft_pigeon_plus:large_firework"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "anvilcraft_pigeon_plus:blocks/giant_firework"
+  "random_sequence": "anvilcraft_pigeon_plus:blocks/large_firework"
 }

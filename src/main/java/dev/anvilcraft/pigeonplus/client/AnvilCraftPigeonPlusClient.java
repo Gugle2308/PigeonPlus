@@ -36,6 +36,7 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -63,7 +64,11 @@ public class AnvilCraftPigeonPlusClient {
         // 必须早于 ModelEvent.ModifyBakingResult：anvillib 的 cube 模块在该事件里
         // 烘焙 ModelSelections 快照，登记晚了本轮就没有本模组的模型几何，
         // 精确拾取与准星描边都要等下次资源重载才生效。
+        // 这里只登记命名空间——它只用字符串，构造期调用安全；
+        // 需要方块实例的黑名单必须等注册完成，见 onModifyBakingResult。
         AddonCubeSelection.enableOwnNamespace();
+        // HIGHEST：必须早于 cube 模块在同一事件里的 LOWEST 烘焙，否则黑名单这一轮不生效。
+        modBus.addListener(EventPriority.HIGHEST, this::onModifyBakingResult);
         modBus.addListener(this::onRegisterAdditionalModels);
         modBus.addListener(this::onRegisterBER);
         modBus.addListener(this::onClientSetup);
@@ -160,6 +165,17 @@ public class AnvilCraftPigeonPlusClient {
         AddonItemTooltipManager.addTooltip(event.getItemStack(), event.getToolTip());
     }
 
+    /**
+     * 模型烘焙前登记精确拾取黑名单。
+     *
+     * <p>放在这里而不是模组构造期，是因为黑名单需要方块实例，
+     * 而构造期方块尚未注册（会抛 {@code unbound value}）。
+     * 用 HIGHEST 优先级确保早于 cube 模块在同一事件里的 LOWEST 烘焙。
+     */
+    private void onModifyBakingResult(ModelEvent.ModifyBakingResult event) {
+        AddonCubeSelection.excludeFromPrecisePicking();
+    }
+
     private void onRegisterAdditionalModels(ModelEvent.RegisterAdditional event) {
         ResourceLocation bottom = ResourceLocation.fromNamespaceAndPath(
             AnvilCraftPigeonPlus.MOD_ID, "block/blender_bottom");
@@ -177,8 +193,8 @@ public class AnvilCraftPigeonPlusClient {
             AnvilCraftPigeonPlus.MOD_ID, "block/feed_spreader_piston");
         // 点燃后实体用的底段模型。它不是任何方块状态的模型，所以要单独登记，
         // 否则实体渲染器取不到、箭体下半段会消失。
-        ResourceLocation litGiantFireworksBottom = ResourceLocation.fromNamespaceAndPath(
-            AnvilCraftPigeonPlus.MOD_ID, "block/lit_giant_fireworks_bottom");
+        ResourceLocation litLargeFireworksBottom = ResourceLocation.fromNamespaceAndPath(
+            AnvilCraftPigeonPlus.MOD_ID, "block/lit_large_fireworks_bottom");
         event.register(new ModelResourceLocation(bottom, "standalone"));
         event.register(new ModelResourceLocation(top, "standalone"));
         event.register(new ModelResourceLocation(anvilPumpPiston, "standalone"));
@@ -186,7 +202,7 @@ public class AnvilCraftPigeonPlusClient {
         event.register(new ModelResourceLocation(largeCauldronBottom, "standalone"));
         event.register(new ModelResourceLocation(feedSpreaderBucket, "standalone"));
         event.register(new ModelResourceLocation(feedSpreaderPiston, "standalone"));
-        event.register(ModelResourceLocation.standalone(litGiantFireworksBottom));
+        event.register(ModelResourceLocation.standalone(litLargeFireworksBottom));
     }
 
     private void onRegisterBER(EntityRenderersEvent.RegisterRenderers event) {

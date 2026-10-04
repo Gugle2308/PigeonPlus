@@ -20,7 +20,7 @@ import java.util.List;
  * <p>只在主部件（{@code Y0_C}）持有，多方块是一体的，不必 81 格各存一份。
  * 也不做网络同步：装填数量属服务端状态，客户端渲染与粒子都不依赖它。
  */
-public class GiantFireworkBlockEntity extends BlockEntity {
+public class LargeFireworkBlockEntity extends BlockEntity {
     /** 可装填的烟火之星上限。 */
     public static final int MAX_STARS = 16;
 
@@ -30,8 +30,8 @@ public class GiantFireworkBlockEntity extends BlockEntity {
 
     private final List<FireworkExplosion> explosions = new ArrayList<>();
 
-    public GiantFireworkBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.GIANT_FIREWORK.get(), pos, state);
+    public LargeFireworkBlockEntity(BlockPos pos, BlockState state) {
+        super(ModBlockEntities.LARGE_FIREWORK.get(), pos, state);
     }
 
     /** 已装填的烟火之星（不可变副本）。 */

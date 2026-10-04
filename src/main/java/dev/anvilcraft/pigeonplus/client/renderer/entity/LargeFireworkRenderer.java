@@ -4,9 +4,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus;
-import dev.anvilcraft.pigeonplus.block.GiantFireworkBlock;
-import dev.anvilcraft.pigeonplus.block.state.GiantFireworkPart;
-import dev.anvilcraft.pigeonplus.entity.GiantFireworkEntity;
+import dev.anvilcraft.pigeonplus.block.LargeFireworkBlock;
+import dev.anvilcraft.pigeonplus.block.state.LargeFireworkPart;
+import dev.anvilcraft.pigeonplus.entity.LargeFireworkEntity;
 import dev.anvilcraft.pigeonplus.init.AddonBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -35,27 +35,27 @@ import org.jetbrains.annotations.Nullable;
  * 所以只补回 {@code (-0.5, 0, -0.5)} 那半格。
  *
  * <p>中段与顶段直接由方块状态解析（{@code part=y4_c}/{@code part=y7_c}），
- * 底段换成点燃版 {@code lit_giant_fireworks_bottom}（实体专用，已单独登记为独立模型）。
+ * 底段换成点燃版 {@code lit_large_fireworks_bottom}（实体专用，已单独登记为独立模型）。
  *
  * <p>用 {@code tesselateBlock} 而非 {@code renderBatched}：后者只能吃方块状态解析出的模型，
  * 而点燃版模型不是任何方块状态的模型。两者走的是同一条着色路径——
  * {@code renderModel} 那条路不调用 {@code level.getShade(...)}，六个面都是满亮度、显得过亮发平。
  * 所以必须传真实的 {@link ClientLevel} 与实体所在 {@link BlockPos}，否则会采样到无关位置而算错明暗。
  */
-public class GiantFireworkRenderer extends EntityRenderer<GiantFireworkEntity> {
+public class LargeFireworkRenderer extends EntityRenderer<LargeFireworkEntity> {
     /** 点燃后的底段模型（实体专用，不从方块状态解析）。 */
     private static final ResourceLocation LIT_BOTTOM = ResourceLocation.fromNamespaceAndPath(
-        AnvilCraftPigeonPlus.MOD_ID, "block/lit_giant_fireworks_bottom");
+        AnvilCraftPigeonPlus.MOD_ID, "block/lit_large_fireworks_bottom");
 
     /** 三个模型分段：承载该段模型的部件 + 相对主部件的 Y 偏移（格）。 */
     private static final Segment[] SEGMENTS = {
-        new Segment(GiantFireworkPart.Y1_C, 1, ModelResourceLocation.standalone(LIT_BOTTOM)),
-        new Segment(GiantFireworkPart.Y4_C, 4, null),
-        new Segment(GiantFireworkPart.Y7_C, 7, null),
+        new Segment(LargeFireworkPart.Y1_C, 1, ModelResourceLocation.standalone(LIT_BOTTOM)),
+        new Segment(LargeFireworkPart.Y4_C, 4, null),
+        new Segment(LargeFireworkPart.Y7_C, 7, null),
     };
 
     @SuppressWarnings("unused")
-    public GiantFireworkRenderer(EntityRendererProvider.Context context) {
+    public LargeFireworkRenderer(EntityRendererProvider.Context context) {
         super(context);
         // 火箭本体就是阴影，再画一圈椭圆阴影只会显得脏。
         this.shadowRadius = 0.0F;
@@ -63,14 +63,14 @@ public class GiantFireworkRenderer extends EntityRenderer<GiantFireworkEntity> {
     }
 
     @Override
-    public ResourceLocation getTextureLocation(GiantFireworkEntity entity) {
+    public ResourceLocation getTextureLocation(LargeFireworkEntity entity) {
         // 模型自带纹理，不使用实体贴图；返回占位以满足抽象方法。
         return ResourceLocation.withDefaultNamespace("textures/misc/white.png");
     }
 
     @Override
     public void render(
-        GiantFireworkEntity entity,
+        LargeFireworkEntity entity,
         float entityYaw,
         float partialTick,
         PoseStack poseStack,
@@ -86,7 +86,7 @@ public class GiantFireworkRenderer extends EntityRenderer<GiantFireworkEntity> {
             return;
         }
         BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
-        BlockState base = AddonBlocks.GIANT_FIREWORK.get().defaultBlockState();
+        BlockState base = AddonBlocks.LARGE_FIREWORK.get().defaultBlockState();
         BlockPos entityPos = entity.blockPosition();
         RandomSource random = RandomSource.create();
 
@@ -100,8 +100,8 @@ public class GiantFireworkRenderer extends EntityRenderer<GiantFireworkEntity> {
         // 模型以方块角为原点，实体在底面中心，补回半格。
         poseStack.translate(-0.5, 0.0, -0.5);
         for (Segment segment : SEGMENTS) {
-            BlockState state = base.setValue(GiantFireworkBlock.PART, segment.part())
-                .setValue(GiantFireworkBlock.FACING, entity.getFacing());
+            BlockState state = base.setValue(LargeFireworkBlock.PART, segment.part())
+                .setValue(LargeFireworkBlock.FACING, entity.getFacing());
             RenderType renderType = ItemBlockRenderTypes.getChunkRenderType(state);
             VertexConsumer consumer = buffer.getBuffer(renderType);
             poseStack.pushPose();
@@ -140,7 +140,7 @@ public class GiantFireworkRenderer extends EntityRenderer<GiantFireworkEntity> {
     }
 
     /**
-     * 取该分段要用的模型：底段换成点燃版 {@code lit_giant_fireworks_bottom}，其余用方块状态解析。
+     * 取该分段要用的模型：底段换成点燃版 {@code lit_large_fireworks_bottom}，其余用方块状态解析。
      *
      * <p>点燃版只有 UV 不同（几何完全一致），所以碰撞箱与分段偏移都不用改。
      * 直接调 {@code tesselateBlock} 而不是 {@code renderBatched}，只是为了能传入这个
@@ -154,6 +154,6 @@ public class GiantFireworkRenderer extends EntityRenderer<GiantFireworkEntity> {
     }
 
     /** 一个模型分段；{@code standalone} 非空时用它替代方块状态解析出的模型。 */
-    private record Segment(GiantFireworkPart part, int offsetY, @Nullable ModelResourceLocation standalone) {
+    private record Segment(LargeFireworkPart part, int offsetY, @Nullable ModelResourceLocation standalone) {
     }
 }

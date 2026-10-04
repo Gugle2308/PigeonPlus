@@ -5,12 +5,12 @@ import dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus;
 import dev.anvilcraft.pigeonplus.block.AnvilPumpBlock;
 import dev.anvilcraft.pigeonplus.block.BlenderBlock;
 import dev.anvilcraft.pigeonplus.block.FeedSpreaderBlock;
-import dev.anvilcraft.pigeonplus.block.GiantFireworkBlock;
+import dev.anvilcraft.pigeonplus.block.LargeFireworkBlock;
 import dev.anvilcraft.pigeonplus.block.MixedBiomassCauldronBlock;
 import dev.anvilcraft.pigeonplus.block.NozzleBlock;
 import dev.anvilcraft.pigeonplus.block.PigeonAnvilBlock;
 import dev.anvilcraft.pigeonplus.block.StasisBeaconBlock;
-import dev.anvilcraft.pigeonplus.block.state.GiantFireworkPart;
+import dev.anvilcraft.pigeonplus.block.state.LargeFireworkPart;
 import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
@@ -177,8 +177,8 @@ public class AddonBlocks {
      * 多方块描边时只做 {@code state.setValue(part, p)}，模型必须由 {@code part} 唯一决定，
      * 否则放置预览拿不到框线、只能退回虚影。
      */
-    public static final BlockEntry<GiantFireworkBlock> GIANT_FIREWORK = REGISTRUM
-        .block("giant_firework", GiantFireworkBlock::new)
+    public static final BlockEntry<LargeFireworkBlock> LARGE_FIREWORK = REGISTRUM
+        .block("large_firework", LargeFireworkBlock::new)
         .initialProperties(() -> Blocks.WHITE_WOOL)
         .properties(properties -> properties
             .sound(SoundType.WOOL)
@@ -187,14 +187,14 @@ public class AddonBlocks {
         .blockstate((ctx, provider) -> provider.getVariantBuilder(ctx.getEntry()).forAllStates(state ->
             ConfiguredModel.builder()
                 .modelFile(provider.models().getExistingFile(AnvilCraftPigeonPlus.of(
-                    "block/giant_fireworks_" + state.getValue(GiantFireworkBlock.PART).getModelName())))
-                .rotationY(rotationY(state.getValue(GiantFireworkBlock.FACING)))
+                    "block/large_fireworks_" + state.getValue(LargeFireworkBlock.PART).getModelName())))
+                .rotationY(rotationY(state.getValue(LargeFireworkBlock.FACING)))
                 .build()))
         .loot(SimpleMultiPartBlock::loot)
-        .item(SimpleMultiPartBlockItem<GiantFireworkPart>::new)
-        // 物品模型用专门的 item/giant_fireworks（Blockbench 独立模型），沿用其自带的 display。
+        .item(SimpleMultiPartBlockItem<LargeFireworkPart>::new)
+        // 物品模型用专门的 item/large_fireworks（Blockbench 独立模型），沿用其自带的 display。
         .model((ctx, prov) -> prov.withExistingParent(
-            ctx.getName(), AnvilCraftPigeonPlus.of("item/giant_fireworks")))
+            ctx.getName(), AnvilCraftPigeonPlus.of("item/large_fireworks")))
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
