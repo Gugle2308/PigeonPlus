@@ -1,11 +1,14 @@
 package dev.anvilcraft.pigeonplus.entity;
 
+import dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus;
 import dev.anvilcraft.pigeonplus.client.render.GiantFireworkBurst;
 import dev.anvilcraft.pigeonplus.init.AddonEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -38,6 +41,18 @@ import java.util.List;
  * 推力随时间递增，所以先慢后快；引信烧完或撞到方块即炸，不破坏地形。
  *
  * <p>装填多颗烟火之星时，空间上按球面偏移分开、时间上按 {@link #BURST_INTERVAL} 逐颗绽放。
+ *
+ * <h2>飞行物理必须两端都跑</h2>
+ * 客户端和服务端执行<b>同一套</b>推力积分与 {@code move}；只有服务端结算碰撞与起爆。
+ *
+ * <p>若让客户端只播粒子、位置纯靠位置包，画面上会抽搐：普通 {@code Entity} 的
+ * {@code lerpTo} 是<b>直接吸附</b>（{@code setPos}），只有 {@code LivingEntity} 才把它覆写成
+ * 按 {@code lerpSteps} 插值。而渲染插值用的是 {@code xOld}（tick 之前的位置），
+ * 客户端不移动时 {@code xOld == getX()}，于是每个 tick 内都没有位移，
+ * 位置只在收包时按 20Hz 整跳一格——高帧率下就是明显的抖动。
+ * 原版 {@code FireworkRocketEntity} 与 {@code PrimedTnt} 同样在两端跑物理，这里保持一致。
+ *
+ * <p>同理，{@link #life} 不做网络同步：两端各自从 0 起算，才能算出同样的推力曲线。
  */
 public class GiantFireworkEntity extends Entity {
     /** 点火初速（格/tick）。取小值，否则看不出起飞那一下的「慢」。 */
@@ -71,8 +86,16 @@ public class GiantFireworkEntity extends Entity {
     /** 箭体高度（格），与实体尺寸一致。 */
     private static final double BODY_HEIGHT = 9.0;
 
-    private static final EntityDataAccessor<Integer> DATA_LIFE =
-        SynchedEntityData.defineId(GiantFireworkEntity.class, EntityDataSerializers.INT);
+    /**
+     * 已飞行 tick 数。
+     *
+     * <p><b>刻意不做网络同步</b>：两端各自从 0 起算、每 tick 各加一，天然保持在同一步调上。
+     * 若改成同步字段，客户端读到的是几 tick 前的旧值，用它算出来的推力会与服务端不一致，
+     * 位置随即被位置包「纠正」回来——这正是上升时抽搐的成因之一。
+     * 它只用于本类的推力曲线与粒子节奏，外部无人读取。
+     */
+    private int life;
+
     private static final EntityDataAccessor<Integer> DATA_FUSE =
         SynchedEntityData.defineId(GiantFireworkEntity.class, EntityDataSerializers.INT);
 
@@ -105,6 +128,17 @@ public class GiantFireworkEntity extends Entity {
     private static final double SPREAD_PER_STAR = 1.5;
     /** 分散半径上限（格）。16 颗即 64 球，铺开到 27 格左右。 */
     private static final double SPREAD_MAX = 27.0;
+
+    /**
+     * 水平朝向（南北东西）。
+     *
+     * <p>发射前由方块状态带过来，发射后沿用——这样起飞瞬间的朝向与放置时一致，
+     * 不会「一离地就转向」。渲染时用它绕 Y 轴旋转模型。
+     *
+     * <p>用 {@code DIRECTION} 序列化器（原版自带），无需自定义网络编码。
+     */
+    private static final EntityDataAccessor<Direction> DATA_FACING =
+        SynchedEntityData.defineId(GiantFireworkEntity.class, EntityDataSerializers.DIRECTION);
 
     /** 点燃者，仅用于爆炸伤害的归因（可为 null）。 */
     @Nullable
@@ -152,10 +186,11 @@ public class GiantFireworkEntity extends Entity {
         return fireworks != null ? fireworks.explosions() : List.of();
     }
 
-    /** 在指定主部件位置点火发射并返回新实体。 */
+    /** 在指定主部件位置点火发射并返回新实体。{@code facing} 取自方块状态，发射后沿用。 */
     public static GiantFireworkEntity launch(
         ServerLevel level,
         BlockPos mainPos,
+        Direction facing,
         @Nullable Entity owner,
         List<FireworkExplosion> explosions
     ) {
@@ -167,6 +202,7 @@ public class GiantFireworkEntity extends Entity {
             DEFAULT_FUSE
         );
         firework.setOwner(owner);
+        firework.setFacing(facing);
         firework.setExplosions(explosions);
         firework.setDeltaMovement(0.0, LAUNCH_SPEED, 0.0);
         level.addFreshEntity(firework);
@@ -179,10 +215,19 @@ public class GiantFireworkEntity extends Entity {
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(DATA_LIFE, 0);
         builder.define(DATA_FUSE, DEFAULT_FUSE);
         builder.define(DATA_FIREWORKS_ITEM, new ItemStack(Items.FIREWORK_ROCKET));
         builder.define(DATA_DETONATING, false);
+        builder.define(DATA_FACING, Direction.NORTH);
+    }
+
+    /** 水平朝向，渲染时用于绕 Y 轴旋转模型。 */
+    public Direction getFacing() {
+        return this.entityData.get(DATA_FACING);
+    }
+
+    public void setFacing(Direction facing) {
+        this.entityData.set(DATA_FACING, facing.getAxis().isHorizontal() ? facing : Direction.NORTH);
     }
 
     /** 是否已进入起爆阶段。 */
@@ -195,11 +240,11 @@ public class GiantFireworkEntity extends Entity {
     }
 
     public int getLife() {
-        return this.entityData.get(DATA_LIFE);
+        return this.life;
     }
 
     private void setLife(int life) {
-        this.entityData.set(DATA_LIFE, life);
+        this.life = life;
     }
 
     public int getFuse() {
@@ -214,14 +259,20 @@ public class GiantFireworkEntity extends Entity {
     public void tick() {
         super.tick();
 
-        if (this.level().isClientSide()) {
-            this.tickClient();
+        // 客户端在起爆阶段只播粒子；飞行阶段则与服务端跑同一套物理（见下）。
+        if (this.level().isClientSide() && this.isDetonating()) {
+            this.tickClientBurst();
             return;
+        }
+        if (this.level().isClientSide()) {
+            this.spawnClientTrail();
         }
 
         // 起爆阶段不再飞行，只计时等最后移除实体
         if (this.isDetonating()) {
-            this.tickBurst();
+            if (!this.level().isClientSide()) {
+                this.tickBurst();
+            }
             return;
         }
 
@@ -238,6 +289,10 @@ public class GiantFireworkEntity extends Entity {
         this.setDeltaMovement(motion);
         this.move(MoverType.SELF, motion);
 
+        // 只有服务端结算碰撞与起爆；客户端跑物理只是为了跟手（见类文档）
+        if (this.level().isClientSide()) {
+            return;
+        }
         // 撞到方块即炸（贴上即触发，不必等引信）
         if (this.horizontalCollision || this.verticalCollision) {
             this.detonate();
@@ -312,7 +367,7 @@ public class GiantFireworkEntity extends Entity {
     }
 
     /**
-     * 客户端每 tick：未起爆时喷尾焰，起爆后按 {@link #BURST_INTERVAL} 逐颗绽放。
+     * 客户端起爆阶段：按 {@link #BURST_INTERVAL} 逐颗绽放。
      *
      * <h3>为什么绽放节奏放在客户端本地推进</h3>
      * 曾用「事件 id = 17 + 序号」把序号编进 {@code broadcastEntityEvent}，结果客户端崩溃：
@@ -322,15 +377,8 @@ public class GiantFireworkEntity extends Entity {
      * 事件 id 是全局共享的，挑「没人用的 id」不可靠，因此改为完全不发实体事件：
      * 服务端只同步 {@link #DATA_DETONATING}，节奏由客户端按同一组常量本地推进。
      */
-    private void tickClient() {
-        if (!this.isDetonating()) {
-            // 复位，以便（例如区块重新加载后）再次起爆时从头放
-            this.clientBurstTicks = -1;
-            this.clientBurstIndex = 0;
-            this.spawnClientTrail();
-            return;
-        }
-        // 起爆后停掉尾焰，且允许重载区块后重新喷一次点火烟团
+    private void tickClientBurst() {
+        // 停掉尾焰，且允许重载区块后重新喷一次点火烟团
         this.trailStarted = false;
         if (this.clientBurstTicks < 0) {
             this.clientBurstTicks = 0;
@@ -548,6 +596,7 @@ public class GiantFireworkEntity extends Entity {
         // 客户端序号不必存档：可由 DETONATING 与爆炸列表重新推导。
         tag.putBoolean("Detonating", this.isDetonating());
         tag.putInt("BurstTicks", this.burstTicks);
+        tag.putString("Facing", this.getFacing().getSerializedName());
     }
 
     @Override
@@ -563,6 +612,10 @@ public class GiantFireworkEntity extends Entity {
         }
         this.setDetonating(tag.getBoolean("Detonating"));
         this.burstTicks = tag.getInt("BurstTicks");
+        Direction.CODEC.parse(NbtOps.INSTANCE, tag.get("Facing"))
+            .resultOrPartial(error -> AnvilCraftPigeonPlus.LOGGER.warn(
+                "巨型烟花：无法读取朝向，按北处理：{}", error))
+            .ifPresent(this::setFacing);
     }
 
     @Override

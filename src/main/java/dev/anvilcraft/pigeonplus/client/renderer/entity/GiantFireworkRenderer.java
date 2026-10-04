@@ -2,6 +2,7 @@ package dev.anvilcraft.pigeonplus.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus;
 import dev.anvilcraft.pigeonplus.block.GiantFireworkBlock;
 import dev.anvilcraft.pigeonplus.block.state.GiantFireworkPart;
@@ -19,6 +20,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
@@ -89,10 +91,17 @@ public class GiantFireworkRenderer extends EntityRenderer<GiantFireworkEntity> {
         RandomSource random = RandomSource.create();
 
         poseStack.pushPose();
-        // 实体位置是底面中心，而方块模型以方块的角为原点，补回半格。
+        // 朝向：与 blockstate 的 y 旋转同一约定（north=0 / east=90 / south=180 / west=270）。
+        //
+        // 旋转必须<b>先于</b>平移：PoseStack 是右乘（mulPose 后再 translate 等于在该旋转下平移），
+        // 先平移会让旋转中心落在方块角上，模型整体偏离一格多。
+        // 当前顺序的旋转中心是实体原点，即方块中心（X/Z）+ 方块底面（Y），与模型自转中心一致。
+        poseStack.mulPose(Axis.YP.rotationDegrees(yawFor(entity.getFacing())));
+        // 模型以方块角为原点，实体在底面中心，补回半格。
         poseStack.translate(-0.5, 0.0, -0.5);
         for (Segment segment : SEGMENTS) {
-            BlockState state = base.setValue(GiantFireworkBlock.PART, segment.part());
+            BlockState state = base.setValue(GiantFireworkBlock.PART, segment.part())
+                .setValue(GiantFireworkBlock.FACING, entity.getFacing());
             RenderType renderType = ItemBlockRenderTypes.getChunkRenderType(state);
             VertexConsumer consumer = buffer.getBuffer(renderType);
             poseStack.pushPose();
@@ -118,6 +127,16 @@ public class GiantFireworkRenderer extends EntityRenderer<GiantFireworkEntity> {
         poseStack.popPose();
 
         super.render(entity, entityYaw, partialTick, poseStack, buffer, packedLight);
+    }
+
+    /** 朝向对应的 Y 轴旋转角度，与原版 blockstate 的 {@code y} 约定一致。 */
+    private static float yawFor(Direction facing) {
+        return switch (facing) {
+            case EAST -> 270.0F;
+            case SOUTH -> 180.0F;
+            case WEST -> 90.0F;
+            default -> 0.0F;
+        };
     }
 
     /**

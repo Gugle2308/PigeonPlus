@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -24,6 +25,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.FireworkExplosion;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -33,6 +35,8 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.pathfinder.PathComputationType;
@@ -54,6 +58,13 @@ public class GiantFireworkBlock extends SimpleMultiPartBlock<GiantFireworkPart>
     public static final MapCodec<GiantFireworkBlock> CODEC = simpleCodec(GiantFireworkBlock::new);
     public static final EnumProperty<GiantFireworkPart> PART =
         EnumProperty.create("part", GiantFireworkPart.class);
+    /**
+     * 水平朝向。
+     *
+     * <p>用原版 {@code FACING}（南北东西四向）而非自建属性，好处是直接复用原版
+     * blockstate 的 {@code y} 旋转约定（north=0 / east=90 / south=180 / west=270）。
+     */
+    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     
     /**
      * 整支火箭的碰撞轮廓，由三段模型的 elements 逐盒平移而来（1/16 单位，以主部件角为原点）。
@@ -74,12 +85,20 @@ public class GiantFireworkBlock extends SimpleMultiPartBlock<GiantFireworkPart>
         new AABB(-8.0, 96.0, -8.0, 24.0, 112.0, 24.0),     // top el5：接中段
     };
 
-    private static final Map<GiantFireworkPart, VoxelShape> SHAPES = createShapes();
+    /**
+     * 每个朝向下的部件形状表。
+     *
+     * <p>朝向会改变部件的世界坐标位置（{@code offsetFrom}），所以裁剪基准也跟着转；
+     * 这里预先按 4 个朝向各算一份，避免每次查询都重算。
+     */
+    private static final Map<Direction, Map<GiantFireworkPart, VoxelShape>> SHAPES_BY_FACING =
+        createShapesByFacing();
 
     public GiantFireworkBlock(Properties properties) {
         super(properties);
-        // 主部件 Y0_C 不是模型锚点，其模型为空；真实几何由 Y1_C/Y4_C/Y7_C 承载。
-        this.registerDefaultState(this.stateDefinition.any().setValue(PART, GiantFireworkPart.Y0_C));
+        this.registerDefaultState(this.stateDefinition.any()
+            .setValue(PART, GiantFireworkPart.Y0_C)
+            .setValue(FACING, Direction.NORTH));
     }
 
     @Override
@@ -89,7 +108,7 @@ public class GiantFireworkBlock extends SimpleMultiPartBlock<GiantFireworkPart>
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(PART);
+        builder.add(PART, FACING);
     }
 
     @Override
@@ -100,6 +119,21 @@ public class GiantFireworkBlock extends SimpleMultiPartBlock<GiantFireworkPart>
     @Override
     public GiantFireworkPart[] getParts() {
         return GiantFireworkPart.values();
+    }
+
+    /**
+     * 玩家放置时按水平视线决定朝向（与原版熔炉/活塞一致）。
+     *
+     * <p>注意不能覆写 {@code getStateForPlacement}——AnvilCraft 把它声明为 {@code final}，
+     * 它只负责检查空间并转发到这里。
+     */
+    @Override
+    public BlockState getPlacementState(BlockPlaceContext context) {
+        BlockState state = super.getPlacementState(context);
+        if (state == null) {
+            return null;
+        }
+        return state.setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
 
     /** 主部件是底层中心，所以结构相对主部件只往 Y 正方向延伸。 */
@@ -115,10 +149,12 @@ public class GiantFireworkBlock extends SimpleMultiPartBlock<GiantFireworkPart>
      */
     @Override
     public VoxelShape getPartShape(BlockState state) {
-        if (!state.hasProperty(PART)) {
+        if (!state.hasProperty(PART) || !state.hasProperty(FACING)) {
             return Shapes.block();
         }
-        return SHAPES.getOrDefault(state.getValue(PART), Shapes.block());
+        return SHAPES_BY_FACING
+            .getOrDefault(state.getValue(FACING), Map.of())
+            .getOrDefault(state.getValue(PART), Shapes.block());
     }
 
     /**
@@ -198,7 +234,7 @@ public class GiantFireworkBlock extends SimpleMultiPartBlock<GiantFireworkPart>
             ? fireworks.getExplosions()
             : List.of();
         this.removePartsAndUpdate(level, pos);
-        GiantFireworkEntity.launch(serverLevel, mainPos, player, explosions);
+        GiantFireworkEntity.launch(serverLevel, mainPos, state.getValue(FACING), player, explosions);
         // 与 TNT 一致：创造模式不消耗
         if (!player.getAbilities().instabuild) {
             if (held.is(Items.FLINT_AND_STEEL)) {
@@ -304,29 +340,37 @@ public class GiantFireworkBlock extends SimpleMultiPartBlock<GiantFireworkPart>
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(PART, state.getValue(PART).rotate(rotation));
+        return state.setValue(PART, state.getValue(PART).rotate(rotation))
+            .setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(PART, state.getValue(PART).mirror(mirror));
+        return state.setValue(PART, state.getValue(PART).mirror(mirror))
+            .setValue(FACING, mirror.mirror(state.getValue(FACING)));
     }
 
-    private static Map<GiantFireworkPart, VoxelShape> createShapes() {
-        Map<GiantFireworkPart, VoxelShape> shapes = new EnumMap<>(GiantFireworkPart.class);
-        for (GiantFireworkPart part : GiantFireworkPart.values()) {
-            shapes.put(part, slicePartShape(part));
+    private static Map<Direction, Map<GiantFireworkPart, VoxelShape>> createShapesByFacing() {
+        Map<Direction, Map<GiantFireworkPart, VoxelShape>> byFacing = new EnumMap<>(Direction.class);
+        for (Direction facing : Direction.Plane.HORIZONTAL) {
+            Map<GiantFireworkPart, VoxelShape> shapes = new EnumMap<>(GiantFireworkPart.class);
+            for (GiantFireworkPart part : GiantFireworkPart.values()) {
+                shapes.put(part, slicePartShape(part, facing));
+            }
+            byFacing.put(facing, shapes);
         }
-        return shapes;
+        return byFacing;
     }
 
     /**
-     * 把 {@link #GLOBAL_SHAPE} 裁剪到 {@code part} 所在的那一格，并平移回该方块的局部坐标。
+     * 把 {@link #GLOBAL_SHAPE} 先按朝向旋转，再裁剪到 {@code part} 所在的那一格，
+     * 并平移回该方块的局部坐标。
      *
-     * <p>全部部件裁剪结果的并集等于原始 {@link #GLOBAL_SHAPE}
-     * （因为该形状完全落在 81 格的范围内），所以整体形状不会缺料。
+     * <p>旋转的是<b>几何本身</b>而不是「取哪一格」——该形状并不左右对称
+     * （侧壁两个小凸起只在一侧），只旋转格位会让碰撞箱与旋转后的模型错位。
+     * 旋转中心取 3×3 的中点（即 8/16 格处），与模型绕 Y 轴自转的中心一致。
      */
-    private static VoxelShape slicePartShape(GiantFireworkPart part) {
+    private static VoxelShape slicePartShape(GiantFireworkPart part, Direction facing) {
         double minX = part.getOffsetX() * 16.0;
         double minY = part.getOffsetY() * 16.0;
         double minZ = part.getOffsetZ() * 16.0;
@@ -334,7 +378,8 @@ public class GiantFireworkBlock extends SimpleMultiPartBlock<GiantFireworkPart>
         double maxY = minY + 16.0;
         double maxZ = minZ + 16.0;
         List<AABB> localParts = new ArrayList<>();
-        for (AABB globalPart : GLOBAL_SHAPE) {
+        for (AABB source : GLOBAL_SHAPE) {
+            AABB globalPart = rotateShape(source, facing);
             double clippedMinX = Math.max(globalPart.minX, minX);
             double clippedMinY = Math.max(globalPart.minY, minY);
             double clippedMinZ = Math.max(globalPart.minZ, minZ);
@@ -350,5 +395,25 @@ public class GiantFireworkBlock extends SimpleMultiPartBlock<GiantFireworkPart>
             ));
         }
         return localParts.isEmpty() ? Shapes.empty() : ShapeUtil.merge(localParts.toArray(AABB[]::new));
+    }
+
+    /**
+     * 绕 3×3 中点（X/Z = 8）把形状旋转到该朝向，Y 不变。
+     *
+     * <p>旋转方向以原版熔炉为准：{@code facing=east} 对应 blockstate 的 {@code y=90}，
+     * 把模型的北面（局部 -Z）转到世界 +X。由此得出
+     * {@code east: (x,z) -> (16-z, x)}、{@code south: (x,z) -> (16-x, 16-z)}、
+     * {@code west: (x,z) -> (z, 16-x)}。
+     */
+    private static AABB rotateShape(AABB box, Direction facing) {
+        return switch (facing) {
+            case EAST -> new AABB(16.0 - box.maxZ, box.minY, box.minX,
+                                  16.0 - box.minZ, box.maxY, box.maxX);
+            case SOUTH -> new AABB(16.0 - box.maxX, box.minY, 16.0 - box.maxZ,
+                                   16.0 - box.minX, box.maxY, 16.0 - box.minZ);
+            case WEST -> new AABB(box.minZ, box.minY, 16.0 - box.maxX,
+                                  box.maxZ, box.maxY, 16.0 - box.minX);
+            default -> box;
+        };
     }
 }

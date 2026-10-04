@@ -188,11 +188,13 @@ public class AddonBlocks {
             ConfiguredModel.builder()
                 .modelFile(provider.models().getExistingFile(AnvilCraftPigeonPlus.of(
                     "block/giant_fireworks_" + state.getValue(GiantFireworkBlock.PART).getModelName())))
+                .rotationY(rotationY(state.getValue(GiantFireworkBlock.FACING)))
                 .build()))
         .loot(SimpleMultiPartBlock::loot)
         .item(SimpleMultiPartBlockItem<GiantFireworkPart>::new)
+        // 物品模型用专门的 item/giant_fireworks（Blockbench 独立模型），沿用其自带的 display。
         .model((ctx, prov) -> prov.withExistingParent(
-            ctx.getName(), AnvilCraftPigeonPlus.of("block/giant_fireworks_top")))
+            ctx.getName(), AnvilCraftPigeonPlus.of("item/giant_fireworks")))
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
