@@ -3,8 +3,10 @@ package dev.anvilcraft.pigeonplus.entity;
 import dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus;
 import dev.anvilcraft.pigeonplus.client.render.LargeFireworksRocketBurst;
 import dev.anvilcraft.pigeonplus.init.AddonEntities;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -13,9 +15,14 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -29,6 +36,7 @@ import net.minecraft.world.item.component.Fireworks;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.portal.DimensionTransition;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -36,24 +44,17 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * 巨型烟花发射后的实体。造型复用方块那三个模型，发射前后外观一致。
+ * 大型烟花发射后的实体。造型复用方块的模型，发射前后外观一致。
  *
  * <p>位置 = 主部件底面中心 {@code (x+0.5, y, z+0.5)}，碰撞箱 3×3×9。
  * 推力随时间递增，所以先慢后快；引信烧完或撞到方块即炸，不破坏地形。
  *
- * <p>装填多颗烟火之星时，空间上按球面偏移分开、时间上按 {@link #BURST_INTERVAL} 逐颗绽放。
+ * <h2>位置由服务端独占，客户端只负责插值</h2>
+ * 只有服务端跑推力积分并判定起爆；客户端收到位置包后做插值（见 {@link #lerpTo}）。
  *
- * <h2>飞行物理必须两端都跑</h2>
- * 客户端和服务端执行<b>同一套</b>推力积分与 {@code move}；只有服务端结算碰撞与起爆。
- *
- * <p>若让客户端只播粒子、位置纯靠位置包，画面上会抽搐：普通 {@code Entity} 的
- * {@code lerpTo} 是<b>直接吸附</b>（{@code setPos}），只有 {@code LivingEntity} 才把它覆写成
- * 按 {@code lerpSteps} 插值。而渲染插值用的是 {@code xOld}（tick 之前的位置），
- * 客户端不移动时 {@code xOld == getX()}，于是每个 tick 内都没有位移，
- * 位置只在收包时按 20Hz 整跳一格——高帧率下就是明显的抖动。
- * 原版 {@code FireworkRocketEntity} 与 {@code PrimedTnt} 同样在两端跑物理，这里保持一致。
- *
- * <p>同理，{@link #life} 不做网络同步：两端各自从 0 起算，才能算出同样的推力曲线。
+ * <p><b>不要</b>改成两端各跑一份物理。{@code life} 不参与网络同步，两端从各自的起点计数，
+ * 一旦错开，随 {@code life} 递增的推力就会让位移量持续不同，客户端位置不断偏离服务端、
+ * 又被位置包拽回来——表现就是升空时「一卡一卡」。
  */
 public class LargeFireworksRocketEntity extends Entity {
     /** 点火初速（格/tick）。取小值，否则看不出起飞那一下的「慢」。 */
@@ -73,6 +74,13 @@ public class LargeFireworksRocketEntity extends Entity {
      * 所以「先慢后快」的形状与原先完全一致，只是提前收尾、总高变矮。
      */
     public static final int DEFAULT_FUSE = 93;
+    /**
+     * 载人时的引信上限（tick）。
+     *
+     * <p>登月需飞到 500 格以上，按现有推力曲线约在 life=224 达标，取 300 留足余量。
+     * 到顶仍未等到午夜窗口就照常爆炸，避免载人火箭无限上升。
+     */
+    private static final int MOON_FUSE = 300;
     /** 爆炸对实体的作用半径。 */
     private static final float BLAST_RADIUS = 12.0F;
     /** 箭体半径，用于撒尾焰粒子。 */
@@ -87,24 +95,40 @@ public class LargeFireworksRocketEntity extends Entity {
     /** 箭体高度（格），与实体尺寸一致。 */
     private static final double BODY_HEIGHT = 9.0;
 
+    /** 月球维度（AnvilCraft 本体）。 */
+    private static final ResourceKey<Level> MUN_LEVEL =
+        ResourceKey.create(Registries.DIMENSION, ResourceLocation.fromNamespaceAndPath("anvilcraft", "mun"));
+    /** 登月所需高度（格）。与本体 {@code MunTravelEventListener.ESCAPE_HEIGHT} 一致。 */
+    private static final double ESCAPE_HEIGHT = 512.0;
+    /**
+     * 登月的时间窗口：午夜（{@code dayTime % 24000} 落在 18000±1000）。
+     */
+    private static final long MIDNIGHT = 18000L;
+    private static final long MIDNIGHT_WINDOW = 1000L;
+    /** 月球落点与月球出生点的水平距离范围（格）。 */
+    private static final int ARRIVAL_MIN_DISTANCE = 8;
+    private static final int ARRIVAL_MAX_DISTANCE = 16;
+
     /**
      * 已飞行 tick 数。
-     *
-     * <p><b>刻意不做网络同步</b>：两端各自从 0 起算、每 tick 各加一，天然保持在同一步调上。
-     * 若改成同步字段，客户端读到的是几 tick 前的旧值，用它算出来的推力会与服务端不一致，
-     * 位置随即被位置包「纠正」回来——这正是上升时抽搐的成因之一。
-     * 它只用于本类的推力曲线与粒子节奏，外部无人读取。
      */
     private int life;
+
+    /**
+     * 客户端插值状态：从服务端位置包收到的目标点，以及还要几 tick 走完。
+     */
+    private int lerpSteps;
+    private double lerpX;
+    private double lerpY;
+    private double lerpZ;
+    private double lerpYRot;
+    private double lerpXRot;
 
     private static final EntityDataAccessor<Integer> DATA_FUSE =
         SynchedEntityData.defineId(LargeFireworksRocketEntity.class, EntityDataSerializers.INT);
 
     /**
      * 装填的烟火之星，用「带 FIREWORKS 组件的烟花火箭物品」承载。
-     *
-     * <p>因为 {@code EntityDataSerializers} 没有 {@code List<FireworkExplosion>} 的序列化器，
-     * 而 ITEM_STACK 自带存档与网络同步（原版 {@code FireworkRocketEntity} 也这么做）。
      */
     private static final EntityDataAccessor<ItemStack> DATA_FIREWORKS_ITEM =
         SynchedEntityData.defineId(LargeFireworksRocketEntity.class, EntityDataSerializers.ITEM_STACK);
@@ -132,11 +156,6 @@ public class LargeFireworksRocketEntity extends Entity {
 
     /**
      * 水平朝向（南北东西）。
-     *
-     * <p>发射前由方块状态带过来，发射后沿用——这样起飞瞬间的朝向与放置时一致，
-     * 不会「一离地就转向」。渲染时用它绕 Y 轴旋转模型。
-     *
-     * <p>用 {@code DIRECTION} 序列化器（原版自带），无需自定义网络编码。
      */
     private static final EntityDataAccessor<Direction> DATA_FACING =
         SynchedEntityData.defineId(LargeFireworksRocketEntity.class, EntityDataSerializers.DIRECTION);
@@ -256,24 +275,75 @@ public class LargeFireworksRocketEntity extends Entity {
         this.entityData.set(DATA_FUSE, fuse);
     }
 
+    private void lerpClientStep() {
+        if (this.lerpSteps > 0) {
+            this.lerpPositionAndRotationStep(
+                this.lerpSteps, this.lerpX, this.lerpY, this.lerpZ, this.lerpYRot, this.lerpXRot);
+            this.lerpSteps--;
+        }
+    }
+
+    @Override
+    public void lerpTo(double x, double y, double z, float yRot, float xRot, int steps) {
+        this.lerpX = x;
+        this.lerpY = y;
+        this.lerpZ = z;
+        this.lerpYRot = yRot;
+        this.lerpXRot = xRot;
+        this.lerpSteps = steps;
+    }
+
+    @Override
+    public double lerpTargetX() {
+        return this.lerpSteps > 0 ? this.lerpX : this.getX();
+    }
+
+    @Override
+    public double lerpTargetY() {
+        return this.lerpSteps > 0 ? this.lerpY : this.getY();
+    }
+
+    @Override
+    public double lerpTargetZ() {
+        return this.lerpSteps > 0 ? this.lerpZ : this.getZ();
+    }
+
+    @Override
+    public float lerpTargetXRot() {
+        return this.lerpSteps > 0 ? (float) this.lerpXRot : this.getXRot();
+    }
+
+    @Override
+    public float lerpTargetYRot() {
+        return this.lerpSteps > 0 ? (float) this.lerpYRot : this.getYRot();
+    }
+
     @Override
     public void tick() {
         super.tick();
 
-        // 客户端在起爆阶段只播粒子；飞行阶段则与服务端跑同一套物理（见下）。
+        // 客户端在起爆阶段只播粒子
         if (this.level().isClientSide() && this.isDetonating()) {
             this.tickClientBurst();
             return;
         }
+        // 客户端不跑推力积分，只把服务端位置插值过来（见 lerpTo 的说明）。
+        //
+        // 两端各跑一份物理看似更跟手，实际正是抖动的根源：life 不参与网络同步，
+        // 客户端从 0 起算、服务端从点火那一刻起算，两者必然错开几 tick；
+        // 而推力随 life 递增，于是每 tick 的位移量都不同，客户端位置持续偏离服务端，
+        // 服务端每 tick 发来的位置包再把它硬拽回去一次——高帧率下就是「一卡一卡」。
         if (this.level().isClientSide()) {
+            this.lerpClientStep();
+            // 仍然推进 life：尾焰的疏密节奏用它取模，不推进会让烟羽每 tick 都喷。
+            this.setLife(this.getLife() + 1);
             this.spawnClientTrail();
+            return;
         }
 
         // 起爆阶段不再飞行，只计时等最后移除实体
         if (this.isDetonating()) {
-            if (!this.level().isClientSide()) {
-                this.tickBurst();
-            }
+            this.tickBurst();
             return;
         }
 
@@ -290,8 +360,8 @@ public class LargeFireworksRocketEntity extends Entity {
         this.setDeltaMovement(motion);
         this.move(MoverType.SELF, motion);
 
-        // 只有服务端结算碰撞与起爆；客户端跑物理只是为了跟手（见类文档）
-        if (this.level().isClientSide()) {
+        // 登月：载着乘客、午夜、高度达标 → 送乘客去月球，火箭本体消失
+        if (this.tryMoonTravel(life)) {
             return;
         }
         // 撞到方块即炸（贴上即触发，不必等引信）
@@ -299,9 +369,78 @@ public class LargeFireworksRocketEntity extends Entity {
             this.detonate();
             return;
         }
-        if (life >= this.getFuse()) {
+        // 载人时延长引信：默认引信 93 tick 只够飞到 78 格，而登月需要 500 格以上
+        // （约 life=224）。但不能无上限——若整段飞行都没等到午夜窗口，
+        // 到 MOON_FUSE 仍照常爆炸，避免火箭永远上升。
+        int fuse = this.getPassengers().isEmpty() ? this.getFuse() : MOON_FUSE;
+        if (life >= fuse) {
             this.detonate();
         }
+    }
+
+    /**
+     * 尝试登月：把乘客送进月球维度，然后让火箭本体消失。
+     * @param life 已飞 tick 数，用于降低检测频率
+     * @return 是否已触发登月
+     */
+    private boolean tryMoonTravel(int life) {
+        // 每 5 tick 检一次：条件一旦满足会持续成立，不必逐 tick 判定
+        if (life % 5 != 0) {
+            return false;
+        }
+        if (this.getY() <= ESCAPE_HEIGHT) {
+            return false;
+        }
+        if (this.getPassengers().isEmpty()
+            || !(this.getPassengers().getFirst() instanceof ServerPlayer passenger)) {
+            return false;
+        }
+        if (!(this.level() instanceof ServerLevel overworld)
+            || !overworld.dimension().equals(Level.OVERWORLD)) {
+            return false;
+        }
+        long time = Math.abs(Math.floorMod(overworld.getDayTime(), 24000L) - MIDNIGHT);
+        if (time > MIDNIGHT_WINDOW) {
+            return false;
+        }
+        MinecraftServer server = overworld.getServer();
+        if (server == null) {
+            return false;
+        }
+        ServerLevel mun = server.getLevel(MUN_LEVEL);
+        if (mun == null) {
+            return false;
+        }
+        RandomSource random = mun.getRandom();
+        double angle = random.nextDouble() * (Math.PI * 2.0);
+        double distance = ARRIVAL_MIN_DISTANCE
+            + random.nextDouble() * (ARRIVAL_MAX_DISTANCE - ARRIVAL_MIN_DISTANCE);
+        BlockPos spawn = mun.getSharedSpawnPos();
+        BlockPos landing = CelestialTravelManager.findSafeSurfaceLandingPos(
+            mun,
+            new BlockPos(
+                spawn.getX() + Mth.floor(Math.cos(angle) * distance),
+                0,
+                spawn.getZ() + Mth.floor(Math.sin(angle) * distance)
+            )
+        );
+        if (landing == null) {
+            return false;
+        }
+        // 先下马：changeDimension 会把乘客从当前维度摘走，
+        // 仍挂在一个马上要消失的载具上容易出问题。
+        passenger.stopRiding();
+        passenger.changeDimension(new DimensionTransition(
+            mun,
+            Vec3.atBottomCenterOf(landing),
+            Vec3.ZERO,
+            passenger.getYRot(),
+            passenger.getXRot(),
+            DimensionTransition.DO_NOTHING
+        ));
+        // 火箭本体消失，不在月球上空留下失控烟花
+        this.discard();
+        return true;
     }
 
     /**
@@ -369,14 +508,6 @@ public class LargeFireworksRocketEntity extends Entity {
 
     /**
      * 客户端起爆阶段：按 {@link #BURST_INTERVAL} 逐颗绽放。
-     *
-     * <h3>为什么绽放节奏放在客户端本地推进</h3>
-     * 曾用「事件 id = 17 + 序号」把序号编进 {@code broadcastEntityEvent}，结果客户端崩溃：
-     * 原版 {@code ClientPacketListener#handleEntityEvent} 对 id 21/35/63
-     * （守卫者、图腾、嗅探兽）有硬编码特判并直接强转类型，序号 4 恰好落在 21 上，
-     * 于是装填 5 颗以上必崩（{@code ClassCastException ... cannot be cast to Guardian}）。
-     * 事件 id 是全局共享的，挑「没人用的 id」不可靠，因此改为完全不发实体事件：
-     * 服务端只同步 {@link #DATA_DETONATING}，节奏由客户端按同一组常量本地推进。
      */
     private void tickClientBurst() {
         // 停掉尾焰，且允许重载区块后重新喷一次点火烟团
@@ -398,9 +529,6 @@ public class LargeFireworksRocketEntity extends Entity {
 
     /**
      * 客户端拖尾：喷口芯焰 + 外圈火花 + 烟羽 + 余烬，强度随速度增长。
-     *
-     * <p>各层都带向下的初速（{@code -motion.y * 系数}），所以粒子会留在箭体后方拉出尾迹，
-     * 而不是跟着火箭一起走。
      */
     private void spawnClientTrail() {
         double x = this.getX();
@@ -517,15 +645,6 @@ public class LargeFireworksRocketEntity extends Entity {
         }
     }
 
-    /**
-     * 播放第 {@code index} 颗烟火之星的爆炸——展开为 {@link LargeFireworksRocketBurst#BALLS_PER_STAR} 个球。
-     *
-     * <p>这 4 个球<b>不与本星位置绑定</b>：64 个球（16 星）全部在整个爆炸体积内随机撒开，
-     * 所以观感是「一大团散开的球」而非「每处挤 4 个」。位置用固定种子生成，
-     * 保证各客户端看到的排布一致。
-     *
-     * <p>空装填则照常调用一次，走 {@code ClientLevel#createFireworks} 的白烟分支。
-     */
     private void spawnBurst(int index) {
         List<FireworkExplosion> explosions = this.getExplosions();
         if (explosions.isEmpty()) {
@@ -558,9 +677,6 @@ public class LargeFireworksRocketEntity extends Entity {
 
     /**
      * 在半径为 {@code radius} 的球内均匀取一点。
-     *
-     * <p>立方的根号是为了让点在<b>体积</b>上均匀：直接取 {@code r × random()} 会让点往球心堆积
-     * （半径越小、球壳越小，却分到同样多的点），看起来中心过密。
      */
     private static Vec3 randomOffset(RandomSource random, double radius) {
         if (radius <= 0.0) {
