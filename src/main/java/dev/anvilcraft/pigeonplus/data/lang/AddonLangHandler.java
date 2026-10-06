@@ -47,6 +47,12 @@ public class AddonLangHandler {
         provider.add("death.attack.rocketPunchWallSlam", "%1$s was slammed into a wall by %2$s");
         provider.add("death.attack.uppercut", "%1$s was launched skyward by %2$s");
         provider.add("death.attack.seismicSlam", "%1$s was flattened by %2$s");
+        // 死因带 causingEntity（火箭），故原版会按两个参数格式化：%1$s=死者，%2$s=火箭。
+        // 文案里刻意不引用 %2$s，所以「火箭」不会出现在消息中。
+        provider.add(
+            "death.attack.escapeTowerFailure",
+            "%1$s's escape tower failed to fire"
+        );
         provider.add("subtitles.anvilcraft_pigeon_plus.seismic_slam_leap", "Seismic Slam leaps");
         provider.add("subtitles.anvilcraft_pigeon_plus.seismic_slam_impact", "Seismic Slam impacts");
         provider.add("skill.anvilcraft_pigeon_plus.seismic_slam", "Seismic Slam");

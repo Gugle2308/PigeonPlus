@@ -29,6 +29,7 @@
   "block.anvilcraft_pigeon_plus.paper_block_stairs": "Paper Block Stairs",
   "block.anvilcraft_pigeon_plus.pigeon_anvil": "Pigeon Anvil",
   "block.anvilcraft_pigeon_plus.stasis_beacon": "Stasis Beacon",
+  "death.attack.escapeTowerFailure": "%1$s's escape tower failed to fire",
   "death.attack.nozzleExhaust": "%1$s sat in the duct seat",
   "death.attack.rocketPunch": "%1$s was punched into next week by %2$s",
   "death.attack.rocketPunchWallSlam": "%1$s was slammed into a wall by %2$s",

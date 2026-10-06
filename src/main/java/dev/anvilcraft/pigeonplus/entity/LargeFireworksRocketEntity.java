@@ -2,6 +2,7 @@ package dev.anvilcraft.pigeonplus.entity;
 
 import dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus;
 import dev.anvilcraft.pigeonplus.client.render.LargeFireworksRocketBurst;
+import dev.anvilcraft.pigeonplus.init.AddonDamageTypes;
 import dev.anvilcraft.pigeonplus.init.AddonEntities;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
 import lombok.Getter;
@@ -29,6 +30,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -42,6 +44,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -72,6 +75,12 @@ public class LargeFireworksRocketEntity extends Entity {
      * 到顶仍未等到午夜窗口就照常爆炸，避免载人火箭无限上升。
      */
     private static final int MOON_FUSE = 300;
+    /**
+     * 登月成功概率。
+     *
+     * <p>失败时火箭继续升空，到 {@link #MOON_FUSE} 后照常爆炸。
+     */
+    private static final double MOON_SUCCESS_CHANCE = 0.5;
     /** 爆炸对实体的作用半径。 */
     private static final float BLAST_RADIUS = 12.0F;
     /** 箭体半径，用于撒尾焰粒子。 */
@@ -115,6 +124,19 @@ public class LargeFireworksRocketEntity extends Entity {
     private double lerpZ;
     private double lerpYRot;
     private double lerpXRot;
+
+    /**
+     * 本次飞行的登月判定结果：{@code null} = 还没掷过骰。
+     *
+     * <p><b>必须缓存，不能每次都掷。</b>{@link #tryMoonTravel} 每 5 tick 被调用一次，
+     * 从达标到引信烧完大约会调用 15 次；若每次重掷，失败概率会从 50% 塌缩到
+     * {@code 0.5^15}（约 0.003%），这个特性就等于不存在。
+     *
+     * <p>用三态而非 {@code boolean}：{@code false} 是「已判定为失败」这一有效结果，
+     * 需要一个独立的值表示「尚未判定」。
+     */
+    @Nullable
+    private Boolean moonTravelSucceeds;
 
     private static final EntityDataAccessor<Integer> DATA_FUSE =
         SynchedEntityData.defineId(LargeFireworksRocketEntity.class, EntityDataSerializers.INT);
@@ -368,6 +390,11 @@ public class LargeFireworksRocketEntity extends Entity {
 
     /**
      * 尝试登月：把乘客送进月球维度，然后让火箭本体消失。
+     *
+     * <p>只有 {@link #MOON_SUCCESS_CHANCE} 的概率成功；失败时火箭继续升空，
+     * 到 {@link #MOON_FUSE} 后照常爆炸。掷骰只进行一次并缓存在
+     * {@link #moonTravelSucceeds}（原因见该字段的说明）。
+     *
      * @param life 已飞 tick 数，用于降低检测频率
      * @return 是否已触发登月
      */
@@ -392,8 +419,19 @@ public class LargeFireworksRocketEntity extends Entity {
             return false;
         }
         MinecraftServer server = overworld.getServer();
+        if (server == null) {
+            return false;
+        }
         ServerLevel mun = server.getLevel(MUN_LEVEL);
         if (mun == null) {
+            return false;
+        }
+        // 到这里才算「本可以登月」，此时才掷骰——并且整趟飞行只掷这一次。
+        if (this.moonTravelSucceeds == null) {
+            this.moonTravelSucceeds = this.random.nextDouble() < MOON_SUCCESS_CHANCE;
+        }
+        if (!this.moonTravelSucceeds) {
+            // 失败：什么也不做，让火箭继续升空，到 MOON_FUSE 自然爆炸。
             return false;
         }
         RandomSource random = mun.getRandom();
@@ -448,10 +486,22 @@ public class LargeFireworksRocketEntity extends Entity {
 
         this.gameEvent(GameEvent.EXPLODE, this.owner);
 
+        // 坐在火箭上的乘客必死，且用专门的死因文案。
+        //
+        // 不能指望下面的范围伤害：爆点在箭体中心（y+4.5），而乘客坐在顶面（y+9），
+        // 相距 4.5 格时只结算 (12-4.5)*1.5 = 11.25 点，裸装玩家还剩 8.75 血。
+        // 所以这里直接判死，而不是给一个大伤害值——避免被护甲、抗性、吸收等削减，
+        // 也让「跟火箭一起炸了」这件事在任何装备下都成立。
+        this.killRiders(serverLevel);
+
         // 范围伤害：按距离衰减，带击退
         AABB area = new AABB(x, y, z, x, y, z).inflate(BLAST_RADIUS);
         DamageSource source = this.damageSources().explosion(this, this.owner);
         for (Entity target : serverLevel.getEntities(this, area)) {
+            if (isRider(target)) {
+                // 乘客已经由 escapeTowerFailure 处理，不再吃第二份爆炸伤害
+                continue;
+            }
             double distance = Math.sqrt(target.distanceToSqr(x, y, z));
             if (distance > BLAST_RADIUS) {
                 continue;
@@ -480,6 +530,48 @@ public class LargeFireworksRocketEntity extends Entity {
     private void tickBurst() {
         if (++this.burstTicks > burstDuration(this.getExplosions().size())) {
             this.discard();
+        }
+    }
+
+    /** 该实体是不是正骑在火箭上的乘客（含间接乘客，例如乘客再载着的东西）。 */
+    private boolean isRider(Entity entity) {
+        return entity.getRootVehicle() == this;
+    }
+
+    /**
+     * 让所有乘客必死，死因显示为「逃逸塔没有启动」。
+     *
+     * <p>用一次 {@code hurt} 打出致死伤害，而不是先 {@code kill()} 再补 {@code hurt}：
+     * {@code kill()} 本身就是 {@code hurt(genericKill, MAX_VALUE)}，调用后实体立即进入
+     * 死亡状态，后续 {@code hurt} 会被 {@code isDeadOrDying()} 挡掉，
+     * 死亡消息就会显示成原版的 {@code genericKill} 而非这里的自定义死因。
+     *
+     * <p>伤害取 {@code Float.MAX_VALUE}：这是剧情性的确定死亡，不该被护甲、抗性提升、
+     * 伤害吸收或无敌帧削减，也不该出现「掉一半血活下来」的中间态。
+     *
+     * <p>生物走 {@code hurt} 以便带上死因文案；非生物（如乘客再载着的盔甲架）
+     * 拿不到死亡消息，直接 {@code kill()} 掉，免得留在原地。
+     * 原版 {@code Entity#hurt} 只做标记、不会致死，所以这里必须分开处理。
+     *
+     * <p>取递归乘客（含间接）而非 {@link #getPassengers()}：范围伤害已按 {@link #isRider}
+     * 把间接乘客排除在外，这里要一并处理，否则它会既不吃爆炸也不被判死。
+     *
+     * <p>先拷贝再遍历：死亡会触发 {@code stopRiding} 改动乘客列表。
+     */
+    private void killRiders(ServerLevel level) {
+        // getIndirectPassengers() 是惰性视图，先实体化再遍历：死亡会改动乘客列表。
+        List<Entity> riders = new ArrayList<>();
+        this.getIndirectPassengers().forEach(riders::add);
+        if (riders.isEmpty()) {
+            return;
+        }
+        DamageSource source = AddonDamageTypes.escapeTowerFailure(level, this);
+        for (Entity rider : riders) {
+            if (rider instanceof LivingEntity) {
+                rider.hurt(source, Float.MAX_VALUE);
+            } else {
+                rider.kill();
+            }
         }
     }
 
@@ -699,6 +791,10 @@ public class LargeFireworksRocketEntity extends Entity {
         tag.putBoolean("Detonating", this.isDetonating());
         tag.putInt("BurstTicks", this.burstTicks);
         tag.putString("Facing", this.getFacing().getSerializedName());
+        // 存下登月判定，否则区块重载会重掷骰子：一次已判失败的飞行可能因此又成功。
+        if (this.moonTravelSucceeds != null) {
+            tag.putBoolean("MoonTravelSucceeds", this.moonTravelSucceeds);
+        }
     }
 
     @Override
@@ -714,6 +810,10 @@ public class LargeFireworksRocketEntity extends Entity {
         }
         this.setDetonating(tag.getBoolean("Detonating"));
         this.burstTicks = tag.getInt("BurstTicks");
+        // 只有存过才恢复，没存过就保持 null（= 尚未判定），让它照常在飞行中掷骰。
+        if (tag.contains("MoonTravelSucceeds")) {
+            this.moonTravelSucceeds = tag.getBoolean("MoonTravelSucceeds");
+        }
         Direction.CODEC.parse(NbtOps.INSTANCE, tag.get("Facing"))
             .resultOrPartial(error -> AnvilCraftPigeonPlus.LOGGER.warn(
                 "巨型烟花：无法读取朝向，按北处理：{}", error))
