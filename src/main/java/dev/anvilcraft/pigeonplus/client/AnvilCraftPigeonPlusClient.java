@@ -16,7 +16,9 @@ import dev.anvilcraft.pigeonplus.client.particle.RollingPlasmaParticle;
 import dev.anvilcraft.pigeonplus.client.renderer.block.AnvilPumpBlockEntityRenderer;
 import dev.anvilcraft.pigeonplus.client.renderer.block.BlenderBlockEntityRenderer;
 import dev.anvilcraft.pigeonplus.client.renderer.block.FeedSpreaderBlockEntityRenderer;
+import dev.anvilcraft.pigeonplus.client.fluid.PotionFluidClientExtensions;
 import dev.anvilcraft.pigeonplus.client.renderer.block.NozzleExhaustBlockEntityRenderer;
+import dev.anvilcraft.pigeonplus.client.renderer.block.LargeFireworksRocketBlockEntityRenderer;
 import dev.anvilcraft.pigeonplus.client.renderer.block.StasisBeaconBlockEntityRenderer;
 import dev.anvilcraft.pigeonplus.client.sound.NozzleSoundController;
 import dev.anvilcraft.pigeonplus.client.sound.RocketPunchChargeSoundController;
@@ -211,6 +213,8 @@ public class AnvilCraftPigeonPlusClient {
         event.registerBlockEntityRenderer(ModBlockEntities.FEED_SPREADER.get(), FeedSpreaderBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.STASIS_BEACON.get(), StasisBeaconBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.NOZZLE_EXHAUST.get(), NozzleExhaustBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(
+            ModBlockEntities.LARGE_FIREWORKS_ROCKET.get(), LargeFireworksRocketBlockEntityRenderer::new);
     }
 
     private void onClientSetup(FMLClientSetupEvent event) {
@@ -292,6 +296,8 @@ public class AnvilCraftPigeonPlusClient {
             ),
             AddonFluids.LIQUID_HYDROGEN_TYPE
         );
+        // 药水的颜色随组件变化，所以不能用固定颜色的通用扩展，需专门的实现。
+        event.registerFluidType(new PotionFluidClientExtensions(), AddonFluids.POTION_TYPE);
     }
 
     private void onRegisterItemColors(RegisterColorHandlersEvent.Item event) {

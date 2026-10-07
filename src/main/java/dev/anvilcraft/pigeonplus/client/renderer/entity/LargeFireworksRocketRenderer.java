@@ -11,11 +11,13 @@ import dev.anvilcraft.pigeonplus.init.AddonBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -23,9 +25,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 /**
  * 巨型烟花实体的渲染器：复用方块那三个 Blockbench 模型。
@@ -47,6 +53,22 @@ public class LargeFireworksRocketRenderer extends EntityRenderer<LargeFireworksR
     private static final ResourceLocation LIT_BOTTOM = ResourceLocation.fromNamespaceAndPath(
         AnvilCraftPigeonPlus.MOD_ID, "block/lit_large_fireworks_rocket_bottom");
 
+    /**
+     * 悬浮的末影珍珠相对实体原点（底面）的高度（格）。
+     *
+     * <p>与方块形态的渲染器共用 {@link LargeFireworksRocketEntity#PEARL_RENDER_HEIGHT}。
+     */
+    private static final double PEARL_HEIGHT = LargeFireworksRocketEntity.PEARL_RENDER_HEIGHT;
+
+    /**
+     * 悬浮珍珠的缩放倍数。与方块形态的渲染器共用
+     * {@link LargeFireworksRocketEntity#PEARL_RENDER_SCALE}（那里解释了为什么需要它）。
+     */
+    private static final float PEARL_SCALE = LargeFireworksRocketEntity.PEARL_RENDER_SCALE;
+
+    /** 渲染悬浮物品用。{@code EntityRenderer} 本身不持有，需从 Context 取。 */
+    private final ItemRenderer itemRenderer;
+
     /** 三个模型分段：承载该段模型的部件 + 相对主部件的 Y 偏移（格）。 */
     private static final Segment[] SEGMENTS = {
         new Segment(LargeFireworksRocketPart.Y1_C, 1, ModelResourceLocation.standalone(LIT_BOTTOM)),
@@ -57,24 +79,25 @@ public class LargeFireworksRocketRenderer extends EntityRenderer<LargeFireworksR
     @SuppressWarnings("unused")
     public LargeFireworksRocketRenderer(EntityRendererProvider.Context context) {
         super(context);
+        this.itemRenderer = context.getItemRenderer();
         // 火箭本体就是阴影，再画一圈椭圆阴影只会显得脏。
         this.shadowRadius = 0.0F;
         this.shadowStrength = 0.0F;
     }
 
     @Override
-    public ResourceLocation getTextureLocation(LargeFireworksRocketEntity entity) {
+    public @NonNull ResourceLocation getTextureLocation(@NonNull LargeFireworksRocketEntity entity) {
         // 模型自带纹理，不使用实体贴图；返回占位以满足抽象方法。
         return ResourceLocation.withDefaultNamespace("textures/misc/white.png");
     }
 
     @Override
     public void render(
-        LargeFireworksRocketEntity entity,
+        @NonNull LargeFireworksRocketEntity entity,
         float entityYaw,
         float partialTick,
-        PoseStack poseStack,
-        MultiBufferSource buffer,
+        @NonNull PoseStack poseStack,
+        @NonNull MultiBufferSource buffer,
         int packedLight
     ) {
         ClientLevel level = Minecraft.getInstance().level;
@@ -91,13 +114,7 @@ public class LargeFireworksRocketRenderer extends EntityRenderer<LargeFireworksR
         RandomSource random = RandomSource.create();
 
         poseStack.pushPose();
-        // 朝向：与 blockstate 的 y 旋转同一约定（north=0 / east=90 / south=180 / west=270）。
-        //
-        // 旋转必须<b>先于</b>平移：PoseStack 是右乘（mulPose 后再 translate 等于在该旋转下平移），
-        // 先平移会让旋转中心落在方块角上，模型整体偏离一格多。
-        // 当前顺序的旋转中心是实体原点，即方块中心（X/Z）+ 方块底面（Y），与模型自转中心一致。
         poseStack.mulPose(Axis.YP.rotationDegrees(yawFor(entity.getFacing())));
-        // 模型以方块角为原点，实体在底面中心，补回半格。
         poseStack.translate(-0.5, 0.0, -0.5);
         for (Segment segment : SEGMENTS) {
             BlockState state = base.setValue(LargeFireworksRocketBlock.PART, segment.part())
@@ -106,7 +123,6 @@ public class LargeFireworksRocketRenderer extends EntityRenderer<LargeFireworksR
             VertexConsumer consumer = buffer.getBuffer(renderType);
             poseStack.pushPose();
             poseStack.translate(0.0, segment.offsetY(), 0.0);
-            // pos 必须跟着段一起上移，否则 AO 会一直采样底面那一层。
             BlockPos segmentPos = entityPos.offset(0, segment.offsetY(), 0);
             dispatcher.getModelRenderer().tesselateBlock(
                 level,
@@ -126,7 +142,43 @@ public class LargeFireworksRocketRenderer extends EntityRenderer<LargeFireworksR
         }
         poseStack.popPose();
 
+        // 装了末影珍珠就在箭尖上方悬一颗，提示「逃逸塔已就绪」。
+        if (entity.getPearls() > 0) {
+            this.renderPearl(entity, poseStack, buffer, level);
+        }
+
         super.render(entity, entityYaw, partialTick, poseStack, buffer, packedLight);
+    }
+
+    /**
+     * 装填了末影珍珠时，在箭尖上方显示一颗末影珍珠物品。
+     */
+    private void renderPearl(
+        LargeFireworksRocketEntity entity,
+        PoseStack poseStack,
+        MultiBufferSource buffer,
+        ClientLevel level
+    ) {
+        // 从实体原点（底面中心）起算，不再叠加箭体的 -0.5 半格修正：
+        // 那是给「以方块角为原点」的方块模型用的，而物品模型以原点为中心。
+        poseStack.pushPose();
+        poseStack.translate(0.0, PEARL_HEIGHT, 0.0);
+        // 刻意不加旋转：保持模型自身朝向（面向南北）。
+        // 抵消 GROUND 自带的 0.5 缩放（详见 PEARL_RENDER_SCALE 的说明）。
+        poseStack.scale(PEARL_SCALE, PEARL_SCALE, PEARL_SCALE);
+        BlockPos pearlPos = BlockPos.containing(
+            entity.getX(), entity.getY() + PEARL_HEIGHT, entity.getZ());
+        this.itemRenderer.renderStatic(
+            new ItemStack(Items.ENDER_PEARL),
+            ItemDisplayContext.GROUND,
+            LevelRenderer.getLightColor(level, pearlPos),
+            OverlayTexture.NO_OVERLAY,
+            poseStack,
+            buffer,
+            level,
+            entity.getId()
+        );
+        poseStack.popPose();
     }
 
     /** 朝向对应的 Y 轴旋转角度，与原版 blockstate 的 {@code y} 约定一致。 */
@@ -140,11 +192,7 @@ public class LargeFireworksRocketRenderer extends EntityRenderer<LargeFireworksR
     }
 
     /**
-     * 取该分段要用的模型：底段换成点燃版 {@code lit_large_fireworks_rocket_bottom}，其余用方块状态解析。
-     *
-     * <p>点燃版只有 UV 不同（几何完全一致），所以碰撞箱与分段偏移都不用改。
-     * 直接调 {@code tesselateBlock} 而不是 {@code renderBatched}，只是为了能传入这个
-     * 不从方块状态来的模型；两者走的是同一条着色路径。
+     * 取该分段要用的模型：底段换成点燃版 {@code lit_large_fireworks_rocket_bottom}
      */
     private BakedModel resolveModel(BlockRenderDispatcher dispatcher, BlockState state, Segment segment) {
         if (segment.standalone() == null) {

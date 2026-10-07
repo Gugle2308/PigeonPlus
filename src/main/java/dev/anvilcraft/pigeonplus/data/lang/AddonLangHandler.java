@@ -35,6 +35,8 @@ public class AddonLangHandler {
         provider.add("block.anvilcraft_pigeon_plus.mixed_biomass", "Mixed Biomass");
         provider.add("block.anvilcraft_pigeon_plus.liquid_oxygen", "Liquid Oxygen");
         provider.add("block.anvilcraft_pigeon_plus.liquid_hydrogen", "Liquid Hydrogen");
+        // 药水流体只有一种，具体药水由组件决定，所以显示名带一个药水名占位符。
+        provider.add("block.anvilcraft_pigeon_plus.potion", "Potion of %s");
         provider.add("subtitles.anvilcraft_pigeon_plus.engine_on", "Nozzle engine starts");
         provider.add("subtitles.anvilcraft_pigeon_plus.engine_fire", "Nozzle engine roars");
         provider.add("subtitles.anvilcraft_pigeon_plus.rocket_punch_cast", "Rocket Punch");
@@ -72,6 +74,14 @@ public class AddonLangHandler {
         provider.add(
             "message.anvilcraft_pigeon_plus.large_fireworks_rocket.full",
             "This large firework is already full (%s stars)"
+        );
+        provider.add(
+            "message.anvilcraft_pigeon_plus.large_fireworks_rocket.pearl_installed",
+            "Loaded ender pearl %s/%s"
+        );
+        provider.add(
+            "message.anvilcraft_pigeon_plus.large_fireworks_rocket.pearl_full",
+            "This large firework already holds the maximum %s ender pearls"
         );
         provider.add("gui.anvilcraft_pigeon_plus.category.gas_liquefaction", "Gas Liquefaction");
         provider.add("gui.anvilcraft_pigeon_plus.gas_liquefaction.fill_then", "After Full");

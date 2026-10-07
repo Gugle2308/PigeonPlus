@@ -54,6 +54,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class LargeFireworksRocketBlock extends SimpleMultiPartBlock<LargeFireworksRocketPart>
     implements IHammerRemovable, EntityBlock {
@@ -203,6 +204,14 @@ public class LargeFireworksRocketBlock extends SimpleMultiPartBlock<LargeFirewor
                 ? this.installStar(serverLevel, pos, state, player, held)
                 : InteractionResult.PASS;
         }
+        if (held.is(Items.ENDER_PEARL)) {
+            if (level.isClientSide()) {
+                return InteractionResult.SUCCESS;
+            }
+            return level instanceof ServerLevel serverLevel
+                ? this.installPearl(serverLevel, pos, state, player, held)
+                : InteractionResult.PASS;
+        }
         if (held.is(Items.FLINT_AND_STEEL) || held.is(Items.FIRE_CHARGE)) {
             return this.ignite(state, level, pos, player, hand, held);
         }
@@ -296,15 +305,17 @@ public class LargeFireworksRocketBlock extends SimpleMultiPartBlock<LargeFirewor
         }
         BlockPos mainPos = this.getMainPartPos(pos, state);
         // 必须在拆结构之前读取：拆掉主部件会连带移除方块实体。
-        List<FireworkExplosion> explosions = level.getBlockEntity(mainPos)
-            instanceof LargeFireworksRocketBlockEntity fireworks
-            ? fireworks.getExplosions()
-            : List.of();
+        List<FireworkExplosion> explosions = List.of();
+        List<UUID> pearlOwners = List.of();
+        if (level.getBlockEntity(mainPos) instanceof LargeFireworksRocketBlockEntity fireworks) {
+            explosions = fireworks.getExplosions();
+            pearlOwners = fireworks.getPearlOwners();
+        }
         // 也要在拆结构之前：座位上的人先接下来，等下转移到飞行实体上。
         Entity rider = this.detachRider(serverLevel, mainPos);
         this.removePartsAndUpdate(level, pos);
-        LargeFireworksRocketEntity rocket =
-            LargeFireworksRocketEntity.launch(serverLevel, mainPos, state.getValue(FACING), player, explosions);
+        LargeFireworksRocketEntity rocket = LargeFireworksRocketEntity.launch(
+            serverLevel, mainPos, state.getValue(FACING), player, explosions, pearlOwners);
         if (rider != null) {
             // 强制上马：乘客自身的 canRide 检查（例如潜行）在这里不适用。
             // 刻意不给免伤——坐在火箭顶上被自己的烟花炸死是预期行为。
@@ -322,7 +333,54 @@ public class LargeFireworksRocketBlock extends SimpleMultiPartBlock<LargeFirewor
         return InteractionResult.CONSUME;
     }
 
-    /** 装填一个烟火之星，只取出其中的 {@link FireworkExplosion} 存进方块实体。 */
+    /**
+     * 装填一颗末影珍珠，并把它绑定到投放它的玩家。
+     */
+    private InteractionResult installPearl(
+        ServerLevel level,
+        BlockPos pos,
+        BlockState state,
+        Player player,
+        ItemStack stack
+    ) {
+        BlockPos mainPos = this.getMainPartPos(pos, state);
+        if (!(level.getBlockEntity(mainPos) instanceof LargeFireworksRocketBlockEntity fireworks)) {
+            return InteractionResult.PASS;
+        }
+        if (fireworks.isPearlFull()) {
+            player.displayClientMessage(
+                Component.translatable(
+                    "message.anvilcraft_pigeon_plus.large_fireworks_rocket.pearl_full",
+                    LargeFireworksRocketBlockEntity.MAX_PEARLS
+                ),
+                true
+            );
+            return InteractionResult.FAIL;
+        }
+        if (!fireworks.addPearl(player.getUUID())) {
+            return InteractionResult.FAIL;
+        }
+        if (!player.getAbilities().instabuild) {
+            stack.shrink(1);
+        }
+        level.playSound(
+            null, mainPos, SoundEvents.ENDER_PEARL_THROW, SoundSource.BLOCKS,
+            1.0F, 1.0F
+        );
+        player.displayClientMessage(
+            Component.translatable(
+                "message.anvilcraft_pigeon_plus.large_fireworks_rocket.pearl_installed",
+                fireworks.getPearlCount(),
+                LargeFireworksRocketBlockEntity.MAX_PEARLS
+            ),
+            true
+        );
+        return InteractionResult.CONSUME;
+    }
+
+    /**
+     * 装填一个烟火之星，只取出其中的 {@link FireworkExplosion} 存进方块实体。
+     */
     private InteractionResult installStar(
         ServerLevel level,
         BlockPos pos,
@@ -377,7 +435,7 @@ public class LargeFireworksRocketBlock extends SimpleMultiPartBlock<LargeFirewor
     }
 
     /**
-     * 拆除时把已装填的烟火之星还回来。
+     * 拆除时把已装填的烟火之星与末影珍珠还回来。
      *
      * <p>战利品表只为主部件产出方块本体、方块实体也只在主部件上，所以只在正确拆除主部件时生效；
      * 拆其它部件会由 {@code AbstractMultiPartBlock#updateShape} 连带清掉整座结构，装填物仍会丢失——
@@ -392,6 +450,9 @@ public class LargeFireworksRocketBlock extends SimpleMultiPartBlock<LargeFirewor
                 ItemStack star = new ItemStack(Items.FIREWORK_STAR);
                 star.set(DataComponents.FIREWORK_EXPLOSION, explosion);
                 drops.add(star);
+            }
+            for (int i = 0; i < fireworks.getPearlCount(); i++) {
+                drops.add(new ItemStack(Items.ENDER_PEARL));
             }
         }
         return drops;
