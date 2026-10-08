@@ -1,8 +1,10 @@
 package dev.anvilcraft.pigeonplus.block.entity;
 
 import dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus;
+import dev.anvilcraft.pigeonplus.fluid.PotionBottleFluidHandler;
 import dev.anvilcraft.pigeonplus.init.AddonBlocks;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -52,6 +54,13 @@ public class ModBlockEntities {
             Capabilities.ItemHandler.BLOCK,
             FEED_SPREADER.get(),
             (blockEntity, side) -> blockEntity.getInventory()
+        );
+        event.registerItem(
+            Capabilities.FluidHandler.ITEM,
+            (stack, context) -> new PotionBottleFluidHandler(stack),
+            Items.POTION,
+            Items.SPLASH_POTION,
+            Items.LINGERING_POTION
         );
     }
 }

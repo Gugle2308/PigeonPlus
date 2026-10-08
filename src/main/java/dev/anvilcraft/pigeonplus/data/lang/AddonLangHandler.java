@@ -35,8 +35,10 @@ public class AddonLangHandler {
         provider.add("block.anvilcraft_pigeon_plus.mixed_biomass", "Mixed Biomass");
         provider.add("block.anvilcraft_pigeon_plus.liquid_oxygen", "Liquid Oxygen");
         provider.add("block.anvilcraft_pigeon_plus.liquid_hydrogen", "Liquid Hydrogen");
-        // 药水流体只有一种，具体药水由组件决定，所以显示名带一个药水名占位符。
-        provider.add("block.anvilcraft_pigeon_plus.potion", "Potion of %s");
+        provider.add("block.anvilcraft_pigeon_plus.potion", "Potion");
+        provider.add("fluid.anvilcraft_pigeon_plus.potion.of", "%s%s");
+        provider.add("fluid.anvilcraft_pigeon_plus.potion.long", "Long ");
+        provider.add("fluid.anvilcraft_pigeon_plus.potion.strong", "Strong ");
         provider.add("subtitles.anvilcraft_pigeon_plus.engine_on", "Nozzle engine starts");
         provider.add("subtitles.anvilcraft_pigeon_plus.engine_fire", "Nozzle engine roars");
         provider.add("subtitles.anvilcraft_pigeon_plus.rocket_punch_cast", "Rocket Punch");
@@ -49,8 +51,6 @@ public class AddonLangHandler {
         provider.add("death.attack.rocketPunchWallSlam", "%1$s was slammed into a wall by %2$s");
         provider.add("death.attack.uppercut", "%1$s was launched skyward by %2$s");
         provider.add("death.attack.seismicSlam", "%1$s was flattened by %2$s");
-        // 死因带 causingEntity（火箭），故原版会按两个参数格式化：%1$s=死者，%2$s=火箭。
-        // 文案里刻意不引用 %2$s，所以「火箭」不会出现在消息中。
         provider.add(
             "death.attack.escapeTowerFailure",
             "%1$s's escape tower failed to fire"
