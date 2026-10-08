@@ -13,7 +13,7 @@ import dev.dubhe.anvilcraft.api.heat.HeatRecorder;
 import dev.dubhe.anvilcraft.api.heat.HeatTier;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
@@ -340,7 +340,7 @@ public class NozzleExhaustBlockEntity extends BlockEntity {
     }
 
     private void provideCharge(Level level) {
-        if (level.getGameTime() % (ChargeCollectorBlockEntity.INPUT_COOLDOWN * 20) != 0) {
+        if (level.getGameTime() % (AnvilCraft.CONFIG.machines.chargeCollectorInputCooldown * 20) != 0) {
             return;
         }
         ChargeCollectorManager instance = ChargeCollectorManager.getInstance(level);

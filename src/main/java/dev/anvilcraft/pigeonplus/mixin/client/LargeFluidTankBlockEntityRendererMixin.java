@@ -49,7 +49,7 @@ public class LargeFluidTankBlockEntityRendererMixin {
 
         long totalAmount = fluids.stream().mapToLong(FluidStack::getAmount).sum();
         long renderAmount = tank.isEnhanced()
-            ? Math.max(totalAmount, LargeFluidTankBlockEntity.INFINITY_THRESHOLD)
+            ? Math.max(totalAmount, LargeFluidTankBlockEntity.infinityThreshold())
             : LargeFluidTankBlockEntity.BASE_CAPACITY;
         GasContainerRenderUtil.renderLayeredFluidBox(
             fluids,

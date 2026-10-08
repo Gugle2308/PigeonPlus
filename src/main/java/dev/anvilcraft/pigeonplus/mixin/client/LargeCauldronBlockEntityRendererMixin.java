@@ -155,7 +155,7 @@ import java.util.List;
         }
         GasContainerRenderUtil.renderLayeredFluidBox(
             layers,
-            (double) LargeCauldronFluidHandler.TANK_COUNT * LargeCauldronFluidHandler.TANK_CAPACITY,
+            (double) LargeCauldronFluidHandler.TANK_COUNT * LargeCauldronFluidHandler.tankCapacity(),
             PIGEONPLUS_MIN_XZ,
             PIGEONPLUS_MIN_Y,
             PIGEONPLUS_MIN_XZ,

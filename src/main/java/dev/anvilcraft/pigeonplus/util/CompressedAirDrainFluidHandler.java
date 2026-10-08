@@ -1,8 +1,8 @@
 package dev.anvilcraft.pigeonplus.util;
 
 import dev.anvilcraft.pigeonplus.init.AddonFluids;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.fluidtank.InfinityFluidTank;
-import dev.dubhe.anvilcraft.block.entity.fluid.DrainBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -16,8 +16,6 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.NotNull;
 
 public class CompressedAirDrainFluidHandler extends InfinityFluidTank {
-    private static final int AIR_CAPACITY = DrainBlockEntity.CAPACITY;
-
     private final Level level;
     private final BlockPos pos;
     private final IFluidHandler delegate;
@@ -28,11 +26,17 @@ public class CompressedAirDrainFluidHandler extends InfinityFluidTank {
         this.delegate = delegate;
     }
 
+    // 2467 起这个容量由配置项提供（原 DrainBlockEntity.CAPACITY 常量已移除），
+    // 配置可在运行时改动，所以每次读取而不是缓存成常量。
+    private static int airCapacity() {
+        return AnvilCraft.CONFIG.machines.drainCapacity;
+    }
+
 
     @Override
     public FluidStack getFluid() {
         return this.canExtractAir()
-            ? new FluidStack(AddonFluids.COMPRESSED_AIR.get(), AIR_CAPACITY)
+            ? new FluidStack(AddonFluids.COMPRESSED_AIR.get(), airCapacity())
             : FluidStack.EMPTY;
     }
 
@@ -65,7 +69,7 @@ public class CompressedAirDrainFluidHandler extends InfinityFluidTank {
             return this.delegate.getFluidInTank(tank);
         }
         return this.canExtractAir()
-            ? new FluidStack(AddonFluids.COMPRESSED_AIR.get(), AIR_CAPACITY)
+            ? new FluidStack(AddonFluids.COMPRESSED_AIR.get(), airCapacity())
             : FluidStack.EMPTY;
     }
 
@@ -74,7 +78,7 @@ public class CompressedAirDrainFluidHandler extends InfinityFluidTank {
         if (tank < this.delegate.getTanks()) {
             return this.delegate.getTankCapacity(tank);
         }
-        return AIR_CAPACITY;
+        return airCapacity();
     }
 
     @Override
@@ -90,7 +94,7 @@ public class CompressedAirDrainFluidHandler extends InfinityFluidTank {
     @Override
     public @NotNull FluidStack drain(FluidStack resource, FluidAction action) {
         if (resource.getFluid().isSame(AddonFluids.COMPRESSED_AIR.get()) && this.canExtractAir()) {
-            int amount = Math.min(resource.getAmount(), AIR_CAPACITY);
+            int amount = Math.min(resource.getAmount(), airCapacity());
             this.spawnAirIntakeParticles(amount, action);
             return resource.copyWithAmount(amount);
         }
@@ -106,7 +110,7 @@ public class CompressedAirDrainFluidHandler extends InfinityFluidTank {
         if (!this.canExtractAir()) {
             return FluidStack.EMPTY;
         }
-        int amount = Math.min(maxDrain, AIR_CAPACITY);
+        int amount = Math.min(maxDrain, airCapacity());
         this.spawnAirIntakeParticles(amount, action);
         return new FluidStack(AddonFluids.COMPRESSED_AIR.get(), amount);
     }
