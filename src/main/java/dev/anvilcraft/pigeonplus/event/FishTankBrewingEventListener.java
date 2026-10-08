@@ -46,20 +46,31 @@ public class FishTankBrewingEventListener {
         if (isDuplicate(level, tankPos)) {
             return;
         }
-        if (!AmbientHeater.hasActiveHeaterBelow(level, tankPos)) {
-            return;
-        }
         IFluidHandler fluids = tank.getFluidHandler();
         FluidStack stored = fluids.getFluidInTank(0);
-        PotionContents contents = PotionBrewingHelper.resolveContents(stored);
-        if (contents == null) {
-            return;
-        }
         IItemHandler input = tank.getInput();
-        PotionBrewingHelper.Selection selection = PotionBrewingHelper.select(level.potionBrewing(), contents, input);
-        if (selection == null) {
-            return;
+        PotionContents contents = PotionBrewingHelper.resolveContents(stored);
+        // 酿造需要加热；固液反应（药片）不需要，所以加热只门控酿造这一段。
+        if (contents != null && AmbientHeater.hasActiveHeaterBelow(level, tankPos)) {
+            PotionBrewingHelper.Selection selection =
+                PotionBrewingHelper.select(level.potionBrewing(), contents, input);
+            if (selection != null && brew(level, tankPos, fluids, input, stored, selection)) {
+                return;
+            }
         }
+        if (PotionBrewingHelper.tryMakePills(fluids, input, tank.getOutputHandler())) {
+            level.playSound(null, tankPos, SoundEvents.BREWING_STAND_BREW, SoundSource.BLOCKS, 1.0F, 1.0F);
+        }
+    }
+
+    private static boolean brew(
+        Level level,
+        BlockPos tankPos,
+        IFluidHandler fluids,
+        IItemHandler input,
+        FluidStack stored,
+        PotionBrewingHelper.Selection selection
+    ) {
         int amount = stored.getAmount();
         fluids.drain(amount, IFluidHandler.FluidAction.EXECUTE);
         FluidStack product = PotionFluidUtil.withContents(
@@ -71,14 +82,14 @@ public class FishTankBrewingEventListener {
                 fluids.drain(filled, IFluidHandler.FluidAction.EXECUTE);
             }
             fluids.fill(stored, IFluidHandler.FluidAction.EXECUTE);
-            return;
+            return false;
         }
         input.extractItem(selection.slot(), 1, false);
         level.playSound(null, tankPos, SoundEvents.BREWING_STAND_BREW, SoundSource.BLOCKS, 1.0F, 1.0F);
+        return true;
     }
 
-    private static boolean isDuplicate(Level level, BlockPos pos) {
-        long tick = level.getGameTime();
+    private static boolean isDuplicate(Level level, BlockPos pos) {        long tick = level.getGameTime();
         if (level == lastLevel && pos.equals(lastPos) && tick == lastTick) {
             return true;
         }

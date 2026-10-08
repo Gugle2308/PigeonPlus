@@ -53,16 +53,30 @@ public class LargeCauldronBrewingEventListener {
         if (isDuplicate(level, main.getBlockPos())) {
             return;
         }
-        if (!AmbientHeater.hasActiveHeaterArrayBelow(
-            level, main.getBlockPos(), level.getBlockState(main.getBlockPos()))) {
-            return;
-        }
         LargeCauldronFluidHandler fluids = main.getFluids();
-        PotionBrewing brewing = level.potionBrewing();
         // 必须用 getInputHandler()：getInput() 在非处理状态下返回 EMPTY_HANDLER，恒为空。
         LargeCauldronInputHandler input = main.getInputHandler();
+        // 酿造需要加热；固液反应（药片）不需要，所以加热只门控酿造这一段。
+        if (AmbientHeater.hasActiveHeaterArrayBelow(
+            level, main.getBlockPos(), level.getBlockState(main.getBlockPos()))) {
+            if (brewAny(level, main, fluids, input)) {
+                return;
+            }
+        }
         // 锅内可能同时存在多种药水，逐个尝试，取第一个有可用配方的。
         // 只看第一种会让「迅捷排在粗制之前」时永远酿不动粗制。
+        if (PotionBrewingHelper.tryMakePills(fluids, input, main.getOutputHandler())) {
+            level.playSound(null, main.getBlockPos(), SoundEvents.BREWING_STAND_BREW, SoundSource.BLOCKS, 1.0F, 1.0F);
+        }
+    }
+
+    private static boolean brewAny(
+        Level level,
+        LargeCauldronBlockEntity main,
+        LargeCauldronFluidHandler fluids,
+        LargeCauldronInputHandler input
+    ) {
+        PotionBrewing brewing = level.potionBrewing();
         for (FluidStack stored : fluids.copyFluids()) {
             if (stored.isEmpty()) {
                 continue;
@@ -76,9 +90,10 @@ public class LargeCauldronBrewingEventListener {
                 continue;
             }
             if (brew(level, main, fluids, input, stored, selection)) {
-                return;
+                return true;
             }
         }
+        return false;
     }
 
     private static boolean brew(
