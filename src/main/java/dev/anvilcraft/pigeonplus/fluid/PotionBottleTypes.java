@@ -4,11 +4,13 @@ import dev.anvilcraft.pigeonplus.init.AddonItems;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.Nullable;
 
 public final class PotionBottleTypes {
     private PotionBottleTypes() {
     }
 
+    @Nullable
     public static Item filledFor(ItemStack bottle) {
         if (bottle.is(Items.GLASS_BOTTLE)) {
             return Items.POTION;

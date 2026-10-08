@@ -3,11 +3,13 @@ package dev.anvilcraft.pigeonplus.fluid;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
+import org.jspecify.annotations.NonNull;
 
 public class PotionFluidType extends FluidType {
     private static final String FLAVORED_KEY = "fluid.anvilcraft_pigeon_plus.potion.of";
@@ -25,7 +27,7 @@ public class PotionFluidType extends FluidType {
     }
 
     @Override
-    public Component getDescription(FluidStack stack) {
+    public @NonNull Component getDescription(FluidStack stack) {
         PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
         if (contents == null || contents.potion().isEmpty()) {
             return super.getDescription(stack);
@@ -37,7 +39,7 @@ public class PotionFluidType extends FluidType {
     // 原版把变种的 Potion.name 设成基名，靠注册名前缀才能区分。
     private static Component variantPrefix(Holder<Potion> potion) {
         String path = potion.unwrapKey()
-            .map(key -> key.location())
+            .map(ResourceKey::location)
             .map(ResourceLocation::getPath)
             .orElse("");
         if (path.startsWith(LONG_PREFIX)) {
