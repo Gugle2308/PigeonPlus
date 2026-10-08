@@ -14,8 +14,13 @@ import dev.anvilcraft.pigeonplus.init.ModCriterionTriggers;
 import dev.anvilcraft.pigeonplus.init.AddonParticles;
 import dev.anvilcraft.pigeonplus.init.AddonRecipeTypes;
 import dev.anvilcraft.pigeonplus.init.AddonSounds;
+import dev.anvilcraft.pigeonplus.event.PotionBottleDispenseBehavior;
 import dev.anvilcraft.lib.v2.registrum.Registrum;
+import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
+import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.DispenserBlock;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -62,5 +67,13 @@ public class AnvilCraftPigeonPlus {
 
     private static void loadComplete(FMLLoadCompleteEvent event) {
         event.enqueueWork(AddonInteractionMap::init);
+        event.enqueueWork(() -> {
+            DispenseItemBehavior previous = DispenserBlock.DISPENSER_REGISTRY.get(Items.GLASS_BOTTLE);
+            DispenserBlock.registerBehavior(
+                Items.GLASS_BOTTLE,
+                new PotionBottleDispenseBehavior(
+                    previous != null ? previous : new DefaultDispenseItemBehavior())
+            );
+        });
     }
 }
