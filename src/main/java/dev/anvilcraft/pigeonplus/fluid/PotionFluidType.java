@@ -30,7 +30,6 @@ public class PotionFluidType extends FluidType {
         Component base = Component.translatable(Potion.getName(contents.potion(), POTION_NAME_PREFIX));
         return Component.translatable(FLAVORED_KEY, variantPrefix(contents.potion().get()), base);
     }
-
     // 原版把变种的 Potion.name 设成基名，靠注册名前缀才能区分。
     private static Component variantPrefix(Holder<Potion> potion) {
         if (PotionVariants.isLong(potion)) {

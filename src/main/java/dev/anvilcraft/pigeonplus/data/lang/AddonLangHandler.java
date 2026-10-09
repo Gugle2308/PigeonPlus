@@ -67,6 +67,16 @@ public class AddonLangHandler {
             "Turns the Anvil Hammer into a pure weapon: it can no longer rotate or break blocks, open a portable anvil, rocket jump, or act as goggles."
         );
         provider.add("gui.anvilcraft_pigeon_plus.category.blending", "Blending");
+        provider.add("gui.anvilcraft_pigeon_plus.category.potion_brewing", "Potion Brewing");
+        provider.add(
+            "gui.anvilcraft_pigeon_plus.category.potion_brewing.whole_tank",
+            "Converts all potion in the container"
+        );
+        provider.add("gui.anvilcraft_pigeon_plus.category.potion_bulk_brewing", "Bulk Potion Brewing");
+        provider.add(
+            "gui.anvilcraft_pigeon_plus.category.potion_bulk_brewing.bulk",
+            "Brews 8B at once, using only one reagent"
+        );
         provider.add(
             "message.anvilcraft_pigeon_plus.large_fireworks_rocket.installed",
             "Loaded firework star %s/%s"
