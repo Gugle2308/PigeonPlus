@@ -7,6 +7,7 @@ public class AddonRecipeHandler {
         new AddonShapedRecipeLoader(provider);
         AddonBlendingRecipeLoader.init(provider);
         AddonItemInjectRecipeLoader.init(provider);
+        AddonItemCompressRecipeLoader.init(provider);
         AddonFluidMixingRecipeLoader.init(provider);
         AddonGasLiquefactionRecipeLoader.init(provider);
         AddonMultiblockRecipeLoader.init(provider);

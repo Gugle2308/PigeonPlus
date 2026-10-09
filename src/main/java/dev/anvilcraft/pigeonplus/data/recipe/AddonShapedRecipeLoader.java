@@ -2,6 +2,7 @@ package dev.anvilcraft.pigeonplus.data.recipe;
 
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
 import dev.anvilcraft.pigeonplus.init.AddonBlocks;
+import dev.anvilcraft.pigeonplus.init.AddonItems;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -15,6 +16,50 @@ public class AddonShapedRecipeLoader {
         this.anvilPump(provider);
         this.feedSpreader(provider);
         this.pigeonAnvil(provider);
+        this.paperBlockStairs(provider);
+        this.paperBlockSlab(provider);
+        this.splashBottle(provider);
+        this.lingeringBottle(provider);
+    }
+
+    private void splashBottle(RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.BREWING, AddonItems.SPLASH_BOTTLE)
+            .pattern("GGG")
+            .pattern("GFG")
+            .pattern("GGG")
+            .define('G', Items.GLASS_BOTTLE)
+            .define('F', Items.GUNPOWDER)
+            .unlockedBy("has_gunpowder", RegistrumRecipeProvider.has(Items.GUNPOWDER))
+            .save(provider);
+    }
+
+    private void lingeringBottle(RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.BREWING, AddonItems.LINGERING_BOTTLE)
+            .pattern("GGG")
+            .pattern("GAG")
+            .pattern("GGG")
+            .define('G', Items.GLASS_BOTTLE)
+            .define('A', Items.DRAGON_BREATH)
+            .unlockedBy("has_dragon_breath", RegistrumRecipeProvider.has(Items.DRAGON_BREATH))
+            .save(provider);
+    }
+
+    private void paperBlockStairs(RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, AddonBlocks.PAPER_BLOCK_STAIRS, 6)
+            .pattern("P  ")
+            .pattern("PP ")
+            .pattern("PPP")
+            .define('P', AddonBlocks.PAPER_BLOCK)
+            .unlockedBy("has_paper_block", RegistrumRecipeProvider.has(AddonBlocks.PAPER_BLOCK))
+            .save(provider);
+    }
+
+    private void paperBlockSlab(RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, AddonBlocks.PAPER_BLOCK_SLAB, 6)
+            .pattern("PPP")
+            .define('P', AddonBlocks.PAPER_BLOCK)
+            .unlockedBy("has_paper_block", RegistrumRecipeProvider.has(AddonBlocks.PAPER_BLOCK))
+            .save(provider);
     }
 
     private void blender(RegistrumRecipeProvider provider) {

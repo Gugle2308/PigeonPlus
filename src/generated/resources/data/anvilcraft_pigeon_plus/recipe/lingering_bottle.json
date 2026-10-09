@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "minecraft:dragon_breath"
+    },
+    "G": {
+      "item": "minecraft:glass_bottle"
+    }
+  },
+  "pattern": [
+    "GGG",
+    "GAG",
+    "GGG"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft_pigeon_plus:lingering_bottle"
+  }
+}
