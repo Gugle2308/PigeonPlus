@@ -5,7 +5,9 @@ import dev.anvilcraft.pigeonplus.integration.jei.category.BlendingCategory;
 import dev.anvilcraft.pigeonplus.integration.jei.category.GasLiquefactionCategory;
 import dev.anvilcraft.pigeonplus.integration.jei.category.PotionBrewingCategory;
 import dev.anvilcraft.pigeonplus.integration.jei.category.PotionBulkBrewingCategory;
+import dev.anvilcraft.pigeonplus.integration.jei.category.PotionSoakingCategory;
 import dev.anvilcraft.pigeonplus.integration.jei.recipe.PotionBrewingJeiRecipe;
+import dev.anvilcraft.pigeonplus.integration.jei.recipe.PotionSoakingJeiRecipe;
 import dev.anvilcraft.pigeonplus.recipe.GasLiquefactionRecipe;
 import dev.anvilcraft.pigeonplus.recipe.anvil.wrap.BlendingRecipe;
 import mezz.jei.api.IModPlugin;
@@ -30,6 +32,8 @@ public class AnvilCraftPigeonPlusJeiPlugin implements IModPlugin {
         RecipeType.create(AnvilCraftPigeonPlus.MOD_ID, "potion_brewing", PotionBrewingJeiRecipe.class);
     public static final RecipeType<PotionBrewingJeiRecipe> POTION_BULK_BREWING =
         RecipeType.create(AnvilCraftPigeonPlus.MOD_ID, "potion_bulk_brewing", PotionBrewingJeiRecipe.class);
+    public static final RecipeType<PotionSoakingJeiRecipe> POTION_SOAKING =
+        RecipeType.create(AnvilCraftPigeonPlus.MOD_ID, "potion_soaking", PotionSoakingJeiRecipe.class);
 
     @Override
     public @NotNull ResourceLocation getPluginUid() {
@@ -44,6 +48,7 @@ public class AnvilCraftPigeonPlusJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new GasLiquefactionCategory(guiHelper));
         registration.addRecipeCategories(new PotionBrewingCategory(guiHelper));
         registration.addRecipeCategories(new PotionBulkBrewingCategory(guiHelper));
+        registration.addRecipeCategories(new PotionSoakingCategory(guiHelper));
     }
 
     @Override
@@ -52,6 +57,7 @@ public class AnvilCraftPigeonPlusJeiPlugin implements IModPlugin {
         GasLiquefactionCategory.registerRecipes(registration);
         PotionBrewingCategory.registerRecipes(registration);
         PotionBulkBrewingCategory.registerRecipes(registration);
+        PotionSoakingCategory.registerRecipes(registration);
     }
 
     @Override
@@ -60,5 +66,6 @@ public class AnvilCraftPigeonPlusJeiPlugin implements IModPlugin {
         GasLiquefactionCategory.registerRecipeCatalysts(registration);
         PotionBrewingCategory.registerRecipeCatalysts(registration);
         PotionBulkBrewingCategory.registerRecipeCatalysts(registration);
+        PotionSoakingCategory.registerRecipeCatalysts(registration);
     }
 }

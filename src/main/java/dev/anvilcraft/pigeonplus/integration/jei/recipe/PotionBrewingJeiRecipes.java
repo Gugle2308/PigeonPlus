@@ -3,6 +3,7 @@ package dev.anvilcraft.pigeonplus.integration.jei.recipe;
 import dev.anvilcraft.pigeonplus.fluid.PotionFluidUtil;
 import dev.anvilcraft.pigeonplus.fluid.PotionVariants;
 import dev.anvilcraft.pigeonplus.init.AddonFluids;
+import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.core.Holder;
@@ -26,6 +27,9 @@ import java.util.Map;
 import java.util.Set;
 
 public final class PotionBrewingJeiRecipes {
+    // 与 PotionBrewingHelper 里固液反应的数量保持一致。
+    private static final int SOAK_ITEM_COUNT = 8;
+
     private PotionBrewingJeiRecipes() {
     }
 
@@ -183,5 +187,95 @@ public final class PotionBrewingJeiRecipes {
         ItemStack item = new ItemStack(Items.POTION);
         item.set(DataComponents.POTION_CONTENTS, contents);
         return item;
+    }
+
+    /**
+     * 泡药：把可浸泡的物品放进药水里，注入对应的药水效果。
+     */
+    public static List<PotionSoakingJeiRecipe> buildSoaking(int amount) {
+        ClientPacketListener connection = Minecraft.getInstance().getConnection();
+        if (connection == null) {
+            return List.of();
+        }
+        PotionBrewing brewing = connection.potionBrewing();
+        List<ItemStack> reagents = new ArrayList<>();
+        for (Item item : BuiltInRegistries.ITEM) {
+            ItemStack stack = new ItemStack(item);
+            if (brewing.isIngredient(stack)) {
+                reagents.add(stack);
+            }
+        }
+        // 只有能作为酿造结果的药水才可能用来浸泡：用同一套规则筛一遍。
+        Map<String, PotionContents> reachable = new LinkedHashMap<>();
+        BuiltInRegistries.POTION.holders().forEach(potion -> {
+            ItemStack potionStack = new ItemStack(Items.POTION);
+            potionStack.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
+            for (ItemStack reagent : reagents) {
+                if (!brewing.hasMix(potionStack, reagent)) {
+                    continue;
+                }
+                ItemStack mixed = brewing.mix(reagent, potionStack);
+                // 容器配方（火药、龙息）只换瓶子形态，流体层表示不了，与酿造实现保持一致地略过。
+                if (!mixed.is(Items.POTION)) {
+                    continue;
+                }
+                PotionContents result = mixed.get(DataComponents.POTION_CONTENTS);
+                if (result == null || result.potion().isEmpty()) {
+                    continue;
+                }
+                if (result.potion().get().is(Potions.MUNDANE) || result.potion().get().is(Potions.THICK)) {
+                    continue;
+                }
+                reachable.putIfAbsent(PotionVariants.path(result.potion().get()), result);
+            }
+        });
+        // 水本身也算一种浸泡液，它是整条链的起点。
+        reachable.putIfAbsent("water", new PotionContents(Potions.WATER));
+        List<PotionSoakingJeiRecipe> recipes = new ArrayList<>();
+        for (Soakable soakable : SOAKABLE) {
+            List<FluidStack> potions = new ArrayList<>();
+            List<ItemStack> results = new ArrayList<>();
+            reachable.forEach((path, contents) -> {
+                potions.add(inputFluidOf(contents, amount));
+                results.add(soakable.soakedWith(contents));
+            });
+            recipes.add(new PotionSoakingJeiRecipe(soakable.blank(), potions, results));
+        }
+        return recipes;
+    }
+
+    private static FluidStack inputFluidOf(PotionContents contents, int amount) {
+        if (contents.potion().isPresent() && contents.potion().get().is(Potions.WATER)) {
+            return new FluidStack(Fluids.WATER, amount);
+        }
+        return toFluid(contents, amount);
+    }
+
+    // 可浸泡的物品：给出「空白态」与「注入效果后的形态」。
+    // 以后新增可浸泡的物品时在这里加一项即可。
+    private static final List<Soakable> SOAKABLE = List.of(
+        new Soakable(
+            () -> new ItemStack(ModFoodItems.PILL.get(), SOAK_ITEM_COUNT),
+            contents -> pillWith(contents)
+        )
+    );
+
+    private record Soakable(
+        java.util.function.Supplier<ItemStack> blankSupplier,
+        java.util.function.Function<PotionContents, ItemStack> soaker
+    ) {
+        ItemStack blank() {
+            return this.blankSupplier.get();
+        }
+
+        ItemStack soakedWith(PotionContents contents) {
+            return this.soaker.apply(contents);
+        }
+    }
+
+    private static ItemStack pillWith(PotionContents contents) {
+        ItemStack pills = new ItemStack(ModFoodItems.PILL.get(), SOAK_ITEM_COUNT);
+        pills.set(DataComponents.POTION_CONTENTS, contents);
+        return pills;
     }
 }

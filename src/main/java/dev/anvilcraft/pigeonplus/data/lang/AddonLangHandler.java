@@ -77,6 +77,7 @@ public class AddonLangHandler {
             "gui.anvilcraft_pigeon_plus.category.potion_bulk_brewing.bulk",
             "Brews 8B at once, using only one reagent"
         );
+        provider.add("gui.anvilcraft_pigeon_plus.category.potion_soaking", "Potion Soaking");
         provider.add(
             "message.anvilcraft_pigeon_plus.large_fireworks_rocket.installed",
             "Loaded firework star %s/%s"

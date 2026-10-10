@@ -1,8 +1,5 @@
 package dev.anvilcraft.pigeonplus.integration.jei.category;
 
-import dev.anvilcraft.pigeonplus.fluid.PotionFluidUtil;
-import dev.anvilcraft.pigeonplus.fluid.PotionVariants;
-import dev.anvilcraft.pigeonplus.init.AddonFluids;
 import dev.anvilcraft.pigeonplus.integration.jei.AnvilCraftPigeonPlusJeiPlugin;
 import dev.anvilcraft.pigeonplus.integration.jei.recipe.PotionBrewingJeiRecipe;
 import dev.anvilcraft.pigeonplus.integration.jei.recipe.PotionBrewingJeiRecipes;
@@ -34,11 +31,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.fluids.FluidStack;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.jspecify.annotations.NonNull;
 
 public class PotionBrewingCategory implements IRecipeCategory<PotionBrewingJeiRecipe> {
     private static final int WIDTH = 162;
@@ -87,12 +80,12 @@ public class PotionBrewingCategory implements IRecipeCategory<PotionBrewingJeiRe
     }
 
     @Override
-    public RecipeType<PotionBrewingJeiRecipe> getRecipeType() {
+    public @NonNull RecipeType<PotionBrewingJeiRecipe> getRecipeType() {
         return AnvilCraftPigeonPlusJeiPlugin.POTION_BREWING;
     }
 
     @Override
-    public Component getTitle() {
+    public @NonNull Component getTitle() {
         return Component.translatable("gui.anvilcraft_pigeon_plus.category.potion_brewing");
     }
 

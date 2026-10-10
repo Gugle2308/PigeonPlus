@@ -27,8 +27,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -86,12 +86,12 @@ public class PotionBulkBrewingCategory implements IRecipeCategory<PotionBrewingJ
     }
 
     @Override
-    public RecipeType<PotionBrewingJeiRecipe> getRecipeType() {
+    public @NonNull RecipeType<PotionBrewingJeiRecipe> getRecipeType() {
         return AnvilCraftPigeonPlusJeiPlugin.POTION_BULK_BREWING;
     }
 
     @Override
-    public Component getTitle() {
+    public @NonNull Component getTitle() {
         return Component.translatable("gui.anvilcraft_pigeon_plus.category.potion_bulk_brewing");
     }
 
@@ -117,7 +117,7 @@ public class PotionBulkBrewingCategory implements IRecipeCategory<PotionBrewingJ
         IFocusGroup focuses
     ) {
         // 有加热器时输入网格固定为 4 格，药水占第 0 格、材料占第 1 格。
-        SlotPosition fluidPosition = inputPosition(HEATER_INPUT_GRID_SIZE, 0);
+        SlotPosition fluidPosition = inputPosition(0);
         IRecipeSlotBuilder fluidInput = JeiFluidUtil.addFluidSlot(
             builder,
             RecipeIngredientRole.INPUT,
@@ -129,7 +129,7 @@ public class PotionBulkBrewingCategory implements IRecipeCategory<PotionBrewingJ
             true,
             recipe.inputs()
         );
-        SlotPosition itemPosition = inputPosition(HEATER_INPUT_GRID_SIZE, 1);
+        SlotPosition itemPosition = inputPosition(1);
         builder.addSlot(RecipeIngredientRole.INPUT, itemPosition.x() + 1, itemPosition.y() + 1)
             .addItemStack(recipe.reagent())
             .addRichTooltipCallback((slotView, tooltip) -> tooltip.add(BULK));
@@ -137,7 +137,7 @@ public class PotionBulkBrewingCategory implements IRecipeCategory<PotionBrewingJ
             .addItemStacks(List.of(ModBlocks.HEATER.asStack(), ModBlocks.BURNING_HEATER.asStack()))
             .addRichTooltipCallback((slotView, tooltip) -> tooltip.add(HEATER_ACTIVE));
 
-        SlotPosition outputPosition = fluidOutputPosition(1, 0, false);
+        SlotPosition outputPosition = fluidOutputPosition();
         IRecipeSlotBuilder fluidOutput = JeiFluidUtil.addFluidSlot(
             builder,
             RecipeIngredientRole.OUTPUT,
@@ -170,12 +170,12 @@ public class PotionBulkBrewingCategory implements IRecipeCategory<PotionBrewingJ
         double mouseY
     ) {
         // 本体大锅布局的绘制顺序：先槽位，再箭头，最后方块。
-        SlotPosition fluidPosition = inputPosition(HEATER_INPUT_GRID_SIZE, 0);
+        SlotPosition fluidPosition = inputPosition(0);
         this.slot.draw(guiGraphics, fluidPosition.x(), fluidPosition.y());
-        SlotPosition itemPosition = inputPosition(HEATER_INPUT_GRID_SIZE, 1);
+        SlotPosition itemPosition = inputPosition(1);
         this.slot.draw(guiGraphics, itemPosition.x(), itemPosition.y());
         this.slot.draw(guiGraphics, HEATER_X, HEATER_Y);
-        SlotPosition outputPosition = fluidOutputPosition(1, 0, false);
+        SlotPosition outputPosition = fluidOutputPosition();
         this.slot.draw(guiGraphics, outputPosition.x(), outputPosition.y());
 
         this.arrowIn.draw(guiGraphics, 47, 30);
@@ -208,14 +208,14 @@ public class PotionBulkBrewingCategory implements IRecipeCategory<PotionBrewingJ
 
     // 以下三个定位方法与本体 AbstractLiquidReactionCategory 完全一致。
 
-    private static SlotPosition inputPosition(int count, int index) {
-        if (count == 1) {
+    private static SlotPosition inputPosition(int index) {
+        if (PotionBulkBrewingCategory.HEATER_INPUT_GRID_SIZE == 1) {
             return new SlotPosition(15, 23);
         }
-        if (count == 2) {
+        if (PotionBulkBrewingCategory.HEATER_INPUT_GRID_SIZE == 2) {
             return new SlotPosition(6 + index * 19, 23);
         }
-        if (count == 3) {
+        if (PotionBulkBrewingCategory.HEATER_INPUT_GRID_SIZE == 3) {
             return index == 0
                    ? new SlotPosition(15, 14)
                    : new SlotPosition(6 + (index - 1) * 19, 33);
@@ -223,18 +223,12 @@ public class PotionBulkBrewingCategory implements IRecipeCategory<PotionBrewingJ
         return new SlotPosition(6 + index % 2 * 19, 14 + index / 2 * 19);
     }
 
-    private static SlotPosition fluidOutputPosition(int count, int index, boolean splitColumns) {
-        return new SlotPosition(splitColumns ? 138 : 129, outputRow(count, index));
+    private static SlotPosition fluidOutputPosition() {
+        return new SlotPosition(129, outputRow());
     }
 
-    private static int outputRow(int count, int index) {
-        if (count == 1) {
-            return 24;
-        }
-        if (count == 2) {
-            return 14 + index * 19;
-        }
-        return 5 + index * 19;
+    private static int outputRow() {
+        return 24;
     }
 
     private record SlotPosition(int x, int y) {
