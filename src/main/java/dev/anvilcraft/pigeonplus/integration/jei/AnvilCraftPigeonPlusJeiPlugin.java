@@ -20,7 +20,6 @@ import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import org.jetbrains.annotations.NotNull;
 
 @JeiPlugin
 public class AnvilCraftPigeonPlusJeiPlugin implements IModPlugin {
@@ -36,7 +35,7 @@ public class AnvilCraftPigeonPlusJeiPlugin implements IModPlugin {
         RecipeType.create(AnvilCraftPigeonPlus.MOD_ID, "potion_soaking", PotionSoakingJeiRecipe.class);
 
     @Override
-    public @NotNull ResourceLocation getPluginUid() {
+    public ResourceLocation getPluginUid() {
         return AnvilCraftPigeonPlus.of("jei_plugin");
     }
 
@@ -52,7 +51,7 @@ public class AnvilCraftPigeonPlusJeiPlugin implements IModPlugin {
     }
 
     @Override
-    public void registerRecipes(@NotNull IRecipeRegistration registration) {
+    public void registerRecipes(IRecipeRegistration registration) {
         BlendingCategory.registerRecipes(registration);
         GasLiquefactionCategory.registerRecipes(registration);
         PotionBrewingCategory.registerRecipes(registration);
@@ -61,7 +60,7 @@ public class AnvilCraftPigeonPlusJeiPlugin implements IModPlugin {
     }
 
     @Override
-    public void registerRecipeCatalysts(@NotNull IRecipeCatalystRegistration registration) {
+    public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         BlendingCategory.registerRecipeCatalysts(registration);
         GasLiquefactionCategory.registerRecipeCatalysts(registration);
         PotionBrewingCategory.registerRecipeCatalysts(registration);

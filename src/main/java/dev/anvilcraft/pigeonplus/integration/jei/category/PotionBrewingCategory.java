@@ -31,7 +31,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jspecify.annotations.NonNull;
 
 public class PotionBrewingCategory implements IRecipeCategory<PotionBrewingJeiRecipe> {
     private static final int WIDTH = 162;
@@ -80,12 +79,12 @@ public class PotionBrewingCategory implements IRecipeCategory<PotionBrewingJeiRe
     }
 
     @Override
-    public @NonNull RecipeType<PotionBrewingJeiRecipe> getRecipeType() {
+    public RecipeType<PotionBrewingJeiRecipe> getRecipeType() {
         return AnvilCraftPigeonPlusJeiPlugin.POTION_BREWING;
     }
 
     @Override
-    public @NonNull Component getTitle() {
+    public Component getTitle() {
         return Component.translatable("gui.anvilcraft_pigeon_plus.category.potion_brewing");
     }
 

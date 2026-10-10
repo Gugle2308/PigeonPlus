@@ -28,7 +28,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -86,12 +85,12 @@ public class PotionBulkBrewingCategory implements IRecipeCategory<PotionBrewingJ
     }
 
     @Override
-    public @NonNull RecipeType<PotionBrewingJeiRecipe> getRecipeType() {
+    public RecipeType<PotionBrewingJeiRecipe> getRecipeType() {
         return AnvilCraftPigeonPlusJeiPlugin.POTION_BULK_BREWING;
     }
 
     @Override
-    public @NonNull Component getTitle() {
+    public Component getTitle() {
         return Component.translatable("gui.anvilcraft_pigeon_plus.category.potion_bulk_brewing");
     }
 
