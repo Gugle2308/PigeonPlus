@@ -58,7 +58,7 @@ public class FishTankBrewingEventListener {
                 return;
             }
         }
-        if (PotionBrewingHelper.tryMakePills(fluids, input, tank.getOutputHandler())) {
+        if (PotionBrewingHelper.tryMakeSoaked(fluids, input, tank.getOutputHandler())) {
             level.playSound(null, tankPos, SoundEvents.BREWING_STAND_BREW, SoundSource.BLOCKS, 1.0F, 1.0F);
         }
     }

@@ -65,7 +65,7 @@ public class LargeCauldronBrewingEventListener {
         }
         // 锅内可能同时存在多种药水，逐个尝试，取第一个有可用配方的。
         // 只看第一种会让「迅捷排在粗制之前」时永远酿不动粗制。
-        if (PotionBrewingHelper.tryMakePills(fluids, input, main.getOutputHandler())) {
+        if (PotionBrewingHelper.tryMakeSoaked(fluids, input, main.getOutputHandler())) {
             level.playSound(null, main.getBlockPos(), SoundEvents.BREWING_STAND_BREW, SoundSource.BLOCKS, 1.0F, 1.0F);
         }
     }

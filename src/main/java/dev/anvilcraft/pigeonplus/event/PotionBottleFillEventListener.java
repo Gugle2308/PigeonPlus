@@ -5,6 +5,7 @@ import dev.anvilcraft.pigeonplus.fluid.PotionBottleTypes;
 import dev.anvilcraft.pigeonplus.fluid.PotionFluid;
 import dev.anvilcraft.pigeonplus.fluid.PotionFluidUtil;
 import dev.anvilcraft.pigeonplus.init.AddonFluids;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundEvents;
@@ -32,11 +33,21 @@ public class PotionBottleFillEventListener {
         Player player = event.getEntity();
         Level level = event.getLevel();
         BlockPos pos = event.getPos();
+        ItemStack held = event.getItemStack();
+        // 创造流体储罐自己会用「物品的流体能力」来交互：读到容器里的流体后把储量设成无限，
+        // 以此完成「标记流体」。我们若抢先灌入并取消事件，它的 useItemOn 就跑不到，于是永远标不上。
+        //
+        // 只对「手持装药水的瓶子」让路——那正是标记路径。
+        // 手持空瓶时反而要由我们处理：它的容器交互不认我们的药水，只有我们能从罐里装出药水。
+        // 以后遇到同类方块，往这里加。
+        if (PotionBottleTypes.isPotion(held)
+            && level.getBlockState(pos).is(ModBlocks.CREATIVE_FLUID_TANK)) {
+            return;
+        }
         IFluidHandler handler = level.getCapability(Capabilities.FluidHandler.BLOCK, pos, event.getFace());
         if (handler == null) {
             return;
         }
-        ItemStack held = event.getItemStack();
         if (!withdrawPotion(event, player, level, pos, handler, held)) {
             depositPotion(event, player, level, pos, handler, held);
         }

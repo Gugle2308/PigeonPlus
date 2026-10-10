@@ -1,5 +1,6 @@
 package dev.anvilcraft.pigeonplus.integration.jei.category;
 
+import dev.anvilcraft.pigeonplus.fluid.PotionSoakingRecipes;
 import dev.anvilcraft.pigeonplus.integration.jei.AnvilCraftPigeonPlusJeiPlugin;
 import dev.anvilcraft.pigeonplus.integration.jei.recipe.PotionBrewingJeiRecipes;
 import dev.anvilcraft.pigeonplus.integration.jei.recipe.PotionSoakingJeiRecipe;
@@ -35,7 +36,8 @@ import net.minecraft.world.level.block.state.BlockState;
 public class PotionSoakingCategory implements IRecipeCategory<PotionSoakingJeiRecipe> {
     private static final int WIDTH = 162;
     private static final int HEIGHT = 64;
-    private static final int DISPLAY_AMOUNT = 1000;
+    // 展示容量直接引用配方常量，改数值时不会与实际酿造脱节。
+    private static final int DISPLAY_AMOUNT = PotionSoakingRecipes.FLUID_COST;
 
     // 与本体 AbstractLiquidCategory 的小锅分支一致，只是把炼药锅换成鱼缸。
     private static final float MODEL_SCALE = 12.0F;

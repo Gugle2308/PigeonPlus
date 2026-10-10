@@ -1,9 +1,9 @@
 package dev.anvilcraft.pigeonplus.integration.jei.recipe;
 
 import dev.anvilcraft.pigeonplus.fluid.PotionFluidUtil;
+import dev.anvilcraft.pigeonplus.fluid.PotionSoakingRecipes;
 import dev.anvilcraft.pigeonplus.fluid.PotionVariants;
 import dev.anvilcraft.pigeonplus.init.AddonFluids;
-import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.core.Holder;
@@ -27,9 +27,6 @@ import java.util.Map;
 import java.util.Set;
 
 public final class PotionBrewingJeiRecipes {
-    // 与 PotionBrewingHelper 里固液反应的数量保持一致。
-    private static final int SOAK_ITEM_COUNT = 8;
-
     private PotionBrewingJeiRecipes() {
     }
 
@@ -232,7 +229,8 @@ public final class PotionBrewingJeiRecipes {
         // 水本身也算一种浸泡液，它是整条链的起点。
         reachable.putIfAbsent("water", new PotionContents(Potions.WATER));
         List<PotionSoakingJeiRecipe> recipes = new ArrayList<>();
-        for (Soakable soakable : SOAKABLE) {
+        // 可浸泡物品取自共享定义，与实际酿造用的是同一份，不会两边漂移。
+        for (PotionSoakingRecipes.Soakable soakable : PotionSoakingRecipes.all()) {
             List<FluidStack> potions = new ArrayList<>();
             List<ItemStack> results = new ArrayList<>();
             reachable.forEach((path, contents) -> {
@@ -249,33 +247,5 @@ public final class PotionBrewingJeiRecipes {
             return new FluidStack(Fluids.WATER, amount);
         }
         return toFluid(contents, amount);
-    }
-
-    // 可浸泡的物品：给出「空白态」与「注入效果后的形态」。
-    // 以后新增可浸泡的物品时在这里加一项即可。
-    private static final List<Soakable> SOAKABLE = List.of(
-        new Soakable(
-            () -> new ItemStack(ModFoodItems.PILL.get(), SOAK_ITEM_COUNT),
-            contents -> pillWith(contents)
-        )
-    );
-
-    private record Soakable(
-        java.util.function.Supplier<ItemStack> blankSupplier,
-        java.util.function.Function<PotionContents, ItemStack> soaker
-    ) {
-        ItemStack blank() {
-            return this.blankSupplier.get();
-        }
-
-        ItemStack soakedWith(PotionContents contents) {
-            return this.soaker.apply(contents);
-        }
-    }
-
-    private static ItemStack pillWith(PotionContents contents) {
-        ItemStack pills = new ItemStack(ModFoodItems.PILL.get(), SOAK_ITEM_COUNT);
-        pills.set(DataComponents.POTION_CONTENTS, contents);
-        return pills;
     }
 }

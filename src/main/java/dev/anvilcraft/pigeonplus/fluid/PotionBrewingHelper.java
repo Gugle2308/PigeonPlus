@@ -1,7 +1,6 @@
 package dev.anvilcraft.pigeonplus.fluid;
 
 import dev.dubhe.anvilcraft.api.fluid.LargeCauldronFluidHandler;
-import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
@@ -19,9 +18,6 @@ import net.neoforged.neoforge.items.ItemHandlerHelper;
 import java.util.List;
 
 public final class PotionBrewingHelper {
-    private static final int PILL_FLUID_COST = 1000;
-    private static final int PILL_COUNT = 8;
-
     private PotionBrewingHelper() {
     }
 
@@ -91,63 +87,75 @@ public final class PotionBrewingHelper {
     public record Selection(int slot, PotionContents result) {
     }
 
-    // 固液反应：8 药片 + 1B 药水 -> 8 个带该效果的药片。
-    // 药片数量不变，只是被注入效果，所以消耗与产出同为 8。
+    // 固液反应：可浸泡的物品 + 1B 药水 -> 同数量的、带该效果的物品。
+    // 数量不变，只是被注入效果。具体有哪些可浸泡物品见 PotionSoakingRecipes。
     // 产出走物品输出槽，所以流体侧只需给「消耗哪个罐多少」。
-    public static boolean tryMakePills(
+    public static boolean tryMakeSoaked(
         LargeCauldronFluidHandler fluids,
         IItemHandler input,
         IItemHandler output
     ) {
-        return tryMakePills(fluids.copyFluids(), input, output,
+        return tryMakeSoaked(fluids.copyFluids(), input, output,
             (stack, action) -> fluids.drainStoredFluid(stack, action));
     }
 
     // 鱼缸只有一个储罐。
-    public static boolean tryMakePills(IFluidHandler fluids, IItemHandler input, IItemHandler output) {
-        return tryMakePills(List.of(fluids.getFluidInTank(0)), input, output,
+    public static boolean tryMakeSoaked(IFluidHandler fluids, IItemHandler input, IItemHandler output) {
+        return tryMakeSoaked(List.of(fluids.getFluidInTank(0)), input, output,
             (stack, action) -> fluids.drain(stack.getAmount(), action));
     }
 
-    private static boolean tryMakePills(
+    private static boolean tryMakeSoaked(
         List<FluidStack> available,
         IItemHandler input,
         IItemHandler output,
         Drainer drainer
     ) {
-        int pillSlot = -1;
-        for (int slot = 0; slot < input.getSlots(); slot++) {
-            // 一次要消耗 8 个，凑不够就不反应。
-            if (input.getStackInSlot(slot).getCount() >= PILL_COUNT
-                && input.getStackInSlot(slot).is(ModFoodItems.PILL.get())) {
-                pillSlot = slot;
-                break;
-            }
-        }
-        if (pillSlot < 0) {
-            return false;
-        }
-        for (FluidStack stored : available) {
-            if (stored.getAmount() < PILL_FLUID_COST) {
+        for (PotionSoakingRecipes.Soakable soakable : PotionSoakingRecipes.all()) {
+            int need = soakable.count();
+            int slot = findSourceSlot(input, soakable, need);
+            if (slot < 0) {
                 continue;
             }
-            // 只认药水流体：普通水不算「药水」，否则一池水会不断变成药片。
-            PotionContents contents = PotionFluidUtil.getContents(stored);
-            if (contents == null) {
-                continue;
+            for (FluidStack stored : available) {
+                if (stored.getAmount() < PotionSoakingRecipes.FLUID_COST) {
+                    continue;
+                }
+                // 只认药水流体：普通水不算「药水」，否则一池水会不断变成药片。
+                PotionContents contents = PotionFluidUtil.getContents(stored);
+                if (contents == null) {
+                    continue;
+                }
+                ItemStack soaked = soakable.soakedWith(contents);
+                // 先模拟产出槽放不放得下，放不下就整单不做，避免药水与材料被吞。
+                if (!ItemHandlerHelper.insertItemStacked(output, soaked, true).isEmpty()) {
+                    continue;
+                }
+                ItemHandlerHelper.insertItemStacked(output, soaked, false);
+                drainer.drain(
+                    stored.copyWithAmount(PotionSoakingRecipes.FLUID_COST),
+                    IFluidHandler.FluidAction.EXECUTE
+                );
+                input.extractItem(slot, need, false);
+                return true;
             }
-            ItemStack pills = new ItemStack(ModFoodItems.PILL.get(), PILL_COUNT);
-            pills.set(DataComponents.POTION_CONTENTS, contents);
-            // 先模拟产出槽放不放得下，放不下就整单不做，避免药水与药片被吞。
-            if (!ItemHandlerHelper.insertItemStacked(output, pills, true).isEmpty()) {
-                continue;
-            }
-            ItemHandlerHelper.insertItemStacked(output, pills, false);
-            drainer.drain(stored.copyWithAmount(PILL_FLUID_COST), IFluidHandler.FluidAction.EXECUTE);
-            input.extractItem(pillSlot, PILL_COUNT, false);
-            return true;
         }
         return false;
+    }
+
+    // 凑不够一次消耗量就不反应，否则会拿走几个却仍产出整份。
+    private static int findSourceSlot(
+        IItemHandler input,
+        PotionSoakingRecipes.Soakable soakable,
+        int need
+    ) {
+        for (int slot = 0; slot < input.getSlots(); slot++) {
+            ItemStack stack = input.getStackInSlot(slot);
+            if (stack.getCount() >= need && soakable.matches(stack)) {
+                return slot;
+            }
+        }
+        return -1;
     }
 
     @FunctionalInterface
