@@ -137,7 +137,9 @@ public class PotionBrewingCategory implements IRecipeCategory<PotionBrewingJeiRe
         outputSlot.addRichTooltipCallback((slotView, tooltip) -> tooltip.add(WHOLE_TANK));
         // 输入与输出按索引一一对应（红石：迅捷→长效迅捷，力量→长效力量……）。
         // 联动让两边同步切换，避免出现「力量 → 长效迅捷」这种错配。
-        if (recipe.inputs().size() > 1) {
+        
+        if (recipe.inputs().size() > 1
+            && recipe.outputs().size() == recipe.inputs().size()) {
             builder.createFocusLink(inputSlot, outputSlot);
         }
         // 药水流体没有桶，JeiFluidUtil 那套「用桶物品登记」在这里是空转，

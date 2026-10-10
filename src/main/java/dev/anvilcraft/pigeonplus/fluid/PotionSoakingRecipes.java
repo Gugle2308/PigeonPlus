@@ -1,24 +1,30 @@
 package dev.anvilcraft.pigeonplus.fluid;
 
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/**
- * 泡药配方的唯一真相源。
- */
 public final class PotionSoakingRecipes {
     // 250mB，正好是一瓶药水的量（见 PotionBottleFluidHandler.FLUID_PER_BOTTLE）。
     public static final int FLUID_COST = 250;
 
     private static final int PILL_COUNT = 2;
     private static final int ARROW_COUNT = 8;
+
+    private static final ResourceLocation WEAK_RESIN_BLOCK =
+        ResourceLocation.fromNamespaceAndPath("anvilcraft_pigsplus", "weak_resin_block");
+    private static final String WEAKNESS = "weakness";
+    private static final int RESIN_COUNT = 1;
 
     private PotionSoakingRecipes() {
     }
@@ -38,8 +44,19 @@ public final class PotionSoakingRecipes {
         )
     );
 
-    // 可浸泡的物品：空白态 + 注入效果后的形态。
-    // 数量不变，只是被注入效果，所以消耗与产出同样多。
+    public static List<Transformation> transformations() {
+        List<Transformation> list = new ArrayList<>();
+        BuiltInRegistries.ITEM.getOptional(WEAK_RESIN_BLOCK).ifPresent(weakResinBlock ->
+            list.add(new Transformation(
+                new ItemStack(ModBlocks.RESIN_BLOCK.get(), RESIN_COUNT),
+                WEAKNESS,
+                new ItemStack(weakResinBlock, RESIN_COUNT)
+            ))
+        );
+        return List.copyOf(list);
+    }
+
+    // 效果注入：空白态 + 注入效果后的形态。数量不变，只是被注入效果。
     public record Soakable(
         Supplier<ItemStack> blankSupplier,
         Function<PotionContents, ItemStack> soaker
@@ -59,6 +76,29 @@ public final class PotionSoakingRecipes {
 
         public boolean matches(ItemStack stack) {
             return stack.is(this.blank().getItem());
+        }
+    }
+
+    public record Transformation(ItemStack input, String potionPath, ItemStack output) {
+        public ItemStack inputStack() {
+            return this.input.copy();
+        }
+
+        public ItemStack outputStack() {
+            return this.output.copy();
+        }
+
+        public int count() {
+            return this.input.getCount();
+        }
+
+        public boolean matches(ItemStack stack) {
+            return stack.is(this.input.getItem());
+        }
+
+        public boolean acceptsPotion(PotionContents contents) {
+            return contents.potion().isPresent()
+                && PotionVariants.basePath(contents.potion().get()).equals(this.potionPath);
         }
     }
 

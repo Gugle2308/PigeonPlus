@@ -16,6 +16,7 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 public final class PotionBrewingHelper {
     private PotionBrewingHelper() {
@@ -111,9 +112,10 @@ public final class PotionBrewingHelper {
         IItemHandler output,
         Drainer drainer
     ) {
+        // 效果注入：任意药水都行，物品本身换成带该效果的同类物品。
         for (PotionSoakingRecipes.Soakable soakable : PotionSoakingRecipes.all()) {
             int need = soakable.count();
-            int slot = findSourceSlot(input, soakable, need);
+            int slot = findSourceSlot(input, soakable::matches, need);
             if (slot < 0) {
                 continue;
             }
@@ -140,18 +142,42 @@ public final class PotionBrewingHelper {
                 return true;
             }
         }
+        // 转化：只认指定效果的药水，物品换成另一种东西（与其它模组联动）。
+        for (PotionSoakingRecipes.Transformation transformation : PotionSoakingRecipes.transformations()) {
+            int need = transformation.count();
+            int slot = findSourceSlot(input, transformation::matches, need);
+            if (slot < 0) {
+                continue;
+            }
+            for (FluidStack stored : available) {
+                if (stored.getAmount() < PotionSoakingRecipes.FLUID_COST) {
+                    continue;
+                }
+                PotionContents contents = PotionFluidUtil.getContents(stored);
+                if (contents == null || !transformation.acceptsPotion(contents)) {
+                    continue;
+                }
+                ItemStack result = transformation.outputStack();
+                if (!ItemHandlerHelper.insertItemStacked(output, result, true).isEmpty()) {
+                    continue;
+                }
+                ItemHandlerHelper.insertItemStacked(output, result, false);
+                drainer.drain(
+                    stored.copyWithAmount(PotionSoakingRecipes.FLUID_COST),
+                    IFluidHandler.FluidAction.EXECUTE
+                );
+                input.extractItem(slot, need, false);
+                return true;
+            }
+        }
         return false;
     }
 
     // 凑不够一次消耗量就不反应，否则会拿走几个却仍产出整份。
-    private static int findSourceSlot(
-        IItemHandler input,
-        PotionSoakingRecipes.Soakable soakable,
-        int need
-    ) {
+    private static int findSourceSlot(IItemHandler input, Predicate<ItemStack> matches, int need) {
         for (int slot = 0; slot < input.getSlots(); slot++) {
             ItemStack stack = input.getStackInSlot(slot);
-            if (stack.getCount() >= need && soakable.matches(stack)) {
+            if (stack.getCount() >= need && matches.test(stack)) {
                 return slot;
             }
         }

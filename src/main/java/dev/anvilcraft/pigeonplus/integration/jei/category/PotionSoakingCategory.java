@@ -118,14 +118,11 @@ public class PotionSoakingCategory implements IRecipeCategory<PotionSoakingJeiRe
                 JeiSlotUtil.DEFAULT_Y
             )
             .addItemStacks(recipe.results());
-        // 药水与产物按索引一一对应，联动让两边同步切换。
-        if (recipe.potions().size() > 1) {
+        if (recipe.potions().size() > 1
+            && recipe.results().size() == recipe.potions().size()) {
             builder.createFocusLink(potionSlot, resultSlot);
         }
-        // 药水流体没有桶，补上药水物品让玩家拿药水能查到泡药配方。
-        //
-        // 两个角色都要登记：JEI 的 R 只搜产出、U 只搜输入。
-        // 药水在泡药里是输入，只登记输入角色的话，对着药水按 R 是查不到这条配方的。
+
         builder.addInvisibleIngredients(RecipeIngredientRole.INPUT)
             .addItemStacks(PotionBrewingJeiRecipes.potionItemsOf(recipe.potions()));
         builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)

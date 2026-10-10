@@ -239,6 +239,22 @@ public final class PotionBrewingJeiRecipes {
             });
             recipes.add(new PotionSoakingJeiRecipe(soakable.blank(), potions, results));
         }
+
+        for (PotionSoakingRecipes.Transformation transformation : PotionSoakingRecipes.transformations()) {
+            List<FluidStack> potions = new ArrayList<>();
+            reachable.forEach((path, contents) -> {
+                if (transformation.acceptsPotion(contents)) {
+                    potions.add(inputFluidOf(contents, amount));
+                }
+            });
+            if (!potions.isEmpty()) {
+                recipes.add(new PotionSoakingJeiRecipe(
+                    transformation.inputStack(),
+                    potions,
+                    List.of(transformation.outputStack())
+                ));
+            }
+        }
         return recipes;
     }
 

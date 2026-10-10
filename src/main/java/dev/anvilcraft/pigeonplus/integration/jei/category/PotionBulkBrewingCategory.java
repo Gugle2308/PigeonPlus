@@ -149,7 +149,9 @@ public class PotionBulkBrewingCategory implements IRecipeCategory<PotionBrewingJ
             recipe.outputs()
         );
         // 输入与输出按索引一一对应，联动让两边同步切换。
-        if (recipe.inputs().size() > 1) {
+        // JEI 要求两端候选数量完全相等，否则抛异常、整个分类点不开，所以两端都验证。
+        if (recipe.inputs().size() > 1
+            && recipe.outputs().size() == recipe.inputs().size()) {
             builder.createFocusLink(fluidInput, fluidOutput);
         }
         // 药水流体没有桶，JeiFluidUtil 那套「用桶物品登记」在这里是空转，
