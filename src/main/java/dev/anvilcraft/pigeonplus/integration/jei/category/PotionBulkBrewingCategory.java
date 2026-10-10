@@ -1,7 +1,6 @@
 package dev.anvilcraft.pigeonplus.integration.jei.category;
 
 import dev.anvilcraft.pigeonplus.integration.jei.AnvilCraftPigeonPlusJeiPlugin;
-import dev.anvilcraft.pigeonplus.integration.jei.drawable.MultiPartBlockIcon;
 import dev.anvilcraft.pigeonplus.integration.jei.recipe.PotionBrewingJeiRecipe;
 import dev.anvilcraft.pigeonplus.integration.jei.recipe.PotionBrewingJeiRecipes;
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
@@ -72,11 +71,10 @@ public class PotionBulkBrewingCategory implements IRecipeCategory<PotionBrewingJ
     private final BlockState giantAnvil;
 
     public PotionBulkBrewingCategory(IGuiHelper helper) {
-        // 图标就是一口大锅：3x3 多方块按本体的比例会溢出，所以走 MultiPartBlockIcon。
-        this.icon = new MultiPartBlockIcon(
-            ModBlocks.LARGE_CAULDRON.getDefaultState()
-                .setValue(LargeCauldronBlock.HALF, Cube3x3PartHalf.MID_CENTER)
-        );
+        // 图标是一口大锅。本体 FluidReactionCategory 用的就是物品图标：
+        // helper.createDrawableItemStack(ModBlocks.LARGE_CAULDRON.asStack())，
+        // 走物品模型所以大小天然合适，不需要自己调缩放。
+        this.icon = helper.createDrawableItemStack(ModBlocks.LARGE_CAULDRON.asStack());
         this.slot = JeiRenderHelper.getSlotDefault(helper);
         this.arrowIn = JeiRenderHelper.getArrowInput(helper);
         this.arrowOut = JeiRenderHelper.getArrowOutput(helper);
@@ -155,6 +153,12 @@ public class PotionBulkBrewingCategory implements IRecipeCategory<PotionBrewingJ
         if (recipe.inputs().size() > 1) {
             builder.createFocusLink(fluidInput, fluidOutput);
         }
+        // 药水流体没有桶，JeiFluidUtil 那套「用桶物品登记」在这里是空转，
+        // 所以补上药水物品，玩家拿药水物品按 U/R 才能查到酿造配方。
+        builder.addInvisibleIngredients(RecipeIngredientRole.INPUT)
+            .addItemStacks(PotionBrewingJeiRecipes.potionItemsOf(recipe.inputs()));
+        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
+            .addItemStacks(PotionBrewingJeiRecipes.potionItemsOf(recipe.outputs()));
     }
 
     @Override

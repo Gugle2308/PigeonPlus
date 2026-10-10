@@ -77,8 +77,9 @@ public final class PotionBrewingJeiRecipes {
                 resultPotions.computeIfAbsent(key, k -> new ArrayList<>()).add(result.potion().get());
             }
         });
-        List<PotionBrewingJeiRecipe> folded = new ArrayList<>();
-        List<PotionBrewingJeiRecipe> unfolded = new ArrayList<>();
+        List<PotionBrewingJeiRecipe> basic = new ArrayList<>();
+        List<PotionBrewingJeiRecipe> corruption = new ArrayList<>();
+        List<PotionBrewingJeiRecipe> enhancement = new ArrayList<>();
         reagentStacks.forEach((key, stack) -> {
             List<FluidStack> ins = inputs.get(key);
             List<FluidStack> outs = outputs.get(key);
@@ -87,19 +88,51 @@ public final class PotionBrewingJeiRecipes {
             // 发酵蛛眼会把跳跃和迅捷都变成缓慢（多对一），折叠后输入输出无法配对，
             // 所以这类试剂拆成逐条列出。判据用「输出是否有重复」而不是写死物品，
             // 这样模组新增的试剂也会被正确判断。
-            //
-            // 拆开的条目统一排到最后：它们数量多（发酵蛛眼就有 12 条），
-            // 混在折叠条目之间会把「一种试剂一条」的主干冲散。
             if (hasDuplicateResults(resultPotions.get(key))) {
                 for (int i = 0; i < ins.size(); i++) {
-                    unfolded.add(new PotionBrewingJeiRecipe(stack, List.of(ins.get(i)), List.of(outs.get(i))));
+                    corruption.add(new PotionBrewingJeiRecipe(stack, List.of(ins.get(i)), List.of(outs.get(i))));
                 }
+                return;
+            }
+            PotionBrewingJeiRecipe recipe = new PotionBrewingJeiRecipe(stack, ins, outs);
+            // 红石/萤石只改时长或等级，单独排在最后。
+            if (isEnhancementReagent(resultPotions.get(key), ins)) {
+                enhancement.add(recipe);
             } else {
-                folded.add(new PotionBrewingJeiRecipe(stack, ins, outs));
+                basic.add(recipe);
             }
         });
-        folded.addAll(unfolded);
-        return folded;
+        // 顺序：基础酿造 -> 蜘蛛眼反转 -> 红石/萤石强化。
+        List<PotionBrewingJeiRecipe> recipes = new ArrayList<>(basic);
+        recipes.addAll(corruption);
+        recipes.addAll(enhancement);
+        return recipes;
+    }
+
+    // 强化试剂：它的每一条都是「输入本身的长效/强力版本」，即只改时长或等级。
+    // 红石与萤石满足这个条件；糖、烈焰粉等改变效果的试剂不满足。
+    private static boolean isEnhancementReagent(List<Holder<Potion>> results, List<FluidStack> inputs) {
+        if (results.isEmpty()) {
+            return false;
+        }
+        for (int i = 0; i < results.size(); i++) {
+            Holder<Potion> result = results.get(i);
+            if (!PotionVariants.isEnhanced(result)) {
+                return false;
+            }
+            if (!PotionVariants.basePath(result).equals(potionPathOf(inputs.get(i)))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static String potionPathOf(FluidStack fluid) {
+        PotionContents contents = PotionFluidUtil.getContents(fluid);
+        if (contents == null || contents.potion().isEmpty()) {
+            return "";
+        }
+        return PotionVariants.basePath(contents.potion().get());
     }
 
     // 用注册名判定重复。不能用 FluidStack 去重：它没有覆写 equals/hashCode，
@@ -125,5 +158,30 @@ public final class PotionBrewingJeiRecipes {
             return new FluidStack(Fluids.WATER, amount);
         }
         return toFluid(new PotionContents(potion), amount);
+    }
+
+    /**
+     * 把这些流体对应的药水物品取出来，供 JEI 的物品查询登记为不可见成分。
+     */
+    public static List<ItemStack> potionItemsOf(List<FluidStack> fluids) {
+        List<ItemStack> items = new ArrayList<>();
+        for (FluidStack fluid : fluids) {
+            items.add(potionItemOf(fluid));
+        }
+        return items;
+    }
+
+    private static ItemStack potionItemOf(FluidStack fluid) {
+        if (fluid.is(Fluids.WATER)) {
+            // 水在物品层就是「水瓶」，这样查水瓶也能找到酿造链的起点。
+            return potionItem(new PotionContents(Potions.WATER));
+        }
+        return potionItem(PotionFluidUtil.getContents(fluid));
+    }
+
+    private static ItemStack potionItem(PotionContents contents) {
+        ItemStack item = new ItemStack(Items.POTION);
+        item.set(DataComponents.POTION_CONTENTS, contents);
+        return item;
     }
 }

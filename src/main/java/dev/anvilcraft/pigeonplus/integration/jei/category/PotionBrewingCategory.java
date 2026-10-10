@@ -148,6 +148,12 @@ public class PotionBrewingCategory implements IRecipeCategory<PotionBrewingJeiRe
         if (recipe.inputs().size() > 1) {
             builder.createFocusLink(inputSlot, outputSlot);
         }
+        // 药水流体没有桶，JeiFluidUtil 那套「用桶物品登记」在这里是空转，
+        // 所以补上药水物品，玩家拿药水物品按 U/R 才能查到酿造配方。
+        builder.addInvisibleIngredients(RecipeIngredientRole.INPUT)
+            .addItemStacks(PotionBrewingJeiRecipes.potionItemsOf(recipe.inputs()));
+        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
+            .addItemStacks(PotionBrewingJeiRecipes.potionItemsOf(recipe.outputs()));
     }
 
     @Override
