@@ -1,6 +1,7 @@
 {
 	"format_version": "1.9.0",
 	"credit": "Made by GTouMing with Blockbench",
+	"render_type": "minecraft:cutout",
 	"textures": {
 		"6": "anvilcraft_pigeon_plus:block/pneumatic_blender_top",
 		"ab": "anvilcraft_pigeon_plus:block/blender_bottom",

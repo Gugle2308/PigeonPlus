@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.registrum.util.entry.BlockEntry;
 import dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus;
 import dev.anvilcraft.pigeonplus.block.AnvilPumpBlock;
 import dev.anvilcraft.pigeonplus.block.BlenderBlock;
+import dev.anvilcraft.pigeonplus.block.ElectricBlenderBlock;
 import dev.anvilcraft.pigeonplus.block.FeedSpreaderBlock;
 import dev.anvilcraft.pigeonplus.block.LargeFireworksRocketBlock;
 import dev.anvilcraft.pigeonplus.block.MixedBiomassCauldronBlock;
@@ -69,6 +70,12 @@ public class AddonBlocks {
     /** 搅拌机工作时的底座模型，风扇贴图带逐帧动画。 */
     private static final ResourceLocation BLENDER_BASE_ACTIVE =
         AnvilCraftPigeonPlus.of("block/blender/pneumatic_blender_active");
+    /** 电搅拌机静止时的底座模型。 */
+    private static final ResourceLocation ELECTRIC_BLENDER_BASE =
+        AnvilCraftPigeonPlus.of("block/blender/electric_blender");
+    /** 电搅拌机工作时的底座模型，侧面与顶部贴图带逐帧动画。 */
+    private static final ResourceLocation ELECTRIC_BLENDER_BASE_ACTIVE =
+        AnvilCraftPigeonPlus.of("block/blender/electric_blender_active");
 
     public static final BlockEntry<BlenderBlock> BLENDER = REGISTRUM
         .block("blender", BlenderBlock::new)
@@ -82,6 +89,24 @@ public class AddonBlocks {
                 .build()))
         .item(BlockItem::new)
         .model((ctx, prov) -> prov.withExistingParent(ctx.getName(), BLENDER_BASE))
+        .build()
+        .register();
+
+    public static final BlockEntry<ElectricBlenderBlock> ELECTRIC_BLENDER = REGISTRUM
+        .block("electric_blender", ElectricBlenderBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        // 与搅拌机同构：底座由 blockstate 给出，搅拌头另由 BlenderBlockEntityRenderer 叠加渲染。
+        // 搅拌或供热时都用 active 模型（侧面/顶部贴图带逐帧动画），一眼能看出它在工作。
+        .blockstate((ctx, prov) -> prov.getVariantBuilder(ctx.getEntry()).forAllStates(state ->
+            ConfiguredModel.builder()
+                .modelFile(prov.models().getExistingFile(
+                    state.getValue(BlenderBlock.WORKING) || state.getValue(ElectricBlenderBlock.HEATING)
+                        ? ELECTRIC_BLENDER_BASE_ACTIVE
+                        : ELECTRIC_BLENDER_BASE))
+                .rotationY(rotationY(state.getValue(BlenderBlock.FACING)))
+                .build()))
+        .item(BlockItem::new)
+        .model((ctx, prov) -> prov.withExistingParent(ctx.getName(), ELECTRIC_BLENDER_BASE))
         .build()
         .register();
 

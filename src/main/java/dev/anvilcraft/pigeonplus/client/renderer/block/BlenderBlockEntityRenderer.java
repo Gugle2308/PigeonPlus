@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus;
 import dev.anvilcraft.pigeonplus.block.BlenderBlock;
-import dev.anvilcraft.pigeonplus.block.entity.BlenderBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -19,6 +18,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.AABB;
@@ -26,7 +26,13 @@ import net.neoforged.neoforge.client.model.data.ModelData;
 
 import java.util.Map;
 
-public class BlenderBlockEntityRenderer implements BlockEntityRenderer<BlenderBlockEntity> {
+/**
+ * 搅拌头叠加渲染器，搅拌机与电搅拌器共用。
+ *
+ * <p>搅拌头不属于任何 blockstate，因此这里按方块状态里的 {@code HEAD} 属性选模型叠加渲染，
+ * 并在运转时绕 Y 轴旋转。
+ */
+public class BlenderBlockEntityRenderer<T extends BlockEntity> implements BlockEntityRenderer<T> {
     private static final float ROTATION_DEGREES_PER_TICK = 45.0f;
 
     private static final float HEAD_LIFT = 0.875f;
@@ -61,7 +67,7 @@ public class BlenderBlockEntityRenderer implements BlockEntityRenderer<BlenderBl
     }
 
     @Override
-    public void render(BlenderBlockEntity blockEntity, float partialTick, PoseStack poseStack,
+    public void render(T blockEntity, float partialTick, PoseStack poseStack,
                        MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
         Level level = blockEntity.getLevel();
         if (level == null) return;
@@ -109,7 +115,7 @@ public class BlenderBlockEntityRenderer implements BlockEntityRenderer<BlenderBl
     }
 
     @Override
-    public AABB getRenderBoundingBox(BlenderBlockEntity blockEntity) {
+    public AABB getRenderBoundingBox(T blockEntity) {
         return new AABB(blockEntity.getBlockPos())
             .inflate(RENDER_BOX_REACH)
             .expandTowards(0.0, RENDER_BOX_HEIGHT, 0.0);
