@@ -50,6 +50,7 @@
   "gui.anvilcraft_pigeon_plus.category.potion_brewing.whole_tank": "Converts all potion in the container",
   "gui.anvilcraft_pigeon_plus.category.potion_bulk_brewing": "Bulk Potion Brewing",
   "gui.anvilcraft_pigeon_plus.category.potion_bulk_brewing.bulk": "Brews 8B at once, using only one reagent",
+  "gui.anvilcraft_pigeon_plus.category.potion_soaking": "Potion Soaking",
   "gui.anvilcraft_pigeon_plus.gas_liquefaction.fill_then": "After Full",
   "gui.anvilcraft_pigeon_plus.gas_liquefaction.keep_pumping": "Keep Pumping",
   "gui.anvilcraft_pigeon_plus.gas_liquefaction.liquefy": "Liquefy",

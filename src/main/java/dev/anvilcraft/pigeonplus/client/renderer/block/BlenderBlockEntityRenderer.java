@@ -21,14 +21,41 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.client.model.data.ModelData;
+
+import java.util.Map;
 
 public class BlenderBlockEntityRenderer implements BlockEntityRenderer<BlenderBlockEntity> {
     private static final float ROTATION_DEGREES_PER_TICK = 45.0f;
 
-    private static final ModelResourceLocation TOP_MODEL = new ModelResourceLocation(
-        ResourceLocation.fromNamespaceAndPath(AnvilCraftPigeonPlus.MOD_ID, "block/blender_top"),
-        "standalone");
+    private static final float HEAD_LIFT = 0.875f;
+
+    /**
+     * 渲染包围盒的水平外扩量（格）。
+     *
+     * <p>搅拌头水平占 x/z = 3~13 像素，绕中心旋转后最远角半径约 0.44 格；
+     * 经 3 倍放大后约 1.33 格，即横向可伸出方块外约 0.83 格。取 1 格留余量。
+     */
+    private static final double RENDER_BOX_REACH = 1.0;
+    /** 渲染包围盒高出方块的量（格）。3 倍放大并抬高后，搅拌头顶端最高约在方块上方 3.81 格。 */
+    private static final double RENDER_BOX_HEIGHT = 4.0;
+
+    /**
+     * 各搅拌头类型对应的模型位置。
+     *
+     * <p>{@code NONE} 不在表内——没装头时整个头部都不渲染，玩家看到的就是光秃秃的底座。
+     */
+    private static final Map<BlenderBlock.BlenderHead, ModelResourceLocation> HEAD_MODELS = Map.of(
+        BlenderBlock.BlenderHead.IRON, headModel("blender_head"),
+        BlenderBlock.BlenderHead.BLAZE, headModel("blender_head_blaze")
+    );
+
+    private static ModelResourceLocation headModel(String name) {
+        return new ModelResourceLocation(
+            ResourceLocation.fromNamespaceAndPath(AnvilCraftPigeonPlus.MOD_ID, "block/blender/" + name),
+            "standalone");
+    }
 
     public BlenderBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
@@ -39,40 +66,53 @@ public class BlenderBlockEntityRenderer implements BlockEntityRenderer<BlenderBl
         Level level = blockEntity.getLevel();
         if (level == null) return;
 
+        BlockState blockState = blockEntity.getBlockState();
+        ModelResourceLocation headLocation = HEAD_MODELS.get(blockState.getValue(BlenderBlock.HEAD));
+        // 没装搅拌头：不渲染任何头部
+        if (headLocation == null) return;
+
         BlockPos pos = blockEntity.getBlockPos();
         ModelManager modelManager = Minecraft.getInstance().getModelManager();
         BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
         RandomSource random = RandomSource.create();
         ModelData modelData = ModelData.EMPTY;
 
-        BakedModel topModel = modelManager.getModel(TOP_MODEL);
+        BakedModel headModel = modelManager.getModel(headLocation);
 
         // Check for large cauldron core 2 blocks above
         boolean hasCauldronAbove = isLargeCauldronCore(level, pos.above(2));
-
-        BlockState blockState = blockEntity.getBlockState();
 
         poseStack.pushPose();
         float angle = blockState.getValue(BlenderBlock.WORKING)
             ? (level.getGameTime() + partialTick) * ROTATION_DEGREES_PER_TICK
             : 0.0f;
+        // 先做 Y 方向平移再做缩放：旋转绕 Y 轴，平移与旋转互不影响；
+        // 置于缩放之前可保证抬升量恒定，不被炼药锅的 2 倍放大放大。
+        poseStack.translate(0.0, HEAD_LIFT, 0.0);
         poseStack.translate(0.5, 0.5, 0.5);
         if (hasCauldronAbove) {
-            poseStack.scale(2.0f, 2.0f, 2.0f);
-            poseStack.translate(0.0, -0.2, 0.0);
+            poseStack.scale(3.0f, 3.0f, 3.0f);
+            poseStack.translate(0.0, 0.25, 0.0);
         }
         poseStack.mulPose(Axis.YP.rotationDegrees(angle));
         poseStack.translate(-0.5, -0.5, -0.5);
 
-        for (RenderType renderType : topModel.getRenderTypes(blockState, random, modelData)) {
+        for (RenderType renderType : headModel.getRenderTypes(blockState, random, modelData)) {
             VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
             dispatcher.getModelRenderer().renderModel(
-                poseStack.last(), vertexConsumer, blockState, topModel,
+                poseStack.last(), vertexConsumer, blockState, headModel,
                 1.0F, 1.0F, 1.0F, packedLight, packedOverlay,
                 modelData, renderType
             );
         }
         poseStack.popPose();
+    }
+
+    @Override
+    public AABB getRenderBoundingBox(BlenderBlockEntity blockEntity) {
+        return new AABB(blockEntity.getBlockPos())
+            .inflate(RENDER_BOX_REACH)
+            .expandTowards(0.0, RENDER_BOX_HEIGHT, 0.0);
     }
 
     private static boolean isLargeCauldronCore(Level level, BlockPos pos) {

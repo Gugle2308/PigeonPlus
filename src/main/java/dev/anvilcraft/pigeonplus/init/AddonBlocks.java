@@ -63,18 +63,25 @@ public class AddonBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ANVIL)
         .register();
 
+    /** 搅拌机静止时的底座模型：气动外观的外壳、管道与风扇。 */
+    private static final ResourceLocation BLENDER_BASE =
+        AnvilCraftPigeonPlus.of("block/blender/pneumatic_blender");
+    /** 搅拌机工作时的底座模型，风扇贴图带逐帧动画。 */
+    private static final ResourceLocation BLENDER_BASE_ACTIVE =
+        AnvilCraftPigeonPlus.of("block/blender/pneumatic_blender_active");
+
     public static final BlockEntry<BlenderBlock> BLENDER = REGISTRUM
         .block("blender", BlenderBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        // 底座由 blockstate 给出，十字搅拌头另由 BlenderBlockEntityRenderer 叠加渲染（工作时绕 Y 轴旋转）。
         .blockstate((ctx, prov) -> prov.getVariantBuilder(ctx.getEntry()).forAllStates(state ->
             ConfiguredModel.builder()
                 .modelFile(prov.models().getExistingFile(
-                    ResourceLocation.fromNamespaceAndPath(AnvilCraftPigeonPlus.MOD_ID, "block/blender_bottom")))
+                    state.getValue(BlenderBlock.WORKING) ? BLENDER_BASE_ACTIVE : BLENDER_BASE))
                 .rotationY(rotationY(state.getValue(BlenderBlock.FACING)))
                 .build()))
         .item(BlockItem::new)
-        .model((ctx, prov) -> prov.withExistingParent(ctx.getName(),
-            ResourceLocation.fromNamespaceAndPath(AnvilCraftPigeonPlus.MOD_ID, "block/blender")))
+        .model((ctx, prov) -> prov.withExistingParent(ctx.getName(), BLENDER_BASE))
         .build()
         .register();
 
