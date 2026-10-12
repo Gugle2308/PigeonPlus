@@ -48,20 +48,11 @@ public class BlenderBlock extends BaseEntityBlock implements IHammerRemovable {
     public static final MapCodec<BlenderBlock> CODEC = simpleCodec(BlenderBlock::new);
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty WORKING = BooleanProperty.create("working");
-    /** 已安装的搅拌头。新放置的搅拌机没有搅拌头（{@link BlenderHead#NONE}），需玩家手动安装。 */
     public static final EnumProperty<BlenderHead> HEAD = EnumProperty.create("head", BlenderHead.class);
 
-    /**
-     * 搅拌头类型，每个变体对应一个独立的头部模型（由 {@code BlenderBlockEntityRenderer} 叠加渲染）。
-     *
-     * <p>{@link #NONE} 时搅拌机不能运转。
-     */
     public enum BlenderHead implements StringRepresentable {
-        /** 未安装搅拌头。 */
         NONE(null),
-        /** 铁锹安装的普通十字搅拌头。 */
         IRON(Items.IRON_SHOVEL),
-        /** 烈焰棒安装的烈焰搅拌头。 */
         BLAZE(Items.BLAZE_ROD);
 
         @Nullable
@@ -71,7 +62,6 @@ public class BlenderBlock extends BaseEntityBlock implements IHammerRemovable {
             this.item = item;
         }
 
-        /** 安装本头所需、也是拆下时返还的物品；{@link #NONE} 返回空。 */
         public ItemStack asStack() {
             return this.item == null ? ItemStack.EMPTY : new ItemStack(this.item);
         }
@@ -109,12 +99,6 @@ public class BlenderBlock extends BaseEntityBlock implements IHammerRemovable {
             .setValue(HEAD, BlenderHead.NONE);
     }
 
-    /**
-     * 交互分流：铁锹 / 烈焰棒安装搅拌头，潜行空手拆下搅拌头。
-     *
-     * <p>铁砧锤必须让路返回 {@code PASS}：方块交互先于物品 {@code useOn} 执行
-     * （见 {@code ServerPlayerGameMode#useItemOn}），否则会抢在 {@link IHammerRemovable} 的拆除逻辑之前。
-     */
     @Override
     protected ItemInteractionResult useItemOn(
         ItemStack stack,
@@ -131,7 +115,6 @@ public class BlenderBlock extends BaseEntityBlock implements IHammerRemovable {
 
         BlenderHead installed = state.getValue(HEAD);
 
-        // 潜行空手：拆下已安装的搅拌头
         if (stack.isEmpty() && player.isShiftKeyDown()) {
             if (installed == BlenderHead.NONE) {
                 return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
@@ -147,7 +130,6 @@ public class BlenderBlock extends BaseEntityBlock implements IHammerRemovable {
             return ItemInteractionResult.sidedSuccess(level.isClientSide);
         }
 
-        // 已装头则不再响应安装
         if (installed != BlenderHead.NONE) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
@@ -169,12 +151,6 @@ public class BlenderBlock extends BaseEntityBlock implements IHammerRemovable {
         return ItemInteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    /**
-     * 除战利品表给出的搅拌机本体外，额外掉落已安装的搅拌头。
-     *
-     * <p>用 {@code getDrops} 而不是 {@code playerDestroy}，这样被爆炸、活塞等
-     * 非玩家方式破坏时同样会返还搅拌头。
-     */
     @Override
     public List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
         List<ItemStack> drops = new ArrayList<>(super.getDrops(state, params));
@@ -206,21 +182,16 @@ public class BlenderBlock extends BaseEntityBlock implements IHammerRemovable {
             return;
         }
 
-        Direction inputSide = state.getValue(FACING).getOpposite();
-        for (Direction direction : Direction.Plane.HORIZONTAL) {
-            if (direction == inputSide || random.nextFloat() > 0.65f) {
-                continue;
-            }
+        Direction fanSide = state.getValue(FACING);
 
-            double x = pos.getX() + 0.5 + direction.getStepX() * 0.56 + (random.nextDouble() - 0.5) * 0.22;
-            double y = pos.getY() + 0.45 + random.nextDouble() * 0.35;
-            double z = pos.getZ() + 0.5 + direction.getStepZ() * 0.56 + (random.nextDouble() - 0.5) * 0.22;
-            double xSpeed = direction.getStepX() * 0.045 + (random.nextDouble() - 0.5) * 0.012;
-            double ySpeed = 0.006 + random.nextDouble() * 0.01;
-            double zSpeed = direction.getStepZ() * 0.045 + (random.nextDouble() - 0.5) * 0.012;
+        double x = pos.getX() + 0.5 + fanSide.getStepX() * 0.56 + (random.nextDouble() - 0.5) * 0.22;
+        double y = pos.getY() + 0.45 + random.nextDouble() * 0.35;
+        double z = pos.getZ() + 0.5 + fanSide.getStepZ() * 0.56 + (random.nextDouble() - 0.5) * 0.22;
+        double xSpeed = fanSide.getStepX() * 0.045 + (random.nextDouble() - 0.5) * 0.012;
+        double ySpeed = 0.006 + random.nextDouble() * 0.01;
+        double zSpeed = fanSide.getStepZ() * 0.045 + (random.nextDouble() - 0.5) * 0.012;
 
-            level.addParticle(ParticleTypes.CLOUD, x, y, z, xSpeed, ySpeed, zSpeed);
-        }
+        level.addParticle(ParticleTypes.CLOUD, x, y, z, xSpeed, ySpeed, zSpeed);
     }
 
     @Nullable

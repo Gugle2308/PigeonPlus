@@ -64,23 +64,18 @@ public class AddonBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ANVIL)
         .register();
 
-    /** 搅拌机静止时的底座模型：气动外观的外壳、管道与风扇。 */
     private static final ResourceLocation BLENDER_BASE =
         AnvilCraftPigeonPlus.of("block/blender/pneumatic_blender");
-    /** 搅拌机工作时的底座模型，风扇贴图带逐帧动画。 */
     private static final ResourceLocation BLENDER_BASE_ACTIVE =
         AnvilCraftPigeonPlus.of("block/blender/pneumatic_blender_active");
-    /** 电搅拌机静止时的底座模型。 */
     private static final ResourceLocation ELECTRIC_BLENDER_BASE =
         AnvilCraftPigeonPlus.of("block/blender/electric_blender");
-    /** 电搅拌机工作时的底座模型，侧面与顶部贴图带逐帧动画。 */
     private static final ResourceLocation ELECTRIC_BLENDER_BASE_ACTIVE =
         AnvilCraftPigeonPlus.of("block/blender/electric_blender_active");
 
     public static final BlockEntry<BlenderBlock> BLENDER = REGISTRUM
         .block("blender", BlenderBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        // 底座由 blockstate 给出，十字搅拌头另由 BlenderBlockEntityRenderer 叠加渲染（工作时绕 Y 轴旋转）。
         .blockstate((ctx, prov) -> prov.getVariantBuilder(ctx.getEntry()).forAllStates(state ->
             ConfiguredModel.builder()
                 .modelFile(prov.models().getExistingFile(
@@ -95,8 +90,6 @@ public class AddonBlocks {
     public static final BlockEntry<ElectricBlenderBlock> ELECTRIC_BLENDER = REGISTRUM
         .block("electric_blender", ElectricBlenderBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        // 与搅拌机同构：底座由 blockstate 给出，搅拌头另由 BlenderBlockEntityRenderer 叠加渲染。
-        // 搅拌或供热时都用 active 模型（侧面/顶部贴图带逐帧动画），一眼能看出它在工作。
         .blockstate((ctx, prov) -> prov.getVariantBuilder(ctx.getEntry()).forAllStates(state ->
             ConfiguredModel.builder()
                 .modelFile(prov.models().getExistingFile(

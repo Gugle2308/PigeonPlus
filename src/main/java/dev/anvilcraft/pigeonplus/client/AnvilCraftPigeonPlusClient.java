@@ -181,9 +181,6 @@ public class AnvilCraftPigeonPlusClient {
     }
 
     private void onRegisterAdditionalModels(ModelEvent.RegisterAdditional event) {
-        // 搅拌机的搅拌头是独立模型，不属于任何方块状态，
-        // 由 BlenderBlockEntityRenderer 叠加渲染，因此必须登记为 standalone。
-        // 两个头模型分别对应铁锹与烈焰棒安装的变体。
         ResourceLocation blenderHead = ResourceLocation.fromNamespaceAndPath(
             AnvilCraftPigeonPlus.MOD_ID, "block/blender/blender_head");
         ResourceLocation blenderHeadBlaze = ResourceLocation.fromNamespaceAndPath(

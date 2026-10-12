@@ -68,9 +68,6 @@ public class AnvilCraftPigeonPlus {
 
     private static void loadComplete(FMLLoadCompleteEvent event) {
         event.enqueueWork(AddonInteractionMap::init);
-        // 必须等方块注册完成后再触发：AddonHeaterInfos 的静态块会取 AddonBlocks 的方块实例，
-        // 在模组构造期取会抛 "Trying to access unbound value"（同类问题见 AddonCubeSelection）。
-        // 而 JVM 只在类被真正使用时才初始化它，不显式调用的话供电登记会被整个跳过。
         event.enqueueWork(AddonHeaterInfos::init);
         event.enqueueWork(() -> {
             DispenseItemBehavior previous = DispenserBlock.DISPENSER_REGISTRY.get(Items.GLASS_BOTTLE);

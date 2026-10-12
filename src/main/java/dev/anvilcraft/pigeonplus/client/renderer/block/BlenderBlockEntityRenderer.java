@@ -26,32 +26,14 @@ import net.neoforged.neoforge.client.model.data.ModelData;
 
 import java.util.Map;
 
-/**
- * 搅拌头叠加渲染器，搅拌机与电搅拌器共用。
- *
- * <p>搅拌头不属于任何 blockstate，因此这里按方块状态里的 {@code HEAD} 属性选模型叠加渲染，
- * 并在运转时绕 Y 轴旋转。
- */
 public class BlenderBlockEntityRenderer<T extends BlockEntity> implements BlockEntityRenderer<T> {
     private static final float ROTATION_DEGREES_PER_TICK = 45.0f;
 
     private static final float HEAD_LIFT = 0.875f;
 
-    /**
-     * 渲染包围盒的水平外扩量（格）。
-     *
-     * <p>搅拌头水平占 x/z = 3~13 像素，绕中心旋转后最远角半径约 0.44 格；
-     * 经 3 倍放大后约 1.33 格，即横向可伸出方块外约 0.83 格。取 1 格留余量。
-     */
     private static final double RENDER_BOX_REACH = 1.0;
-    /** 渲染包围盒高出方块的量（格）。3 倍放大并抬高后，搅拌头顶端最高约在方块上方 3.81 格。 */
     private static final double RENDER_BOX_HEIGHT = 4.0;
 
-    /**
-     * 各搅拌头类型对应的模型位置。
-     *
-     * <p>{@code NONE} 不在表内——没装头时整个头部都不渲染，玩家看到的就是光秃秃的底座。
-     */
     private static final Map<BlenderBlock.BlenderHead, ModelResourceLocation> HEAD_MODELS = Map.of(
         BlenderBlock.BlenderHead.IRON, headModel("blender_head"),
         BlenderBlock.BlenderHead.BLAZE, headModel("blender_head_blaze")
@@ -74,7 +56,6 @@ public class BlenderBlockEntityRenderer<T extends BlockEntity> implements BlockE
 
         BlockState blockState = blockEntity.getBlockState();
         ModelResourceLocation headLocation = HEAD_MODELS.get(blockState.getValue(BlenderBlock.HEAD));
-        // 没装搅拌头：不渲染任何头部
         if (headLocation == null) return;
 
         BlockPos pos = blockEntity.getBlockPos();
@@ -92,8 +73,6 @@ public class BlenderBlockEntityRenderer<T extends BlockEntity> implements BlockE
         float angle = blockState.getValue(BlenderBlock.WORKING)
             ? (level.getGameTime() + partialTick) * ROTATION_DEGREES_PER_TICK
             : 0.0f;
-        // 先做 Y 方向平移再做缩放：旋转绕 Y 轴，平移与旋转互不影响；
-        // 置于缩放之前可保证抬升量恒定，不被炼药锅的 2 倍放大放大。
         poseStack.translate(0.0, HEAD_LIFT, 0.0);
         poseStack.translate(0.5, 0.5, 0.5);
         if (hasCauldronAbove) {

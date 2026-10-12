@@ -49,7 +49,6 @@ public class BlenderBlockEntity extends BlockEntity {
         }
     }
 
-    /** 是否已安装搅拌头。没装头时不消耗压缩空气，也不会运转。 */
     public boolean hasHead() {
         BlockState state = this.getBlockState();
         return state.hasProperty(BlenderBlock.HEAD) && state.getValue(BlenderBlock.HEAD) != BlenderBlock.BlenderHead.NONE;

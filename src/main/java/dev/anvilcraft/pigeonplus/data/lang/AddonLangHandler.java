@@ -72,10 +72,18 @@ public class AddonLangHandler {
             "gui.anvilcraft_pigeon_plus.category.potion_brewing.whole_tank",
             "Converts all potion in the container"
         );
+        provider.add(
+            "gui.anvilcraft_pigeon_plus.category.potion_brewing.need_blender",
+            "Requires a running blender with a blaze head"
+        );
         provider.add("gui.anvilcraft_pigeon_plus.category.potion_bulk_brewing", "Bulk Potion Brewing");
         provider.add(
             "gui.anvilcraft_pigeon_plus.category.potion_bulk_brewing.bulk",
             "Brews 8B at once, using only one reagent"
+        );
+        provider.add(
+            "gui.anvilcraft_pigeon_plus.category.potion_bulk_brewing.need_blender",
+            "Requires a running electric blender with a blaze head"
         );
         provider.add("gui.anvilcraft_pigeon_plus.category.potion_soaking", "Potion Soaking");
         provider.add(
