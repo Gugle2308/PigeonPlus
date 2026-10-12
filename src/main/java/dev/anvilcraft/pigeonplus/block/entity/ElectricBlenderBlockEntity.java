@@ -2,6 +2,8 @@ package dev.anvilcraft.pigeonplus.block.entity;
 
 import dev.anvilcraft.pigeonplus.block.BlenderBlock;
 import dev.anvilcraft.pigeonplus.block.ElectricBlenderBlock;
+import dev.anvilcraft.pigeonplus.init.AddonHeaterInfos;
+import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import net.minecraft.core.BlockPos;
@@ -34,6 +36,15 @@ public class ElectricBlenderBlockEntity extends BlockEntity implements IPowerCon
         boolean gridWorking = blockEntity.isGridWorking();
         blockEntity.setHeating(gridWorking);
         blockEntity.setWorking(blockEntity.hasHead() && gridWorking);
+        blockEntity.updateHeater(level, pos, gridWorking);
+    }
+
+    private void updateHeater(Level level, BlockPos pos, boolean heating) {
+        if (heating) {
+            HeaterManager.addProducer(pos, level, AddonHeaterInfos.ELECTRIC_BLENDER);
+        } else {
+            HeaterManager.removeProducer(pos, level, AddonHeaterInfos.ELECTRIC_BLENDER);
+        }
     }
 
     public boolean hasHead() {

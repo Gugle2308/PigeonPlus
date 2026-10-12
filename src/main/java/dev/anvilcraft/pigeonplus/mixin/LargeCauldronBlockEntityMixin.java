@@ -1,5 +1,6 @@
 package dev.anvilcraft.pigeonplus.mixin;
 
+import dev.anvilcraft.pigeonplus.util.HeaterCompat;
 import dev.anvilcraft.pigeonplus.util.NozzleExhaustUtil;
 import dev.anvilcraft.pigeonplus.util.GasEscapeUtil;
 import dev.anvilcraft.pigeonplus.util.PotionParticleUtil;
@@ -52,6 +53,26 @@ public class LargeCauldronBlockEntityMixin {
     private void pigeonplus$allowMixedPropellantIgnition(CallbackInfoReturnable<Boolean> cir) {
         if (!cir.getReturnValueZ()
             && NozzleExhaustUtil.hasAnyPropellant((LargeCauldronBlockEntity) (Object) this)) {
+            cir.setReturnValue(true);
+        }
+    }
+
+    @Inject(method = "isActiveRecipeHelper", at = @At("RETURN"), cancellable = true)
+    private static void pigeonplus$acceptHeatingBlenderAsHelper(
+        BlockState state,
+        CallbackInfoReturnable<Boolean> cir
+    ) {
+        if (!cir.getReturnValueZ() && HeaterCompat.isHeatingElectricBlender(state)) {
+            cir.setReturnValue(true);
+        }
+    }
+
+    @Inject(method = "isActiveHeatingHelper", at = @At("RETURN"), cancellable = true)
+    private static void pigeonplus$acceptHeatingBlenderAsHeatingHelper(
+        BlockState state,
+        CallbackInfoReturnable<Boolean> cir
+    ) {
+        if (!cir.getReturnValueZ() && HeaterCompat.isHeatingElectricBlender(state)) {
             cir.setReturnValue(true);
         }
     }
