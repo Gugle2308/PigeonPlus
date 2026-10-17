@@ -50,6 +50,7 @@ public class NozzleExhaustBlockEntity extends BlockEntity {
     private static final double HYDROGEN_ACCELERATION_PER_TICK = 160.0 / StasisTimeFreezeManager.MAX_FREEZE_TICKS;
     private static final int CENTER_HEAT_INTERVAL_TICKS = 10;
     private static final int CENTER_HEAT_DURATION_TICKS = 20 * 20;
+    private static final int CHARGE_PER_HEATABLE = 512;
     public static final int BLOCKED_EXPLODE_TICKS = 200;
     private static final float NOZZLE_EXPLOSION_RADIUS = 2.5F;
     private static final String EXHAUST_TICKS_TAG = "ExhaustTicks";
@@ -344,8 +345,13 @@ public class NozzleExhaustBlockEntity extends BlockEntity {
             return;
         }
         ChargeCollectorManager instance = ChargeCollectorManager.getInstance(level);
-        for (BlockPos magnetPos : NozzleExhaustUtil.collectRingTargets(level, this.worldPosition).magnetPoses()) {
-            instance.charge(512, magnetPos);
+        NozzleExhaustUtil.NozzleRingTargets targets =
+            NozzleExhaustUtil.collectRingTargets(level, this.worldPosition);
+        for (BlockPos pos : targets.magnetHeatablePoses()) {
+            instance.charge(CHARGE_PER_HEATABLE, pos);
+        }
+        for (BlockPos pos : targets.noMagnetHeatablePoses()) {
+            instance.charge(CHARGE_PER_HEATABLE, pos);
         }
     }
 
