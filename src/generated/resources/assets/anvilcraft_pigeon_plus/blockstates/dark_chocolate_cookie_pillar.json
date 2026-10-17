@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "anvilcraft_pigeon_plus:block/dark_chocolate_cookie_pillar",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "anvilcraft_pigeon_plus:block/dark_chocolate_cookie_pillar"
+    },
+    "axis=z": {
+      "model": "anvilcraft_pigeon_plus:block/dark_chocolate_cookie_pillar",
+      "x": 90
+    }
+  }
+}

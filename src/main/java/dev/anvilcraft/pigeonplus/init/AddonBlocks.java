@@ -7,6 +7,7 @@ import dev.anvilcraft.pigeonplus.block.AnvilPumpBlock;
 import dev.anvilcraft.pigeonplus.block.BlenderBlock;
 import dev.anvilcraft.pigeonplus.block.ElectricBlenderBlock;
 import dev.anvilcraft.pigeonplus.block.FeedSpreaderBlock;
+import dev.anvilcraft.pigeonplus.block.FilledCookiePillarBlock;
 import dev.anvilcraft.pigeonplus.block.LargeFireworksRocketBlock;
 import dev.anvilcraft.pigeonplus.block.MixedBiomassCauldronBlock;
 import dev.anvilcraft.pigeonplus.block.NozzleBlock;
@@ -18,6 +19,7 @@ import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.Direction;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.resources.ResourceLocation;
@@ -31,7 +33,12 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.MapColor;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
+import net.neoforged.neoforge.fluids.BaseFlowingFluid;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 import static dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus.REGISTRUM;
 
@@ -244,6 +251,51 @@ public class AddonBlocks {
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.CAULDRONS)
             .onRegister(block -> Item.BY_BLOCK.put(block, Items.CAULDRON))
             .register();
+    }
+
+    public static final BlockEntry<FilledCookiePillarBlock> CHOCOLATE_COOKIE_PILLAR =
+        filledCookiePillar("chocolate_cookie_pillar", AddonFluids.LIQUID_CHOCOLATE);
+
+    public static final BlockEntry<FilledCookiePillarBlock> DARK_CHOCOLATE_COOKIE_PILLAR =
+        filledCookiePillar("dark_chocolate_cookie_pillar", AddonFluids.LIQUID_CHOCOLATE_DARK);
+
+    public static final BlockEntry<FilledCookiePillarBlock> WHITE_CHOCOLATE_COOKIE_PILLAR =
+        filledCookiePillar("white_chocolate_cookie_pillar", AddonFluids.LIQUID_CHOCOLATE_WHITE);
+
+    private static BlockEntry<FilledCookiePillarBlock> filledCookiePillar(
+        String name,
+        DeferredHolder<Fluid, BaseFlowingFluid.Source> fluid
+    ) {
+        return REGISTRUM
+            .block(name, properties -> new FilledCookiePillarBlock(properties, fluid.get()))
+            .properties(properties -> properties
+                .mapColor(MapColor.NETHER)
+                .instrument(NoteBlockInstrument.BASEDRUM)
+                .strength(0.4F)
+                .sound(SoundType.NETHERRACK))
+            .blockstate((ctx, prov) -> {
+                var model = prov.models().getExistingFile(AnvilCraftPigeonPlus.of("block/" + name));
+                prov.getVariantBuilder(ctx.getEntry()).forAllStates(state -> {
+                    Direction.Axis axis = state.getValue(FilledCookiePillarBlock.AXIS);
+                    return ConfiguredModel.builder()
+                        .modelFile(model)
+                        .rotationX(axis == Direction.Axis.Y ? 0 : 90)
+                        .rotationY(axis == Direction.Axis.X ? 90 : 0)
+                        .build();
+                });
+            })
+            .lang(chocolateLangName(name))
+            .loot((tables, block) -> tables.dropOther(block, ModBlocks.COOKIE_PILLAR.get()))
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+    }
+
+    private static String chocolateLangName(String name) {
+        return switch (name) {
+            case "dark_chocolate_cookie_pillar" -> "Dark Chocolate Sandwich Cookie Pillar";
+            case "white_chocolate_cookie_pillar" -> "White Chocolate Sandwich Cookie Pillar";
+            default -> "Chocolate Sandwich Cookie Pillar";
+        };
     }
 
     public static final BlockEntry<LargeFireworksRocketBlock> LARGE_FIREWORKS_ROCKET = REGISTRUM

@@ -1,0 +1,66 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"1": "anvilcraft:block/cookie_pillar",
+		"2": "anvilcraft:block/cookie_pillar_top",
+		"3": "anvilcraft_pigeon_plus:block/liquid_chocolate",
+		"particle": "anvilcraft:block/cookie_pillar"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [13, 16, 3],
+			"faces": {
+				"north": {"uv": [3, 0, 16, 16], "texture": "#1", "cullface": "north"},
+				"south": {"uv": [0, 0, 13, 16], "texture": "#1"},
+				"west": {"uv": [0, 0, 3, 16], "texture": "#1", "cullface": "west"},
+				"up": {"uv": [0, 0, 13, 3], "texture": "#2", "cullface": "up"},
+				"down": {"uv": [0, 13, 13, 16], "texture": "#2", "cullface": "down"}
+			}
+		},
+		{
+			"from": [0, 0, 3],
+			"to": [3, 16, 16],
+			"faces": {
+				"east": {"uv": [0, 0, 13, 16], "texture": "#1"},
+				"south": {"uv": [0, 0, 3, 16], "texture": "#1", "cullface": "south"},
+				"west": {"uv": [3, 0, 16, 16], "texture": "#1", "cullface": "west"},
+				"up": {"uv": [0, 0, 13, 3], "rotation": 270, "texture": "#2", "cullface": "up"},
+				"down": {"uv": [0, 13, 13, 16], "rotation": 90, "texture": "#2", "cullface": "down"}
+			}
+		},
+		{
+			"from": [3, 0, 13],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 13, 16], "texture": "#1"},
+				"east": {"uv": [0, 0, 3, 16], "texture": "#1", "cullface": "east"},
+				"south": {"uv": [3, 0, 16, 16], "texture": "#1", "cullface": "south"},
+				"up": {"uv": [0, 0, 13, 3], "rotation": 180, "texture": "#2", "cullface": "up"},
+				"down": {"uv": [0, 13, 13, 16], "rotation": 180, "texture": "#2", "cullface": "down"}
+			}
+		},
+		{
+			"from": [13, 0, 0],
+			"to": [16, 16, 13],
+			"faces": {
+				"north": {"uv": [0, 0, 3, 16], "texture": "#1", "cullface": "north"},
+				"east": {"uv": [3, 0, 16, 16], "texture": "#1", "cullface": "east"},
+				"west": {"uv": [0, 0, 13, 16], "texture": "#1"},
+				"up": {"uv": [0, 0, 13, 3], "rotation": 90, "texture": "#2", "cullface": "up"},
+				"down": {"uv": [0, 13, 13, 16], "rotation": 270, "texture": "#2", "cullface": "down"}
+			}
+		},
+		{
+			"from": [3, 0, 3],
+			"to": [13, 16, 13],
+			"rotation": {"angle": 0, "axis": "y", "origin": [11, 0, 11]},
+			"faces": {
+				"up": {"uv": [3, 3, 13, 13], "texture": "#3"},
+				"down": {"uv": [3, 3, 13, 13], "texture": "#3"}
+			}
+		}
+	]
+}

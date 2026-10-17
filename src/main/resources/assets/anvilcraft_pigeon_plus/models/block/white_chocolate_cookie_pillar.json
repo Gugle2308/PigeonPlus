@@ -1,0 +1,6 @@
+{
+	"parent": "anvilcraft_pigeon_plus:block/chocolate_cookie_pillar",
+	"textures": {
+		"3": "anvilcraft_pigeon_plus:block/liquid_chocolate_white"
+	}
+}
