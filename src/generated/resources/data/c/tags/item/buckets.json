@@ -5,6 +5,9 @@
     "anvilcraft_pigeon_plus:compressed_air_bucket",
     "anvilcraft_pigeon_plus:mixed_biomass_bucket",
     "anvilcraft_pigeon_plus:liquid_oxygen_bucket",
-    "anvilcraft_pigeon_plus:liquid_hydrogen_bucket"
+    "anvilcraft_pigeon_plus:liquid_hydrogen_bucket",
+    "anvilcraft_pigeon_plus:liquid_chocolate_bucket",
+    "anvilcraft_pigeon_plus:liquid_chocolate_dark_bucket",
+    "anvilcraft_pigeon_plus:liquid_chocolate_white_bucket"
   ]
 }

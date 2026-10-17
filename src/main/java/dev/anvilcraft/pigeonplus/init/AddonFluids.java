@@ -8,9 +8,11 @@ import dev.anvilcraft.pigeonplus.fluid.PotionFluid;
 import dev.anvilcraft.pigeonplus.fluid.PotionFluidType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.bus.api.IEventBus;
@@ -206,6 +208,78 @@ public class AddonFluids {
             new Vector3f(0.78f, 0.92f, 1.0f))
     );
 
+    public static final DeferredHolder<FluidType, FluidType> LIQUID_CHOCOLATE_TYPE = FLUID_TYPES.register(
+        "liquid_chocolate",
+        () -> new FluidType(FluidType.Properties.create()
+            .descriptionId("block.%s.liquid_chocolate".formatted(AnvilCraftPigeonPlus.MOD_ID))
+            .density(1400)
+            .viscosity(3000)
+            .temperature(320)
+            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY))
+    );
+
+    public static final DeferredHolder<Fluid, BaseFlowingFluid.Source> LIQUID_CHOCOLATE = FLUIDS.register(
+        "liquid_chocolate",
+        () -> new BaseFlowingFluid.Source(liquidChocolateProperties())
+    );
+
+    public static final DeferredHolder<Fluid, BaseFlowingFluid.Flowing> LIQUID_CHOCOLATE_FLOWING = FLUIDS.register(
+        "flowing_liquid_chocolate",
+        () -> new BaseFlowingFluid.Flowing(liquidChocolateProperties())
+    );
+
+    public static final DeferredHolder<Block, LiquidBlock> LIQUID_CHOCOLATE_BLOCK = BLOCKS.register(
+        "liquid_chocolate",
+        () -> new LiquidBlock(LIQUID_CHOCOLATE.get(), BlockBehaviour.Properties.of()
+            .replaceable()
+            .noCollission()
+            .strength(100.0f)
+            .pushReaction(PushReaction.DESTROY)
+            .noLootTable()
+            .liquid())
+    );
+
+    public static final DeferredHolder<FluidType, FluidType> LIQUID_CHOCOLATE_DARK_TYPE = FLUID_TYPES.register(
+        "liquid_chocolate_dark",
+        () -> chocolateFluidType("liquid_chocolate_dark")
+    );
+
+    public static final DeferredHolder<Fluid, BaseFlowingFluid.Source> LIQUID_CHOCOLATE_DARK = FLUIDS.register(
+        "liquid_chocolate_dark",
+        () -> new BaseFlowingFluid.Source(liquidChocolateDarkProperties())
+    );
+
+    public static final DeferredHolder<Fluid, BaseFlowingFluid.Flowing> LIQUID_CHOCOLATE_DARK_FLOWING = FLUIDS.register(
+        "flowing_liquid_chocolate_dark",
+        () -> new BaseFlowingFluid.Flowing(liquidChocolateDarkProperties())
+    );
+
+    public static final DeferredHolder<Block, LiquidBlock> LIQUID_CHOCOLATE_DARK_BLOCK = BLOCKS.register(
+        "liquid_chocolate_dark",
+        () -> chocolateBlock(LIQUID_CHOCOLATE_DARK.get())
+    );
+
+    public static final DeferredHolder<FluidType, FluidType> LIQUID_CHOCOLATE_WHITE_TYPE = FLUID_TYPES.register(
+        "liquid_chocolate_white",
+        () -> chocolateFluidType("liquid_chocolate_white")
+    );
+
+    public static final DeferredHolder<Fluid, BaseFlowingFluid.Source> LIQUID_CHOCOLATE_WHITE = FLUIDS.register(
+        "liquid_chocolate_white",
+        () -> new BaseFlowingFluid.Source(liquidChocolateWhiteProperties())
+    );
+
+    public static final DeferredHolder<Fluid, BaseFlowingFluid.Flowing> LIQUID_CHOCOLATE_WHITE_FLOWING = FLUIDS.register(
+        "flowing_liquid_chocolate_white",
+        () -> new BaseFlowingFluid.Flowing(liquidChocolateWhiteProperties())
+    );
+
+    public static final DeferredHolder<Block, LiquidBlock> LIQUID_CHOCOLATE_WHITE_BLOCK = BLOCKS.register(
+        "liquid_chocolate_white",
+        () -> chocolateBlock(LIQUID_CHOCOLATE_WHITE.get())
+    );
+
     public static final DeferredHolder<FluidType, FluidType> POTION_TYPE = FLUID_TYPES.register(
         "potion",
         () -> new PotionFluidType(FluidType.Properties.create()
@@ -259,6 +333,72 @@ public class AddonFluids {
             .levelDecreasePerBlock(1)
             .tickRate(5)
             .explosionResistance(100.0f);
+    }
+
+    private static FluidType chocolateFluidType(String name) {
+        return new FluidType(FluidType.Properties.create()
+            .descriptionId("block.%s.%s".formatted(AnvilCraftPigeonPlus.MOD_ID, name))
+            .density(1400)
+            .viscosity(3000)
+            .temperature(320)
+            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY));
+    }
+
+    private static LiquidBlock chocolateBlock(FlowingFluid fluid) {
+        return new LiquidBlock(fluid, BlockBehaviour.Properties.of()
+            .replaceable()
+            .noCollission()
+            .strength(100.0f)
+            .pushReaction(PushReaction.DESTROY)
+            .noLootTable()
+            .liquid());
+    }
+
+    private static BaseFlowingFluid.Properties chocolateProperties(
+        DeferredHolder<FluidType, FluidType> type,
+        DeferredHolder<Fluid, BaseFlowingFluid.Source> source,
+        DeferredHolder<Fluid, BaseFlowingFluid.Flowing> flowing,
+        DeferredHolder<Block, LiquidBlock> block,
+        DeferredHolder<Item, ? extends Item> bucket
+    ) {
+        return new BaseFlowingFluid.Properties(type, source, flowing)
+            .bucket(bucket)
+            .block(block)
+            .slopeFindDistance(2)
+            .levelDecreasePerBlock(3)
+            .tickRate(20)
+            .explosionResistance(100.0f);
+    }
+
+    private static BaseFlowingFluid.Properties liquidChocolateDarkProperties() {
+        return chocolateProperties(
+            LIQUID_CHOCOLATE_DARK_TYPE,
+            LIQUID_CHOCOLATE_DARK,
+            LIQUID_CHOCOLATE_DARK_FLOWING,
+            LIQUID_CHOCOLATE_DARK_BLOCK,
+            AddonItems.LIQUID_CHOCOLATE_DARK_BUCKET
+        );
+    }
+
+    private static BaseFlowingFluid.Properties liquidChocolateWhiteProperties() {
+        return chocolateProperties(
+            LIQUID_CHOCOLATE_WHITE_TYPE,
+            LIQUID_CHOCOLATE_WHITE,
+            LIQUID_CHOCOLATE_WHITE_FLOWING,
+            LIQUID_CHOCOLATE_WHITE_BLOCK,
+            AddonItems.LIQUID_CHOCOLATE_WHITE_BUCKET
+        );
+    }
+
+    private static BaseFlowingFluid.Properties liquidChocolateProperties() {
+        return chocolateProperties(
+            LIQUID_CHOCOLATE_TYPE,
+            LIQUID_CHOCOLATE,
+            LIQUID_CHOCOLATE_FLOWING,
+            LIQUID_CHOCOLATE_BLOCK,
+            AddonItems.LIQUID_CHOCOLATE_BUCKET
+        );
     }
 
     public static void register(IEventBus modEventBus) {

@@ -35,6 +35,9 @@ public class AddonLangHandler {
         provider.add("block.anvilcraft_pigeon_plus.mixed_biomass", "Mixed Biomass");
         provider.add("block.anvilcraft_pigeon_plus.liquid_oxygen", "Liquid Oxygen");
         provider.add("block.anvilcraft_pigeon_plus.liquid_hydrogen", "Liquid Hydrogen");
+        provider.add("block.anvilcraft_pigeon_plus.liquid_chocolate", "Liquid Chocolate");
+        provider.add("block.anvilcraft_pigeon_plus.liquid_chocolate_dark", "Liquid Dark Chocolate");
+        provider.add("block.anvilcraft_pigeon_plus.liquid_chocolate_white", "Liquid White Chocolate");
         provider.add("block.anvilcraft_pigeon_plus.potion", "Potion");
         provider.add("fluid.anvilcraft_pigeon_plus.potion.of", "%s%s");
         provider.add("fluid.anvilcraft_pigeon_plus.potion.long", "Long ");

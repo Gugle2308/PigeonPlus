@@ -1,7 +1,9 @@
 package dev.anvilcraft.pigeonplus.init;
 
 import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
+import dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus;
 import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -72,6 +74,54 @@ public class AddonItems {
         .lang("Liquid Hydrogen Bucket")
         .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucket)
+        .register();
+
+    public static final ItemEntry<BucketItem> LIQUID_CHOCOLATE_BUCKET = REGISTRUM.item(
+            "liquid_chocolate_bucket",
+            properties -> new BucketItem(AddonFluids.LIQUID_CHOCOLATE.get(), properties)
+        )
+        .tag(Tags.Items.BUCKETS)
+        .lang("Liquid Chocolate Bucket")
+        .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
+        .model((ctx, prov) -> prov.generated(
+            ctx,
+            ResourceLocation.fromNamespaceAndPath(
+                AnvilCraftPigeonPlus.MOD_ID,
+                "block/liquid_chocolate_bucket"
+            )
+        ))
+        .register();
+
+    public static final ItemEntry<BucketItem> LIQUID_CHOCOLATE_DARK_BUCKET = REGISTRUM.item(
+            "liquid_chocolate_dark_bucket",
+            properties -> new BucketItem(AddonFluids.LIQUID_CHOCOLATE_DARK.get(), properties)
+        )
+        .tag(Tags.Items.BUCKETS)
+        .lang("Dark Liquid Chocolate Bucket")
+        .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
+        .model((ctx, prov) -> prov.generated(
+            ctx,
+            ResourceLocation.fromNamespaceAndPath(
+                AnvilCraftPigeonPlus.MOD_ID,
+                "block/liquid_chocolate_dark_bucket"
+            )
+        ))
+        .register();
+
+    public static final ItemEntry<BucketItem> LIQUID_CHOCOLATE_WHITE_BUCKET = REGISTRUM.item(
+            "liquid_chocolate_white_bucket",
+            properties -> new BucketItem(AddonFluids.LIQUID_CHOCOLATE_WHITE.get(), properties)
+        )
+        .tag(Tags.Items.BUCKETS)
+        .lang("White Liquid Chocolate Bucket")
+        .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
+        .model((ctx, prov) -> prov.generated(
+            ctx,
+            ResourceLocation.fromNamespaceAndPath(
+                AnvilCraftPigeonPlus.MOD_ID,
+                "block/liquid_chocolate_white_bucket"
+            )
+        ))
         .register();
 
     public static final ItemEntry<Item> SPLASH_BOTTLE = REGISTRUM.item(

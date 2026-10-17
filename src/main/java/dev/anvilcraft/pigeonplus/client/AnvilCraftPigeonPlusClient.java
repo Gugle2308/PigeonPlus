@@ -230,6 +230,12 @@ public class AnvilCraftPigeonPlusClient {
             ItemBlockRenderTypes.setRenderLayer(AddonFluids.LIQUID_OXYGEN_FLOWING.get(), RenderType.translucent());
             ItemBlockRenderTypes.setRenderLayer(AddonFluids.LIQUID_HYDROGEN.get(), RenderType.translucent());
             ItemBlockRenderTypes.setRenderLayer(AddonFluids.LIQUID_HYDROGEN_FLOWING.get(), RenderType.translucent());
+            ItemBlockRenderTypes.setRenderLayer(AddonFluids.LIQUID_CHOCOLATE.get(), RenderType.translucent());
+            ItemBlockRenderTypes.setRenderLayer(AddonFluids.LIQUID_CHOCOLATE_FLOWING.get(), RenderType.translucent());
+            ItemBlockRenderTypes.setRenderLayer(AddonFluids.LIQUID_CHOCOLATE_DARK.get(), RenderType.translucent());
+            ItemBlockRenderTypes.setRenderLayer(AddonFluids.LIQUID_CHOCOLATE_DARK_FLOWING.get(), RenderType.translucent());
+            ItemBlockRenderTypes.setRenderLayer(AddonFluids.LIQUID_CHOCOLATE_WHITE.get(), RenderType.translucent());
+            ItemBlockRenderTypes.setRenderLayer(AddonFluids.LIQUID_CHOCOLATE_WHITE_FLOWING.get(), RenderType.translucent());
         });
     }
 
@@ -299,6 +305,45 @@ public class AnvilCraftPigeonPlusClient {
                 false
             ),
             AddonFluids.LIQUID_HYDROGEN_TYPE
+        );
+        event.registerFluidType(
+            new ModClientFluidTypeExtensionImpl(
+                ResourceLocation.fromNamespaceAndPath(
+                    AnvilCraftPigeonPlus.MOD_ID,
+                    "block/liquid_chocolate"
+                ),
+                ResourceLocation.fromNamespaceAndPath(
+                    AnvilCraftPigeonPlus.MOD_ID,
+                    "block/liquid_chocolate_flow"
+                )
+            ),
+            AddonFluids.LIQUID_CHOCOLATE_TYPE
+        );
+        event.registerFluidType(
+            new ModClientFluidTypeExtensionImpl(
+                ResourceLocation.fromNamespaceAndPath(
+                    AnvilCraftPigeonPlus.MOD_ID,
+                    "block/liquid_chocolate_dark"
+                ),
+                ResourceLocation.fromNamespaceAndPath(
+                    AnvilCraftPigeonPlus.MOD_ID,
+                    "block/liquid_chocolate_dark_flow"
+                )
+            ),
+            AddonFluids.LIQUID_CHOCOLATE_DARK_TYPE
+        );
+        event.registerFluidType(
+            new ModClientFluidTypeExtensionImpl(
+                ResourceLocation.fromNamespaceAndPath(
+                    AnvilCraftPigeonPlus.MOD_ID,
+                    "block/liquid_chocolate_white"
+                ),
+                ResourceLocation.fromNamespaceAndPath(
+                    AnvilCraftPigeonPlus.MOD_ID,
+                    "block/liquid_chocolate_white_flow"
+                )
+            ),
+            AddonFluids.LIQUID_CHOCOLATE_WHITE_TYPE
         );
         // 药水的颜色随组件变化，所以不能用固定颜色的通用扩展，需专门的实现。
         event.registerFluidType(new PotionFluidClientExtensions(), AddonFluids.POTION_TYPE);

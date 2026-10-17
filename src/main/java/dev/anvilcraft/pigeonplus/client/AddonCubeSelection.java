@@ -3,6 +3,7 @@ package dev.anvilcraft.pigeonplus.client;
 import dev.anvilcraft.lib.v2.cube.client.CubeSelection;
 import dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus;
 import dev.anvilcraft.pigeonplus.init.AddonBlocks;
+import dev.anvilcraft.pigeonplus.init.AddonFluids;
 
 /**
  * 启用 anvillib cube 模块对本模组命名空间的支持（精确拾取 + 模型形状准星描边）。
@@ -61,5 +62,13 @@ public final class AddonCubeSelection {
         // 巨型烟花是 3×3×9 的整体结构，逐格精确拾取反而难以点到想要的位置，
         // 因此退回原版整格拾取。
         CubeSelection.exclude(AddonBlocks.LARGE_FIREWORKS_ROCKET.get());
+        // 流体没有可拾取的模型形状，被画上选择框是错的，一律退回原版行为。
+        CubeSelection.exclude(AddonFluids.LIQUID_CHOCOLATE_BLOCK.get());
+        CubeSelection.exclude(AddonFluids.LIQUID_CHOCOLATE_DARK_BLOCK.get());
+        CubeSelection.exclude(AddonFluids.LIQUID_CHOCOLATE_WHITE_BLOCK.get());
+        CubeSelection.exclude(AddonFluids.LIQUEFIED_BIOGAS_BLOCK.get());
+        CubeSelection.exclude(AddonFluids.LIQUID_OXYGEN_BLOCK.get());
+        CubeSelection.exclude(AddonFluids.LIQUID_HYDROGEN_BLOCK.get());
+        CubeSelection.exclude(AddonFluids.MIXED_BIOMASS_BLOCK.get());
     }
 }
