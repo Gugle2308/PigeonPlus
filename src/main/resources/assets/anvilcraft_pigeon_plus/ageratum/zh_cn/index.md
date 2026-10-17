@@ -21,7 +21,7 @@ items:
 - [静滞信标](devices/stasis_beacon)
 - [铁砧泵](devices/anvil_pump)
 - [撒播器](devices/feed_spreader)
-- [搅拌机](devices/blender)
+- [气动搅拌机](devices/blender)
 
 ## 流体
 

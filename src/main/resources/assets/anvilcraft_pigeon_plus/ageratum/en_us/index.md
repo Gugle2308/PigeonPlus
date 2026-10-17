@@ -21,7 +21,7 @@ This guide records the machines, fluids, and large structure behavior added by t
 - [Stasis Beacon](devices/stasis_beacon)
 - [Anvil Pump](devices/anvil_pump)
 - [Feed Spreader](devices/feed_spreader)
-- [Blender](devices/blender)
+- [Air Blender](devices/blender)
 
 ## Fluids
 

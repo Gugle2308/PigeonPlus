@@ -84,6 +84,7 @@ public class AddonBlocks {
                     state.getValue(BlenderBlock.WORKING) ? BLENDER_BASE_ACTIVE : BLENDER_BASE))
                 .rotationY(rotationY(state.getValue(BlenderBlock.FACING)))
                 .build()))
+        .lang("Air Blender")
         .item(BlockItem::new)
         .model((ctx, prov) -> prov.withExistingParent(ctx.getName(), BLENDER_BASE))
         .build()
