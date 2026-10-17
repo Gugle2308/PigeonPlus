@@ -2,6 +2,7 @@ package dev.anvilcraft.pigeonplus.init;
 
 import dev.anvilcraft.lib.v2.registrum.util.entry.BlockEntry;
 import dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus;
+import dev.anvilcraft.pigeonplus.block.AddonLiquidCauldronBlock;
 import dev.anvilcraft.pigeonplus.block.AnvilPumpBlock;
 import dev.anvilcraft.pigeonplus.block.BlenderBlock;
 import dev.anvilcraft.pigeonplus.block.ElectricBlenderBlock;
@@ -18,6 +19,7 @@ import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import net.minecraft.core.Direction;
+import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.BlockItem;
@@ -202,6 +204,46 @@ public class AddonBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.CAULDRONS)
         .onRegister(block -> Item.BY_BLOCK.put(block, Items.CAULDRON))
         .register();
+
+    public static final BlockEntry<AddonLiquidCauldronBlock> LIQUID_CHOCOLATE_CAULDRON = liquidCauldron(
+        "liquid_chocolate",
+        AddonInteractionMap.LIQUID_CHOCOLATE
+    );
+
+    public static final BlockEntry<AddonLiquidCauldronBlock> LIQUID_CHOCOLATE_DARK_CAULDRON = liquidCauldron(
+        "liquid_chocolate_dark",
+        AddonInteractionMap.LIQUID_CHOCOLATE_DARK
+    );
+
+    public static final BlockEntry<AddonLiquidCauldronBlock> LIQUID_CHOCOLATE_WHITE_CAULDRON = liquidCauldron(
+        "liquid_chocolate_white",
+        AddonInteractionMap.LIQUID_CHOCOLATE_WHITE
+    );
+
+    private static BlockEntry<AddonLiquidCauldronBlock> liquidCauldron(
+        String name,
+        CauldronInteraction.InteractionMap interactions
+    ) {
+        return REGISTRUM
+            .block(name + "_cauldron", properties -> new AddonLiquidCauldronBlock(properties, interactions))
+            .initialProperties(() -> Blocks.CAULDRON)
+            .blockstate((ctx, prov) -> prov.getVariantBuilder(ctx.getEntry()).forAllStates(state ->
+                ConfiguredModel.builder()
+                    .modelFile(prov.models().getExistingFile(ResourceLocation.fromNamespaceAndPath(
+                        AnvilCraftPigeonPlus.MOD_ID,
+                        "block/%s_cauldron_%s".formatted(
+                            name,
+                            state.getValue(AddonLiquidCauldronBlock.LEVEL) == 4
+                                ? "full"
+                                : "level" + state.getValue(AddonLiquidCauldronBlock.LEVEL)
+                        )
+                    )))
+                    .build()))
+            .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.CAULDRONS)
+            .onRegister(block -> Item.BY_BLOCK.put(block, Items.CAULDRON))
+            .register();
+    }
 
     public static final BlockEntry<LargeFireworksRocketBlock> LARGE_FIREWORKS_ROCKET = REGISTRUM
         .block("large_fireworks_rocket", LargeFireworksRocketBlock::new)

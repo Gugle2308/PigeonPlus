@@ -1,0 +1,23 @@
+{
+  "type": "anvilcraft_pigeon_plus:blending",
+  "fluid": [],
+  "ingredients": [
+    {
+      "count": 12,
+      "items": "anvilcraft:cocoa_liquor"
+    },
+    {
+      "count": 4,
+      "items": "anvilcraft:cocoa_butter"
+    },
+    {
+      "count": 2,
+      "items": "minecraft:sugar"
+    }
+  ],
+  "requires_heat": true,
+  "transform": {
+    "amount": 1000,
+    "id": "anvilcraft_pigeon_plus:liquid_chocolate_dark"
+  }
+}

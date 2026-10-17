@@ -31,6 +31,7 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -42,6 +43,10 @@ import java.util.function.IntFunction;
 public class BlendingCategory extends AbstractProgressCategory<BlendingRecipe> {
     private static final String INPUT_FLUID = "input_fluid";
     private static final String OUTPUT_FLUID = "output_fluid";
+
+    private static final Component NEED_HEAT = Component.translatable(
+        "gui.anvilcraft_pigeon_plus.category.blending.need_heat"
+    ).withStyle(ChatFormatting.GOLD);
 
     public BlendingCategory(IGuiHelper helper) {
         super(
@@ -139,7 +144,7 @@ public class BlendingCategory extends AbstractProgressCategory<BlendingRecipe> {
         );
         RenderSupport.renderBlock(
             guiGraphics,
-            AddonBlocks.BLENDER.getDefaultState().setValue(BlenderBlock.WORKING, true),
+            getDisplayedBlender(recipe),
             81,
             40,
             0,
@@ -205,8 +210,19 @@ public class BlendingCategory extends AbstractProgressCategory<BlendingRecipe> {
             }
             if (mouseY >= 34 && mouseY <= 53) {
                 tooltip.add(AddonBlocks.BLENDER.get().getName());
+                if (recipe.requiresHeat()) {
+                    tooltip.add(NEED_HEAT);
+                }
             }
         }
+    }
+
+    private BlockState getDisplayedBlender(BlendingRecipe recipe) {
+        BlockState state = AddonBlocks.BLENDER.getDefaultState().setValue(BlenderBlock.WORKING, true);
+        if (recipe.requiresHeat()) {
+            return state.setValue(BlenderBlock.HEAD, BlenderBlock.BlenderHead.BLAZE);
+        }
+        return state;
     }
 
     private BlockState getDisplayedInputCauldron(BlendingRecipe recipe) {

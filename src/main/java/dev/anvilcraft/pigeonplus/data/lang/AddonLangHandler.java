@@ -70,6 +70,10 @@ public class AddonLangHandler {
             "Turns the Anvil Hammer into a pure weapon: it can no longer rotate or break blocks, open a portable anvil, rocket jump, or act as goggles."
         );
         provider.add("gui.anvilcraft_pigeon_plus.category.blending", "Blending");
+        provider.add(
+            "gui.anvilcraft_pigeon_plus.category.blending.need_heat",
+            "Requires heat: a blaze head on the air blender, or powered electric blender"
+        );
         provider.add("gui.anvilcraft_pigeon_plus.category.fermentation", "Fermentation");
         provider.add(
             "gui.anvilcraft_pigeon_plus.category.fermentation.requirement",

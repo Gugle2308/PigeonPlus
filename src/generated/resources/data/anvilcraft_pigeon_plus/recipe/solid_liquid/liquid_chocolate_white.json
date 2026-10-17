@@ -1,0 +1,11 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "consume": 1000,
+  "fluid": "anvilcraft_pigeon_plus:liquid_chocolate_white",
+  "ingredients": [],
+  "results": [
+    {
+      "id": "anvilcraft:white_chocolate_block"
+    }
+  ]
+}

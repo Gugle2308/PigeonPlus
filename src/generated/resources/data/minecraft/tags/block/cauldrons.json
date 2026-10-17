@@ -1,5 +1,8 @@
 {
   "values": [
-    "anvilcraft_pigeon_plus:mixed_biomass_cauldron"
+    "anvilcraft_pigeon_plus:mixed_biomass_cauldron",
+    "anvilcraft_pigeon_plus:liquid_chocolate_cauldron",
+    "anvilcraft_pigeon_plus:liquid_chocolate_dark_cauldron",
+    "anvilcraft_pigeon_plus:liquid_chocolate_white_cauldron"
   ]
 }

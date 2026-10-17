@@ -6,6 +6,7 @@ public class AddonRecipeHandler {
     public static void init(RegistrumRecipeProvider provider) {
         new AddonShapedRecipeLoader(provider);
         AddonBlendingRecipeLoader.init(provider);
+        AddonLiquidChocolateRecipeLoader.init(provider);
         AddonItemInjectRecipeLoader.init(provider);
         AddonItemCompressRecipeLoader.init(provider);
         AddonProceduralProcessRecipeLoader.init(provider);

@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.anvilcraft.pigeonplus.block.BlenderBlock;
+import dev.anvilcraft.pigeonplus.block.ElectricBlenderBlock;
 import dev.anvilcraft.pigeonplus.init.AddonBlocks;
 import dev.anvilcraft.pigeonplus.init.AddonRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
@@ -25,10 +26,13 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 
 public class BlendingRecipe extends AbstractProcessRecipe<BlendingRecipe> {
+    private final boolean requiresHeat;
+
     public BlendingRecipe(
         List<ItemIngredientPredicate> itemIngredients,
         List<ChanceItemStack> results,
-        HasCauldronSimple hasCauldron
+        HasCauldronSimple hasCauldron,
+        boolean requiresHeat
     ) {
         super(new Property()
             .setItemInputOffset(new Vec3(0.0, -0.375, 0.0))
@@ -39,10 +43,26 @@ public class BlendingRecipe extends AbstractProcessRecipe<BlendingRecipe> {
             .setCauldronOffset(new Vec3i(0, -1, 0))
             .setHasCauldron(hasCauldron)
             .setBlockInputOffset(new Vec3i(0, -2, 0))
-            .setInputBlocks(BlockStatePredicate.builder()
-                .of(AddonBlocks.BLENDER.get())
-                .with(BlenderBlock.WORKING, true)
-                .build()));
+            .setInputBlocks(inputBlockPredicate(requiresHeat)));
+        this.requiresHeat = requiresHeat;
+    }
+
+    private static BlockStatePredicate inputBlockPredicate(boolean requiresHeat) {
+        BlockStatePredicate.Builder builder = BlockStatePredicate.builder()
+            .of(AddonBlocks.BLENDER.get(), AddonBlocks.ELECTRIC_BLENDER.get())
+            .with(BlenderBlock.WORKING, true);
+        if (requiresHeat) {
+            builder.with(BlenderBlock.HEAD, BlenderBlock.BlenderHead.BLAZE);
+        }
+        builder.or().with(BlenderBlock.WORKING, true);
+        if (requiresHeat) {
+            builder.with(ElectricBlenderBlock.HEATING, true);
+        }
+        return builder.build();
+    }
+
+    public boolean requiresHeat() {
+        return this.requiresHeat;
     }
 
     @Override
@@ -75,7 +95,9 @@ public class BlendingRecipe extends AbstractProcessRecipe<BlendingRecipe> {
                 .forGetter(BlendingRecipe::getInputItems),
             ChanceItemStack.CODEC.listOf().optionalFieldOf("results", List.of())
                 .forGetter(BlendingRecipe::getResultItems),
-            HasCauldronSimple.CODEC.forGetter(BlendingRecipe::getHasCauldron)
+            HasCauldronSimple.CODEC.forGetter(BlendingRecipe::getHasCauldron),
+            com.mojang.serialization.Codec.BOOL.optionalFieldOf("requires_heat", false)
+                .forGetter(BlendingRecipe::requiresHeat)
         ).apply(instance, BlendingRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, BlendingRecipe> STREAM_CODEC =
@@ -86,6 +108,8 @@ public class BlendingRecipe extends AbstractProcessRecipe<BlendingRecipe> {
                 BlendingRecipe::getResultItems,
                 HasCauldronSimple.STREAM_CODEC,
                 BlendingRecipe::getHasCauldron,
+                ByteBufCodecs.BOOL,
+                BlendingRecipe::requiresHeat,
                 BlendingRecipe::new
             );
 
@@ -102,6 +126,7 @@ public class BlendingRecipe extends AbstractProcessRecipe<BlendingRecipe> {
 
     public static class Builder extends SimpleAbstractBuilder<BlendingRecipe, Builder> {
         private final HasCauldronSimple.Builder hasCauldron = HasCauldronSimple.empty();
+        private boolean requiresHeat = false;
 
         public Builder fluid(ResourceLocation fluid) {
             this.hasCauldron.fluid(BuiltInRegistries.FLUID.get(fluid));
@@ -145,10 +170,14 @@ public class BlendingRecipe extends AbstractProcessRecipe<BlendingRecipe> {
             return this;
         }
 
+        public Builder requiresHeat() {
+            this.requiresHeat = true;
+            return this;
+        }
 
         @Override
         protected BlendingRecipe of(List<ItemIngredientPredicate> itemIngredients, List<ChanceItemStack> results) {
-            return new BlendingRecipe(itemIngredients, results, this.hasCauldron.build());
+            return new BlendingRecipe(itemIngredients, results, this.hasCauldron.build(), this.requiresHeat);
         }
 
         @Override
