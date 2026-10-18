@@ -22,14 +22,17 @@ This guide records the machines, fluids, and large structure behavior added by t
 - [Anvil Pump](devices/anvil_pump)
 - [Feed Spreader](devices/feed_spreader)
 - [Air Blender](devices/blender)
+- [Electric Blender](devices/electric_blender)
+- [Chocolate Sandwich Cookie Pillar](devices/chocolate_cookie_pillar)
+- [Large Fireworks Rocket](devices/large_fireworks_rocket)
 
 ## Fluids
 
 - [Mixed Biomass and Biogas](fluids/biogas)
 - [Liquid Oxygen and Compressed Air](fluids/oxygen)
 - [Exhaust and Fuel](fluids/propellants)
+- [Liquid Chocolate](fluids/chocolate)
 - [Gases in Pipes](fluids/gas_diffusion)
-- [Gas Escape](fluids/gas_escape)
 
 ::: tip
 Hover a bound item and hold Ageratum's more-info key to jump to its guide page.
