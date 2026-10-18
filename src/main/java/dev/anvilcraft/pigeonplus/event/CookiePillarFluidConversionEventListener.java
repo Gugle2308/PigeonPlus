@@ -5,46 +5,65 @@ import dev.anvilcraft.pigeonplus.init.AddonBlocks;
 import dev.anvilcraft.pigeonplus.init.AddonFluids;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RotatedPillarBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 @EventBusSubscriber(modid = AnvilCraftPigeonPlus.MOD_ID)
 public class CookiePillarFluidConversionEventListener {
     @SubscribeEvent
-    public static void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
-        BlockState placed = event.getPlacedBlock();
-        if (!placed.is(ModBlocks.COOKIE_PILLAR)) {
+    public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
+        ItemStack held = event.getItemStack();
+        if (!(held.getItem() instanceof BlockItem blockItem)) {
             return;
         }
-        if (!(event.getLevel() instanceof Level level) || level.isClientSide()) {
+        if (!blockItem.getBlock().equals(ModBlocks.COOKIE_PILLAR.get())) {
             return;
         }
-        BlockState before = event.getBlockSnapshot().getState();
-        Block replacement = filledFor(before);
+        Level level = event.getLevel();
+        BlockPlaceContext context =
+            new BlockPlaceContext(event.getEntity(), event.getHand(), held, event.getHitVec());
+        BlockPos target = context.getClickedPos();
+        Block replacement = filledFor(level.getBlockState(target));
         if (replacement == null) {
             return;
         }
-        BlockPos pos = event.getPos();
-        level.setBlockAndUpdate(
-            pos,
-            replacement.defaultBlockState().setValue(
-                RotatedPillarBlock.AXIS,
-                placed.getValue(RotatedPillarBlock.AXIS)
-            )
-        );
+        if (!level.isClientSide()) {
+            BlockState placed = replacement.defaultBlockState()
+                .setValue(RotatedPillarBlock.AXIS, context.getClickedFace().getAxis());
+            level.setBlockAndUpdate(target, placed);
+            level.playSound(
+                null,
+                target,
+                SoundType.NETHERRACK.getPlaceSound(),
+                SoundSource.BLOCKS,
+                1.0F,
+                1.0F
+            );
+            if (!event.getEntity().getAbilities().instabuild) {
+                held.shrink(1);
+            }
+        }
+        event.setCancellationResult(InteractionResult.SUCCESS);
+        event.setCanceled(true);
     }
 
-    private static Block filledFor(BlockState before) {
-        if (!before.getFluidState().isSource()) {
+    private static Block filledFor(BlockState state) {
+        if (!state.getFluidState().isSource()) {
             return null;
         }
-        Fluid fluid = before.getFluidState().getType();
+        Fluid fluid = state.getFluidState().getType();
         if (fluid.isSame(AddonFluids.LIQUID_CHOCOLATE.get())) {
             return AddonBlocks.CHOCOLATE_COOKIE_PILLAR.get();
         }

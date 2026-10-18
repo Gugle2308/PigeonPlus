@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "anvilcraft_pigeon_plus:large_fireworks_rocket",
+      "properties": "part=y0_c"
+    },
+    {
+      "item": {},
+      "properties": "!part=y0_c"
+    }
+  ]
+}

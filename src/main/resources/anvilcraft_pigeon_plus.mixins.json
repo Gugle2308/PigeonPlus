@@ -29,7 +29,8 @@
     "client.LargeFluidTankBlockEntityRendererMixin",
     "client.MinecraftClientMixin",
     "client.ModelBlockSelectionMixin",
-    "client.ModelSelectionBakeryMixin"
+    "client.ModelSelectionBakeryMixin",
+    "client.MultiBlockCraftingCategoryMixin"
   ],
   "injectors": {
     "defaultRequire": 1
