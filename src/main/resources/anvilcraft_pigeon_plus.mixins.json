@@ -30,7 +30,8 @@
     "client.MinecraftClientMixin",
     "client.ModelBlockSelectionMixin",
     "client.ModelSelectionBakeryMixin",
-    "client.MultiBlockCraftingCategoryMixin"
+    "client.MultiBlockCraftingCategoryMixin",
+    "client.MultiBlockConversionCategoryMixin"
   ],
   "injectors": {
     "defaultRequire": 1
