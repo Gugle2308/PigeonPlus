@@ -92,22 +92,6 @@ public class AddonItems {
         ))
         .register();
 
-    public static final ItemEntry<BucketItem> LIQUID_CHOCOLATE_DARK_BUCKET = REGISTRUM.item(
-            "liquid_chocolate_dark_bucket",
-            properties -> new BucketItem(AddonFluids.LIQUID_CHOCOLATE_DARK.get(), properties)
-        )
-        .tag(Tags.Items.BUCKETS)
-        .lang("Dark Liquid Chocolate Bucket")
-        .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
-        .model((ctx, prov) -> prov.generated(
-            ctx,
-            ResourceLocation.fromNamespaceAndPath(
-                AnvilCraftPigeonPlus.MOD_ID,
-                "block/liquid_chocolate_dark_bucket"
-            )
-        ))
-        .register();
-
     public static final ItemEntry<BucketItem> LIQUID_CHOCOLATE_WHITE_BUCKET = REGISTRUM.item(
             "liquid_chocolate_white_bucket",
             properties -> new BucketItem(AddonFluids.LIQUID_CHOCOLATE_WHITE.get(), properties)
@@ -120,6 +104,22 @@ public class AddonItems {
             ResourceLocation.fromNamespaceAndPath(
                 AnvilCraftPigeonPlus.MOD_ID,
                 "block/liquid_chocolate_white_bucket"
+            )
+        ))
+        .register();
+    
+    public static final ItemEntry<BucketItem> LIQUID_CHOCOLATE_DARK_BUCKET = REGISTRUM.item(
+            "liquid_chocolate_dark_bucket",
+            properties -> new BucketItem(AddonFluids.LIQUID_CHOCOLATE_DARK.get(), properties)
+        )
+        .tag(Tags.Items.BUCKETS)
+        .lang("Dark Liquid Chocolate Bucket")
+        .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
+        .model((ctx, prov) -> prov.generated(
+            ctx,
+            ResourceLocation.fromNamespaceAndPath(
+                AnvilCraftPigeonPlus.MOD_ID,
+                "block/liquid_chocolate_dark_bucket"
             )
         ))
         .register();
