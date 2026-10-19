@@ -1,0 +1,832 @@
+{
+  "variants": {
+    "connected_back=false,connected_front=false,facing=down,part=x0_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=false,connected_front=false,facing=down,part=x0_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=false,connected_front=false,facing=down,part=x0_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=false,connected_front=false,facing=down,part=x1_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=false,connected_front=false,facing=down,part=x1_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll",
+      "x": 270
+    },
+    "connected_back=false,connected_front=false,facing=down,part=x1_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=false,connected_front=false,facing=down,part=x2_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=false,connected_front=false,facing=down,part=x2_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=false,connected_front=false,facing=down,part=x2_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=false,connected_front=false,facing=east,part=x0_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=false,connected_front=false,facing=east,part=x0_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=false,connected_front=false,facing=east,part=x0_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=false,connected_front=false,facing=east,part=x1_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=false,connected_front=false,facing=east,part=x1_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll",
+      "y": 90
+    },
+    "connected_back=false,connected_front=false,facing=east,part=x1_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=false,connected_front=false,facing=east,part=x2_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=false,connected_front=false,facing=east,part=x2_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=false,connected_front=false,facing=east,part=x2_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=false,connected_front=false,facing=north,part=x0_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=false,connected_front=false,facing=north,part=x0_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=false,connected_front=false,facing=north,part=x0_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=false,connected_front=false,facing=north,part=x1_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=false,connected_front=false,facing=north,part=x1_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll"
+    },
+    "connected_back=false,connected_front=false,facing=north,part=x1_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=false,connected_front=false,facing=north,part=x2_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=false,connected_front=false,facing=north,part=x2_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=false,connected_front=false,facing=north,part=x2_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=false,connected_front=false,facing=south,part=x0_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=false,connected_front=false,facing=south,part=x0_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=false,connected_front=false,facing=south,part=x0_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=false,connected_front=false,facing=south,part=x1_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=false,connected_front=false,facing=south,part=x1_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll",
+      "y": 180
+    },
+    "connected_back=false,connected_front=false,facing=south,part=x1_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=false,connected_front=false,facing=south,part=x2_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=false,connected_front=false,facing=south,part=x2_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=false,connected_front=false,facing=south,part=x2_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=false,connected_front=false,facing=up,part=x0_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=false,connected_front=false,facing=up,part=x0_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=false,connected_front=false,facing=up,part=x0_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=false,connected_front=false,facing=up,part=x1_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=false,connected_front=false,facing=up,part=x1_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll",
+      "x": 90
+    },
+    "connected_back=false,connected_front=false,facing=up,part=x1_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=false,connected_front=false,facing=up,part=x2_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=false,connected_front=false,facing=up,part=x2_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=false,connected_front=false,facing=up,part=x2_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=false,connected_front=false,facing=west,part=x0_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=false,connected_front=false,facing=west,part=x0_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=false,connected_front=false,facing=west,part=x0_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=false,connected_front=false,facing=west,part=x1_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=false,connected_front=false,facing=west,part=x1_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll",
+      "y": 270
+    },
+    "connected_back=false,connected_front=false,facing=west,part=x1_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=false,connected_front=false,facing=west,part=x2_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=false,connected_front=false,facing=west,part=x2_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=false,connected_front=false,facing=west,part=x2_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=false,connected_front=true,facing=down,part=x0_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=false,connected_front=true,facing=down,part=x0_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=false,connected_front=true,facing=down,part=x0_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=false,connected_front=true,facing=down,part=x1_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=false,connected_front=true,facing=down,part=x1_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part1",
+      "x": 270
+    },
+    "connected_back=false,connected_front=true,facing=down,part=x1_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=false,connected_front=true,facing=down,part=x2_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=false,connected_front=true,facing=down,part=x2_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=false,connected_front=true,facing=down,part=x2_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=false,connected_front=true,facing=east,part=x0_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=false,connected_front=true,facing=east,part=x0_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=false,connected_front=true,facing=east,part=x0_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=false,connected_front=true,facing=east,part=x1_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=false,connected_front=true,facing=east,part=x1_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part1",
+      "y": 90
+    },
+    "connected_back=false,connected_front=true,facing=east,part=x1_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=false,connected_front=true,facing=east,part=x2_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=false,connected_front=true,facing=east,part=x2_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=false,connected_front=true,facing=east,part=x2_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=false,connected_front=true,facing=north,part=x0_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=false,connected_front=true,facing=north,part=x0_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=false,connected_front=true,facing=north,part=x0_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=false,connected_front=true,facing=north,part=x1_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=false,connected_front=true,facing=north,part=x1_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part1"
+    },
+    "connected_back=false,connected_front=true,facing=north,part=x1_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=false,connected_front=true,facing=north,part=x2_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=false,connected_front=true,facing=north,part=x2_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=false,connected_front=true,facing=north,part=x2_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=false,connected_front=true,facing=south,part=x0_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=false,connected_front=true,facing=south,part=x0_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=false,connected_front=true,facing=south,part=x0_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=false,connected_front=true,facing=south,part=x1_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=false,connected_front=true,facing=south,part=x1_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part1",
+      "y": 180
+    },
+    "connected_back=false,connected_front=true,facing=south,part=x1_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=false,connected_front=true,facing=south,part=x2_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=false,connected_front=true,facing=south,part=x2_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=false,connected_front=true,facing=south,part=x2_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=false,connected_front=true,facing=up,part=x0_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=false,connected_front=true,facing=up,part=x0_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=false,connected_front=true,facing=up,part=x0_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=false,connected_front=true,facing=up,part=x1_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=false,connected_front=true,facing=up,part=x1_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part1",
+      "x": 90
+    },
+    "connected_back=false,connected_front=true,facing=up,part=x1_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=false,connected_front=true,facing=up,part=x2_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=false,connected_front=true,facing=up,part=x2_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=false,connected_front=true,facing=up,part=x2_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=false,connected_front=true,facing=west,part=x0_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=false,connected_front=true,facing=west,part=x0_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=false,connected_front=true,facing=west,part=x0_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=false,connected_front=true,facing=west,part=x1_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=false,connected_front=true,facing=west,part=x1_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part1",
+      "y": 270
+    },
+    "connected_back=false,connected_front=true,facing=west,part=x1_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=false,connected_front=true,facing=west,part=x2_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=false,connected_front=true,facing=west,part=x2_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=false,connected_front=true,facing=west,part=x2_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=true,connected_front=false,facing=down,part=x0_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=true,connected_front=false,facing=down,part=x0_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=true,connected_front=false,facing=down,part=x0_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=true,connected_front=false,facing=down,part=x1_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=true,connected_front=false,facing=down,part=x1_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part3",
+      "x": 270
+    },
+    "connected_back=true,connected_front=false,facing=down,part=x1_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=true,connected_front=false,facing=down,part=x2_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=true,connected_front=false,facing=down,part=x2_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=true,connected_front=false,facing=down,part=x2_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=true,connected_front=false,facing=east,part=x0_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=true,connected_front=false,facing=east,part=x0_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=true,connected_front=false,facing=east,part=x0_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=true,connected_front=false,facing=east,part=x1_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=true,connected_front=false,facing=east,part=x1_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part3",
+      "y": 90
+    },
+    "connected_back=true,connected_front=false,facing=east,part=x1_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=true,connected_front=false,facing=east,part=x2_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=true,connected_front=false,facing=east,part=x2_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=true,connected_front=false,facing=east,part=x2_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=true,connected_front=false,facing=north,part=x0_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=true,connected_front=false,facing=north,part=x0_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=true,connected_front=false,facing=north,part=x0_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=true,connected_front=false,facing=north,part=x1_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=true,connected_front=false,facing=north,part=x1_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part3"
+    },
+    "connected_back=true,connected_front=false,facing=north,part=x1_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=true,connected_front=false,facing=north,part=x2_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=true,connected_front=false,facing=north,part=x2_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=true,connected_front=false,facing=north,part=x2_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=true,connected_front=false,facing=south,part=x0_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=true,connected_front=false,facing=south,part=x0_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=true,connected_front=false,facing=south,part=x0_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=true,connected_front=false,facing=south,part=x1_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=true,connected_front=false,facing=south,part=x1_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part3",
+      "y": 180
+    },
+    "connected_back=true,connected_front=false,facing=south,part=x1_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=true,connected_front=false,facing=south,part=x2_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=true,connected_front=false,facing=south,part=x2_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=true,connected_front=false,facing=south,part=x2_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=true,connected_front=false,facing=up,part=x0_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=true,connected_front=false,facing=up,part=x0_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=true,connected_front=false,facing=up,part=x0_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=true,connected_front=false,facing=up,part=x1_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=true,connected_front=false,facing=up,part=x1_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part3",
+      "x": 90
+    },
+    "connected_back=true,connected_front=false,facing=up,part=x1_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=true,connected_front=false,facing=up,part=x2_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=true,connected_front=false,facing=up,part=x2_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=true,connected_front=false,facing=up,part=x2_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=true,connected_front=false,facing=west,part=x0_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=true,connected_front=false,facing=west,part=x0_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=true,connected_front=false,facing=west,part=x0_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=true,connected_front=false,facing=west,part=x1_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=true,connected_front=false,facing=west,part=x1_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part3",
+      "y": 270
+    },
+    "connected_back=true,connected_front=false,facing=west,part=x1_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=true,connected_front=false,facing=west,part=x2_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=true,connected_front=false,facing=west,part=x2_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=true,connected_front=false,facing=west,part=x2_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=true,connected_front=true,facing=down,part=x0_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=true,connected_front=true,facing=down,part=x0_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=true,connected_front=true,facing=down,part=x0_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=true,connected_front=true,facing=down,part=x1_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=true,connected_front=true,facing=down,part=x1_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part2",
+      "x": 270
+    },
+    "connected_back=true,connected_front=true,facing=down,part=x1_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=true,connected_front=true,facing=down,part=x2_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=true,connected_front=true,facing=down,part=x2_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=true,connected_front=true,facing=down,part=x2_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 270
+    },
+    "connected_back=true,connected_front=true,facing=east,part=x0_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=true,connected_front=true,facing=east,part=x0_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=true,connected_front=true,facing=east,part=x0_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=true,connected_front=true,facing=east,part=x1_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=true,connected_front=true,facing=east,part=x1_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part2",
+      "y": 90
+    },
+    "connected_back=true,connected_front=true,facing=east,part=x1_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=true,connected_front=true,facing=east,part=x2_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=true,connected_front=true,facing=east,part=x2_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=true,connected_front=true,facing=east,part=x2_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 90
+    },
+    "connected_back=true,connected_front=true,facing=north,part=x0_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=true,connected_front=true,facing=north,part=x0_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=true,connected_front=true,facing=north,part=x0_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=true,connected_front=true,facing=north,part=x1_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=true,connected_front=true,facing=north,part=x1_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part2"
+    },
+    "connected_back=true,connected_front=true,facing=north,part=x1_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=true,connected_front=true,facing=north,part=x2_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=true,connected_front=true,facing=north,part=x2_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=true,connected_front=true,facing=north,part=x2_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part"
+    },
+    "connected_back=true,connected_front=true,facing=south,part=x0_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=true,connected_front=true,facing=south,part=x0_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=true,connected_front=true,facing=south,part=x0_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=true,connected_front=true,facing=south,part=x1_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=true,connected_front=true,facing=south,part=x1_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part2",
+      "y": 180
+    },
+    "connected_back=true,connected_front=true,facing=south,part=x1_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=true,connected_front=true,facing=south,part=x2_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=true,connected_front=true,facing=south,part=x2_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=true,connected_front=true,facing=south,part=x2_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 180
+    },
+    "connected_back=true,connected_front=true,facing=up,part=x0_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=true,connected_front=true,facing=up,part=x0_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=true,connected_front=true,facing=up,part=x0_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=true,connected_front=true,facing=up,part=x1_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=true,connected_front=true,facing=up,part=x1_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part2",
+      "x": 90
+    },
+    "connected_back=true,connected_front=true,facing=up,part=x1_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=true,connected_front=true,facing=up,part=x2_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=true,connected_front=true,facing=up,part=x2_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=true,connected_front=true,facing=up,part=x2_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "x": 90
+    },
+    "connected_back=true,connected_front=true,facing=west,part=x0_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=true,connected_front=true,facing=west,part=x0_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=true,connected_front=true,facing=west,part=x0_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=true,connected_front=true,facing=west,part=x1_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=true,connected_front=true,facing=west,part=x1_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part2",
+      "y": 270
+    },
+    "connected_back=true,connected_front=true,facing=west,part=x1_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=true,connected_front=true,facing=west,part=x2_y0_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=true,connected_front=true,facing=west,part=x2_y1_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    },
+    "connected_back=true,connected_front=true,facing=west,part=x2_y2_z0": {
+      "model": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_part",
+      "y": 270
+    }
+  }
+}

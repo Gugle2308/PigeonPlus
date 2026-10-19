@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "part": "x1_y1_z0"
+              }
+            }
+          ],
+          "name": "anvilcraft_pigeon_plus:large_creamy_bread_roll"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "anvilcraft_pigeon_plus:blocks/large_creamy_bread_roll"
+}

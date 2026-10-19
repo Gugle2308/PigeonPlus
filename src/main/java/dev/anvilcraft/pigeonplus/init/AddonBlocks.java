@@ -8,11 +8,13 @@ import dev.anvilcraft.pigeonplus.block.BlenderBlock;
 import dev.anvilcraft.pigeonplus.block.ElectricBlenderBlock;
 import dev.anvilcraft.pigeonplus.block.FeedSpreaderBlock;
 import dev.anvilcraft.pigeonplus.block.FilledCookiePillarBlock;
+import dev.anvilcraft.pigeonplus.block.LargeCreamyBreadRollBlock;
 import dev.anvilcraft.pigeonplus.block.LargeFireworksRocketBlock;
 import dev.anvilcraft.pigeonplus.block.MixedBiomassCauldronBlock;
 import dev.anvilcraft.pigeonplus.block.NozzleBlock;
 import dev.anvilcraft.pigeonplus.block.PigeonAnvilBlock;
 import dev.anvilcraft.pigeonplus.block.StasisBeaconBlock;
+import dev.anvilcraft.pigeonplus.block.state.LargeCreamyBreadRollPart;
 import dev.anvilcraft.pigeonplus.block.state.LargeFireworksRocketPart;
 import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
@@ -20,6 +22,7 @@ import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import net.minecraft.core.Direction;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.resources.ResourceLocation;
@@ -313,14 +316,32 @@ public class AddonBlocks {
                 .build()))
         .loot(SimpleMultiPartBlock::loot)
         .item(SimpleMultiPartBlockItem<LargeFireworksRocketPart>::new)
-        // 物品模型分两层：手写的 Blockbench 模型 item/large_fireworks_rocket_model（自带 display），
-        // 与这里生成的 item/large_fireworks_rocket 包装（parent 指向它）。
-        // 两层不能同名：Registrum 必定为方块生成物品模型，同名会让 src/main 与 src/generated
-        // 出现重复条目导致 processResources 失败，且包装会退化成自引用。
         .model((ctx, prov) -> prov.withExistingParent(
             ctx.getName(), AnvilCraftPigeonPlus.of("item/large_fireworks_rocket_model")))
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<LargeCreamyBreadRollBlock> LARGE_CREAMY_BREAD_ROLL = REGISTRUM
+        .block("large_creamy_bread_roll", LargeCreamyBreadRollBlock::new)
+        .initialProperties(() -> Blocks.WHITE_WOOL)
+        .properties(properties -> properties
+            .sound(SoundType.WOOL)
+            .noOcclusion()
+            .isViewBlocking((state, level, pos) -> false))
+        .blockstate((ctx, provider) -> provider.getVariantBuilder(ctx.getEntry()).forAllStates(state ->
+            ConfiguredModel.builder()
+                .modelFile(provider.models().getExistingFile(AnvilCraftPigeonPlus.of(
+                    "block/" + LargeCreamyBreadRollBlock.getModelName(state))))
+                .rotationX(breadRollRotationX(state.getValue(LargeCreamyBreadRollBlock.FACING)))
+                .rotationY(rotationY(state.getValue(LargeCreamyBreadRollBlock.FACING)))
+                .build()))
+        .loot(FlexibleMultiPartBlock::loot)
+        .item(FlexibleMultiPartBlockItem<LargeCreamyBreadRollPart, DirectionProperty, Direction>::new)
+        .model((ctx, prov) -> prov.withExistingParent(
+            ctx.getName(), AnvilCraftPigeonPlus.of("block/large_creamy_bread_roll")))
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.ANVIL_HAMMER_DENYLIST)
         .register();
 
     public static final BlockEntry<Block> PAPER_BLOCK = REGISTRUM
@@ -391,6 +412,14 @@ public class AddonBlocks {
             case SOUTH -> 0;
             case WEST -> 90;
             default -> 180;
+        };
+    }
+
+    private static int breadRollRotationX(Direction direction) {
+        return switch (direction) {
+            case UP -> 90;
+            case DOWN -> 270;
+            default -> 0;
         };
     }
 
