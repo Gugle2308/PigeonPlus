@@ -1,9 +1,12 @@
 package dev.anvilcraft.pigeonplus.fluid;
 
 import dev.anvilcraft.pigeonplus.init.AddonItems;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.Potions;
 import org.jetbrains.annotations.Nullable;
 
 public final class PotionBottleTypes {
@@ -25,9 +28,13 @@ public final class PotionBottleTypes {
     }
 
     public static boolean isPotion(ItemStack stack) {
-        return stack.is(Items.POTION)
-            || stack.is(Items.SPLASH_POTION)
-            || stack.is(Items.LINGERING_POTION);
+        if (!stack.is(Items.POTION)
+            && !stack.is(Items.SPLASH_POTION)
+            && !stack.is(Items.LINGERING_POTION)) {
+            return false;
+        }
+        PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
+        return contents != null && contents.potion().isPresent() && !contents.potion().get().is(Potions.WATER);
     }
 
     public static ItemStack emptyFor(ItemStack potion) {

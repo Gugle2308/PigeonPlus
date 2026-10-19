@@ -3,7 +3,10 @@ package dev.anvilcraft.pigeonplus.fluid;
 import dev.anvilcraft.pigeonplus.init.AddonFluids;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
@@ -22,8 +25,24 @@ public class PotionBottleFluidHandler implements IFluidHandlerItem {
         return this.container;
     }
 
+    private boolean isWaterBottle() {
+        if (!this.container.is(Items.POTION)) {
+            return false;
+        }
+        PotionContents contents = this.container.get(DataComponents.POTION_CONTENTS);
+        return contents != null
+            && contents.potion().isPresent()
+            && contents.potion().get().is(Potions.WATER);
+    }
+
     private boolean isPotionBottle() {
-        return this.container.has(DataComponents.POTION_CONTENTS);
+        if (!this.container.has(DataComponents.POTION_CONTENTS)) {
+            return false;
+        }
+        PotionContents contents = this.container.get(DataComponents.POTION_CONTENTS);
+        return contents != null
+            && contents.potion().isPresent()
+            && !contents.potion().get().is(Potions.WATER);
     }
 
     @Override
@@ -33,6 +52,9 @@ public class PotionBottleFluidHandler implements IFluidHandlerItem {
 
     @Override
     public FluidStack getFluidInTank(int tank) {
+        if (this.isWaterBottle()) {
+            return new FluidStack(Fluids.WATER, FLUID_PER_BOTTLE);
+        }
         if (!this.isPotionBottle()) {
             return FluidStack.EMPTY;
         }
@@ -66,7 +88,10 @@ public class PotionBottleFluidHandler implements IFluidHandlerItem {
 
     @Override
     public FluidStack drain(int maxDrain, FluidAction action) {
-        if (maxDrain < FLUID_PER_BOTTLE || !this.isPotionBottle()) {
+        if (maxDrain < FLUID_PER_BOTTLE) {
+            return FluidStack.EMPTY;
+        }
+        if (!this.isPotionBottle() && !this.isWaterBottle()) {
             return FluidStack.EMPTY;
         }
         FluidStack drained = this.getFluidInTank(0);
