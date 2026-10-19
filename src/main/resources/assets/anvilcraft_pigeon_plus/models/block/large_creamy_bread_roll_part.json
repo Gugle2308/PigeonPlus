@@ -1,5 +1,6 @@
 {
 	"parent": "minecraft:block/block",
+	"ambientocclusion": false,
 	"render_type": "minecraft:cutout",
 	"textures": {
 		"particle": "anvilcraft_pigeon_plus:block/large_creamy_bread_roll_front"
