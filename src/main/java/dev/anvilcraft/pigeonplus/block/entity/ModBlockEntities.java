@@ -2,6 +2,7 @@ package dev.anvilcraft.pigeonplus.block.entity;
 
 import dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus;
 import dev.anvilcraft.pigeonplus.fluid.PotionBottleFluidHandler;
+import dev.anvilcraft.pigeonplus.util.AnvilPumpFluidHandler;
 import dev.anvilcraft.pigeonplus.init.AddonBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.Items;
@@ -58,6 +59,11 @@ public class ModBlockEntities {
             Capabilities.ItemHandler.BLOCK,
             FEED_SPREADER.get(),
             (blockEntity, side) -> blockEntity.getInventory()
+        );
+        event.registerBlockEntity(
+            Capabilities.FluidHandler.BLOCK,
+            ANVIL_PUMP.get(),
+            (blockEntity, side) -> AnvilPumpFluidHandler.INSTANCE
         );
         event.registerItem(
             Capabilities.FluidHandler.ITEM,

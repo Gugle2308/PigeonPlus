@@ -48,6 +48,11 @@ public class AnvilPumpBlockEntity extends BlockEntity {
         if (this.getBlockState().getValue(PumpBlock.POWERED)) {
             return false;
         }
+        // 泵送进行中再砸一次不应刷新时长：铁砧锤自身冷却仅 5 tick，比泵送时长短得多，
+        // 不拦的话可以靠连砸无限延长泵送。
+        if (this.remainingPumpTicks > 0) {
+            return false;
+        }
         boolean wasPumping = this.canPump();
         int oldHeadlift = this.headlift;
         int nextHeadlift = Math.max(
