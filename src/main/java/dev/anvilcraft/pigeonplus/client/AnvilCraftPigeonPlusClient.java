@@ -22,8 +22,9 @@ import dev.anvilcraft.pigeonplus.client.fluid.PotionFluidClientExtensions;
 import dev.anvilcraft.pigeonplus.client.renderer.block.NozzleExhaustBlockEntityRenderer;
 import dev.anvilcraft.pigeonplus.client.renderer.block.LargeFireworksRocketBlockEntityRenderer;
 import dev.anvilcraft.pigeonplus.client.renderer.block.StasisBeaconBlockEntityRenderer;
-import dev.anvilcraft.pigeonplus.client.sound.NozzleSoundController;
-import dev.anvilcraft.pigeonplus.client.sound.RocketPunchChargeSoundController;
+import dev.anvilcraft.pigeonplus.client.selection.AddonModelBlockSelection;
+import dev.anvilcraft.pigeonplus.client.selection.AddonModelSelectionDenylist;
+import dev.anvilcraft.pigeonplus.client.sound.NozzleSoundController;import dev.anvilcraft.pigeonplus.client.sound.RocketPunchChargeSoundController;
 import dev.anvilcraft.pigeonplus.client.tooltip.AddonItemTooltipManager;
 import dev.anvilcraft.pigeonplus.client.tooltip.StasisBeaconTooltipProvider;
 import dev.anvilcraft.pigeonplus.init.AddonBlocks;
@@ -73,6 +74,7 @@ public class AnvilCraftPigeonPlusClient {
         AddonCubeSelection.enableOwnNamespace();
         // HIGHEST：必须早于 cube 模块在同一事件里的 LOWEST 烘焙，否则黑名单这一轮不生效。
         modBus.addListener(EventPriority.HIGHEST, this::onModifyBakingResult);
+        modBus.addListener(AddonModelBlockSelection::reload);
         modBus.addListener(this::onRegisterAdditionalModels);
         modBus.addListener(this::onRegisterBER);
         modBus.addListener(this::onClientSetup);
@@ -177,6 +179,7 @@ public class AnvilCraftPigeonPlusClient {
      * 用 HIGHEST 优先级确保早于 cube 模块在同一事件里的 LOWEST 烘焙。
      */
     private void onModifyBakingResult(ModelEvent.ModifyBakingResult event) {
+        AddonModelSelectionDenylist.reload(Minecraft.getInstance().getResourceManager());
         AddonCubeSelection.excludeFromPrecisePicking();
     }
 

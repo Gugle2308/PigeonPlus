@@ -5,6 +5,7 @@ import com.mojang.math.Axis;
 import dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus;
 import dev.anvilcraft.pigeonplus.block.AnvilPumpBlock;
 import dev.anvilcraft.pigeonplus.block.entity.AnvilPumpBlockEntity;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -16,7 +17,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class AnvilPumpBlockEntityRenderer implements BlockEntityRenderer<AnvilPumpBlockEntity> {
+public class AnvilPumpBlockEntityRenderer
+    implements BlockEntityRenderer<AnvilPumpBlockEntity>, ModelSelectionRenderer<AnvilPumpBlockEntity> {
     private static final ModelResourceLocation PISTON = ModelResourceLocation.standalone(
         ResourceLocation.fromNamespaceAndPath(AnvilCraftPigeonPlus.MOD_ID, "block/anvil_pump_pistion")
     );
@@ -35,17 +37,11 @@ public class AnvilPumpBlockEntityRenderer implements BlockEntityRenderer<AnvilPu
         int packedLight,
         int packedOverlay
     ) {
-        BlockState state = blockEntity.getBlockState();
-        if (!(state.getBlock() instanceof AnvilPumpBlock) || !state.hasProperty(AnvilPumpBlock.FACING)) {
+        poseStack.pushPose();
+        if (!AnvilPumpBlockEntityRenderer.applyTransform(blockEntity, partialTick, poseStack)) {
+            poseStack.popPose();
             return;
         }
-        Direction facing = state.getValue(AnvilPumpBlock.FACING);
-        poseStack.pushPose();
-        poseStack.translate(0.5, 0.5, 0.5);
-        poseStack.mulPose(Axis.YP.rotationDegrees(-AnvilPumpBlock.getYRotation(facing)));
-        poseStack.translate(-0.5, -0.5, -0.5);
-        poseStack.translate(0.0F, -MAX_PISTON_DROP * blockEntity.getPistonPress(partialTick), 0.0F);
-
         BakedModel piston = Minecraft.getInstance().getModelManager().getModel(PISTON);
         Minecraft.getInstance()
             .getBlockRenderer()
@@ -62,5 +58,36 @@ public class AnvilPumpBlockEntityRenderer implements BlockEntityRenderer<AnvilPu
                 packedOverlay
             );
         poseStack.popPose();
+    }
+
+    @Override
+    public void collectSelectionModels(
+        AnvilPumpBlockEntity blockEntity,
+        float partialTick,
+        PoseStack poseStack,
+        ModelConsumer consumer
+    ) {
+        poseStack.pushPose();
+        if (AnvilPumpBlockEntityRenderer.applyTransform(blockEntity, partialTick, poseStack)) {
+            consumer.accept(PISTON, poseStack);
+        }
+        poseStack.popPose();
+    }
+
+    private static boolean applyTransform(
+        AnvilPumpBlockEntity blockEntity,
+        float partialTick,
+        PoseStack poseStack
+    ) {
+        BlockState state = blockEntity.getBlockState();
+        if (!(state.getBlock() instanceof AnvilPumpBlock) || !state.hasProperty(AnvilPumpBlock.FACING)) {
+            return false;
+        }
+        Direction facing = state.getValue(AnvilPumpBlock.FACING);
+        poseStack.translate(0.5, 0.5, 0.5);
+        poseStack.mulPose(Axis.YP.rotationDegrees(-AnvilPumpBlock.getYRotation(facing)));
+        poseStack.translate(-0.5, -0.5, -0.5);
+        poseStack.translate(0.0F, -MAX_PISTON_DROP * blockEntity.getPistonPress(partialTick), 0.0F);
+        return true;
     }
 }

@@ -1,0 +1,18 @@
+{
+  "disable_precise_picking": [
+    "anvilcraft_pigeon_plus:large_fireworks_rocket",
+    "anvilcraft_pigeon_plus:liquefied_biogas",
+    "anvilcraft_pigeon_plus:liquid_oxygen",
+    "anvilcraft_pigeon_plus:liquid_hydrogen",
+    "anvilcraft_pigeon_plus:mixed_biomass",
+    "anvilcraft_pigeon_plus:liquid_chocolate",
+    "anvilcraft_pigeon_plus:liquid_chocolate_dark",
+    "anvilcraft_pigeon_plus:liquid_chocolate_white"
+  ],
+  "dynamic_selection": [
+    "anvilcraft_pigeon_plus:blender",
+    "anvilcraft_pigeon_plus:electric_blender",
+    "anvilcraft_pigeon_plus:anvil_pump",
+    "anvilcraft_pigeon_plus:feed_spreader"
+  ]
+}

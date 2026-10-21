@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus;
 import dev.anvilcraft.pigeonplus.block.entity.FeedSpreaderBlockEntity;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -21,7 +22,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.data.ModelData;
 
-public class FeedSpreaderBlockEntityRenderer implements BlockEntityRenderer<FeedSpreaderBlockEntity> {
+public class FeedSpreaderBlockEntityRenderer
+    implements BlockEntityRenderer<FeedSpreaderBlockEntity>, ModelSelectionRenderer<FeedSpreaderBlockEntity> {
     private static final ModelResourceLocation BUCKET_MODEL = ModelResourceLocation.standalone(
         ResourceLocation.fromNamespaceAndPath(AnvilCraftPigeonPlus.MOD_ID, "block/feed_spreader_bucket")
     );
@@ -46,16 +48,51 @@ public class FeedSpreaderBlockEntityRenderer implements BlockEntityRenderer<Feed
         int baseLight = getBaseLight(blockEntity, packedLight);
 
         poseStack.pushPose();
-        poseStack.translate(0.5F, 0.5F, 0.5F);
-        poseStack.mulPose(Axis.YP.rotationDegrees(720.0F * easeInOut(blockEntity.getBucketRotation(partialTick))));
-        poseStack.translate(-0.5F, -0.5F, -0.5F);
+        FeedSpreaderBlockEntityRenderer.applyBucketTransform(blockEntity, partialTick, poseStack);
         renderModel(blockEntity.getBlockState(), BUCKET_MODEL, poseStack, bufferSource, baseLight, packedOverlay);
         poseStack.popPose();
 
         poseStack.pushPose();
-        poseStack.translate(0.0F, -MAX_PISTON_DROP * blockEntity.getPistonPress(partialTick), 0.0F);
+        FeedSpreaderBlockEntityRenderer.applyPistonTransform(blockEntity, partialTick, poseStack);
         renderModel(blockEntity.getBlockState(), PISTON_MODEL, poseStack, bufferSource, baseLight, packedOverlay);
         poseStack.popPose();
+    }
+
+    @Override
+    public void collectSelectionModels(
+        FeedSpreaderBlockEntity blockEntity,
+        float partialTick,
+        PoseStack poseStack,
+        ModelConsumer consumer
+    ) {
+        poseStack.pushPose();
+        FeedSpreaderBlockEntityRenderer.applyBucketTransform(blockEntity, partialTick, poseStack);
+        consumer.accept(BUCKET_MODEL, poseStack);
+        poseStack.popPose();
+
+        poseStack.pushPose();
+        FeedSpreaderBlockEntityRenderer.applyPistonTransform(blockEntity, partialTick, poseStack);
+        consumer.accept(PISTON_MODEL, poseStack);
+        poseStack.popPose();
+    }
+
+    private static void applyBucketTransform(
+        FeedSpreaderBlockEntity blockEntity,
+        float partialTick,
+        PoseStack poseStack
+    ) {
+        poseStack.translate(0.5F, 0.5F, 0.5F);
+        poseStack.mulPose(Axis.YP.rotationDegrees(
+            720.0F * FeedSpreaderBlockEntityRenderer.easeInOut(blockEntity.getBucketRotation(partialTick))));
+        poseStack.translate(-0.5F, -0.5F, -0.5F);
+    }
+
+    private static void applyPistonTransform(
+        FeedSpreaderBlockEntity blockEntity,
+        float partialTick,
+        PoseStack poseStack
+    ) {
+        poseStack.translate(0.0F, -MAX_PISTON_DROP * blockEntity.getPistonPress(partialTick), 0.0F);
     }
 
     private static int getBaseLight(FeedSpreaderBlockEntity blockEntity, int fallbackLight) {

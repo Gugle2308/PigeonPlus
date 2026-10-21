@@ -30,7 +30,6 @@
     "client.LargeCauldronBlockEntityRendererMixin",
     "client.LargeFluidTankBlockEntityRendererMixin",
     "client.MinecraftClientMixin",
-    "client.ModelBlockSelectionMixin",
     "client.ModelSelectionBakeryMixin",
     "client.MultiBlockCraftingCategoryMixin",
     "client.MultiBlockConversionCategoryMixin"

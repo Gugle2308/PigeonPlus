@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus;
 import dev.anvilcraft.pigeonplus.block.BlenderBlock;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -12,7 +13,6 @@ import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -25,8 +25,10 @@ import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.client.model.data.ModelData;
 
 import java.util.Map;
+import javax.annotation.Nullable;
 
-public class BlenderBlockEntityRenderer<T extends BlockEntity> implements BlockEntityRenderer<T> {
+public class BlenderBlockEntityRenderer<T extends BlockEntity>
+    implements BlockEntityRenderer<T>, ModelSelectionRenderer<T> {
     private static final float ROTATION_DEGREES_PER_TICK = 45.0f;
 
     private static final float HEAD_LIFT = 0.875f;
@@ -53,23 +55,58 @@ public class BlenderBlockEntityRenderer<T extends BlockEntity> implements BlockE
                        MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
         Level level = blockEntity.getLevel();
         if (level == null) return;
-
         BlockState blockState = blockEntity.getBlockState();
-        ModelResourceLocation headLocation = HEAD_MODELS.get(blockState.getValue(BlenderBlock.HEAD));
+        ModelResourceLocation headLocation = BlenderBlockEntityRenderer.headLocation(blockState);
         if (headLocation == null) return;
 
-        BlockPos pos = blockEntity.getBlockPos();
-        ModelManager modelManager = Minecraft.getInstance().getModelManager();
         BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
+        BakedModel headModel = Minecraft.getInstance().getModelManager().getModel(headLocation);
         RandomSource random = RandomSource.create();
         ModelData modelData = ModelData.EMPTY;
 
-        BakedModel headModel = modelManager.getModel(headLocation);
-
-        // Check for large cauldron core 2 blocks above
-        boolean hasCauldronAbove = isLargeCauldronCore(level, pos.above(2));
-
         poseStack.pushPose();
+        BlenderBlockEntityRenderer.applyTransform(blockEntity, partialTick, poseStack);
+        for (RenderType renderType : headModel.getRenderTypes(blockState, random, modelData)) {
+            VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
+            dispatcher.getModelRenderer().renderModel(
+                poseStack.last(), vertexConsumer, blockState, headModel,
+                1.0F, 1.0F, 1.0F, packedLight, packedOverlay,
+                modelData, renderType
+            );
+        }
+        poseStack.popPose();
+    }
+
+    @Override
+    public void collectSelectionModels(
+        T blockEntity,
+        float partialTick,
+        PoseStack poseStack,
+        ModelConsumer consumer
+    ) {
+        ModelResourceLocation headLocation = BlenderBlockEntityRenderer.headLocation(blockEntity.getBlockState());
+        if (headLocation == null) return;
+        poseStack.pushPose();
+        BlenderBlockEntityRenderer.applyTransform(blockEntity, partialTick, poseStack);
+        consumer.accept(headLocation, poseStack);
+        poseStack.popPose();
+    }
+
+    @Nullable
+    private static ModelResourceLocation headLocation(BlockState blockState) {
+        return HEAD_MODELS.get(blockState.getValue(BlenderBlock.HEAD));
+    }
+
+    private static <T extends BlockEntity> void applyTransform(
+        T blockEntity,
+        float partialTick,
+        PoseStack poseStack
+    ) {
+        Level level = blockEntity.getLevel();
+        if (level == null) return;
+        BlockState blockState = blockEntity.getBlockState();
+        boolean hasCauldronAbove = BlenderBlockEntityRenderer.isLargeCauldronCore(
+            level, blockEntity.getBlockPos().above(2));
         float angle = blockState.getValue(BlenderBlock.WORKING)
             ? (level.getGameTime() + partialTick) * ROTATION_DEGREES_PER_TICK
             : 0.0f;
@@ -81,16 +118,6 @@ public class BlenderBlockEntityRenderer<T extends BlockEntity> implements BlockE
         }
         poseStack.mulPose(Axis.YP.rotationDegrees(angle));
         poseStack.translate(-0.5, -0.5, -0.5);
-
-        for (RenderType renderType : headModel.getRenderTypes(blockState, random, modelData)) {
-            VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
-            dispatcher.getModelRenderer().renderModel(
-                poseStack.last(), vertexConsumer, blockState, headModel,
-                1.0F, 1.0F, 1.0F, packedLight, packedOverlay,
-                modelData, renderType
-            );
-        }
-        poseStack.popPose();
     }
 
     @Override
