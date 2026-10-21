@@ -1,8 +1,15 @@
 package dev.anvilcraft.pigeonplus.util;
 
+import dev.anvilcraft.pigeonplus.block.AnvilPumpBlock;
+import dev.anvilcraft.pigeonplus.block.entity.AnvilPumpBlockEntity;
 import dev.anvilcraft.pigeonplus.init.AddonFluids;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.fluidtank.InfinityFluidTank;
+import dev.dubhe.anvilcraft.api.fluid.GasDisplayFillProvider;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkScanner;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidPipeNetwork;
+import dev.dubhe.anvilcraft.api.fluid.network.InfiniteGasPressureSource;
+import dev.dubhe.anvilcraft.block.entity.fluid.PumpBlockEntity;
+import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -15,10 +22,13 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.NotNull;
 
-public class CompressedAirDrainFluidHandler extends InfinityFluidTank {
+public class CompressedAirDrainFluidHandler
+    implements IFluidHandler, InfiniteGasPressureSource, GasDisplayFillProvider {
     private final Level level;
     private final BlockPos pos;
     private final IFluidHandler delegate;
+    private long cachedGameTime = Long.MIN_VALUE;
+    private boolean cachedPumped;
 
     public CompressedAirDrainFluidHandler(Level level, BlockPos pos, IFluidHandler delegate) {
         this.level = level;
@@ -32,21 +42,31 @@ public class CompressedAirDrainFluidHandler extends InfinityFluidTank {
         return AnvilCraft.CONFIG.machines.drainCapacity;
     }
 
-
     @Override
-    public FluidStack getFluid() {
-        return this.canExtractAir()
-            ? new FluidStack(AddonFluids.COMPRESSED_AIR.get(), airCapacity())
-            : FluidStack.EMPTY;
+    public boolean isSupplyingInfiniteGasPressure() {
+        return this.canExtractAir();
     }
 
     @Override
-    public boolean isEmpty() {
-        return false;
+    public float gasDisplayFill(FluidStack gas) {
+        return this.canExtractAir() ? 1.0F : 0.0F;
     }
 
     public boolean canExtractAir() {
-        return this.isInternalTankEmpty() && isDrainAirExposed(this.level, this.pos);
+        return this.isInternalTankEmpty()
+            && isDrainAirExposed(this.level, this.pos)
+            && this.isPumped();
+    }
+
+    // 同一 tick 内网络状态不会变，压缩空气源会被每个端点反复查询，故按游戏时间缓存。
+    private boolean isPumped() {
+        long now = this.level.getGameTime();
+        if (now == this.cachedGameTime) {
+            return this.cachedPumped;
+        }
+        this.cachedGameTime = now;
+        this.cachedPumped = hasWorkingPump(this.level, this.pos);
+        return this.cachedPumped;
     }
 
     private boolean isInternalTankEmpty() {
@@ -147,6 +167,42 @@ public class CompressedAirDrainFluidHandler extends InfinityFluidTank {
                 1.0
             );
         }
+    }
+
+    private static boolean hasWorkingPump(Level level, BlockPos pos) {
+        for (Direction direction : Direction.values()) {
+            BlockPos pipePos = pos.relative(direction);
+            if (!level.isLoaded(pipePos) || !FluidNetworkScanner.isPipePart(level.getBlockState(pipePos))) {
+                continue;
+            }
+            FluidPipeNetwork network = FluidNetworkScanner.scan(level, pipePos);
+            if (network == null) {
+                continue;
+            }
+            for (BlockPos part : network.getParts()) {
+                if (isPumpWorking(level, part)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean isPumpWorking(Level level, BlockPos pumpPos) {
+        BlockState state = level.getBlockState(pumpPos);
+        // 铁砧泵没有 OVERLOAD 属性，只能查 POWERED；工作条件与本体泵同为 canPump()。
+        if (state.getBlock() instanceof AnvilPumpBlock) {
+            return !state.getValue(PumpBlock.POWERED)
+                && level.getBlockEntity(pumpPos) instanceof AnvilPumpBlockEntity pump
+                && pump.canPump();
+        }
+        if (!(state.getBlock() instanceof PumpBlock)) {
+            return false;
+        }
+        return !state.getValue(PumpBlock.POWERED)
+            && !state.getValue(PumpBlock.OVERLOAD)
+            && level.getBlockEntity(pumpPos) instanceof PumpBlockEntity pbe
+            && pbe.canPump();
     }
 
     public static boolean isDrainAirExposed(Level level, BlockPos pos) {
