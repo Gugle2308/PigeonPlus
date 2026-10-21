@@ -17,7 +17,8 @@
     "FluidNetworkScannerMixin",
     "LargeFluidTankBlockEntityMixin",
     "LargeCauldronBlockEntityMixin",
-    "LivingEntityMixin"
+    "LivingEntityMixin",
+    "StorageServerStubMixin"
   ],
   "client": [
     "LivingEntityTravelMixin",

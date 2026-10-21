@@ -1,6 +1,8 @@
 package dev.anvilcraft.pigeonplus.fluid;
 
 import dev.anvilcraft.pigeonplus.init.AddonItems;
+import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
+import dev.dubhe.anvilcraft.saved.storage.BaseStorage;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -23,6 +25,30 @@ public final class PotionBottleTypes {
         }
         if (bottle.is(AddonItems.LINGERING_BOTTLE.get())) {
             return Items.LINGERING_POTION;
+        }
+        return null;
+    }
+
+    public static boolean isEmptyBottle(ItemStack stack) {
+        return stack.is(Items.GLASS_BOTTLE)
+            || stack.is(AddonItems.SPLASH_BOTTLE.get())
+            || stack.is(AddonItems.LINGERING_BOTTLE.get());
+    }
+
+    @Nullable
+    public static ItemStack emptyPotionBottleIn(@Nullable BaseStorage<?> storage) {
+        if (storage == null) {
+            return null;
+        }
+        UnlimitedItemStacksResourceHandler items = storage.getItems();
+        for (int slot = 0; slot < items.size(); slot++) {
+            if (items.getAmountAsLong(slot) <= 0) {
+                continue;
+            }
+            ItemStack stack = items.getUnlimitedStackInSlot(slot).toStack();
+            if (isEmptyBottle(stack) && !stack.is(Items.GLASS_BOTTLE)) {
+                return stack.copyWithCount(1);
+            }
         }
         return null;
     }
