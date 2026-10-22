@@ -1,0 +1,348 @@
+{
+  "type": "anvilcraft:multiblock_conversion",
+  "inputPattern": {
+    "grid": [
+      [
+        "000",
+        "0AA",
+        "000"
+      ],
+      [
+        "000",
+        "0AA",
+        "000"
+      ],
+      [
+        "000",
+        "0AA",
+        "000"
+      ]
+    ],
+    "mapping": {
+      "0": {
+        "blocks": "anvilcraft:cake_base_block"
+      },
+      "A": {
+        "blocks": "anvilcraft:cream_block"
+      }
+    }
+  },
+  "outputPattern": {
+    "grid": [
+      [
+        "0AB",
+        "CDE",
+        "FGH"
+      ],
+      [
+        "IJK",
+        "LMN",
+        "OPQ"
+      ],
+      [
+        "RST",
+        "UVW",
+        "XYZ"
+      ]
+    ],
+    "mapping": {
+      "0": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "true",
+            "connected_front": "false",
+            "facing": "down",
+            "part": "x0_y0_z0"
+          }
+        ]
+      },
+      "A": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "true",
+            "connected_front": "false",
+            "facing": "down",
+            "part": "x1_y0_z0"
+          }
+        ]
+      },
+      "B": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "true",
+            "connected_front": "false",
+            "facing": "down",
+            "part": "x2_y0_z0"
+          }
+        ]
+      },
+      "C": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "true",
+            "connected_front": "false",
+            "facing": "down",
+            "part": "x0_y1_z0"
+          }
+        ]
+      },
+      "D": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "true",
+            "connected_front": "false",
+            "facing": "down",
+            "part": "x1_y1_z0"
+          }
+        ]
+      },
+      "E": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "true",
+            "connected_front": "false",
+            "facing": "down",
+            "part": "x2_y1_z0"
+          }
+        ]
+      },
+      "F": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "true",
+            "connected_front": "false",
+            "facing": "down",
+            "part": "x0_y2_z0"
+          }
+        ]
+      },
+      "G": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "true",
+            "connected_front": "false",
+            "facing": "down",
+            "part": "x1_y2_z0"
+          }
+        ]
+      },
+      "H": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "true",
+            "connected_front": "false",
+            "facing": "down",
+            "part": "x2_y2_z0"
+          }
+        ]
+      },
+      "I": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "true",
+            "connected_front": "true",
+            "facing": "down",
+            "part": "x0_y0_z0"
+          }
+        ]
+      },
+      "J": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "true",
+            "connected_front": "true",
+            "facing": "down",
+            "part": "x1_y0_z0"
+          }
+        ]
+      },
+      "K": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "true",
+            "connected_front": "true",
+            "facing": "down",
+            "part": "x2_y0_z0"
+          }
+        ]
+      },
+      "L": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "true",
+            "connected_front": "true",
+            "facing": "down",
+            "part": "x0_y1_z0"
+          }
+        ]
+      },
+      "M": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "true",
+            "connected_front": "true",
+            "facing": "down",
+            "part": "x1_y1_z0"
+          }
+        ]
+      },
+      "N": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "true",
+            "connected_front": "true",
+            "facing": "down",
+            "part": "x2_y1_z0"
+          }
+        ]
+      },
+      "O": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "true",
+            "connected_front": "true",
+            "facing": "down",
+            "part": "x0_y2_z0"
+          }
+        ]
+      },
+      "P": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "true",
+            "connected_front": "true",
+            "facing": "down",
+            "part": "x1_y2_z0"
+          }
+        ]
+      },
+      "Q": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "true",
+            "connected_front": "true",
+            "facing": "down",
+            "part": "x2_y2_z0"
+          }
+        ]
+      },
+      "R": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "false",
+            "connected_front": "true",
+            "facing": "down",
+            "part": "x0_y0_z0"
+          }
+        ]
+      },
+      "S": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "false",
+            "connected_front": "true",
+            "facing": "down",
+            "part": "x1_y0_z0"
+          }
+        ]
+      },
+      "T": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "false",
+            "connected_front": "true",
+            "facing": "down",
+            "part": "x2_y0_z0"
+          }
+        ]
+      },
+      "U": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "false",
+            "connected_front": "true",
+            "facing": "down",
+            "part": "x0_y1_z0"
+          }
+        ]
+      },
+      "V": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "false",
+            "connected_front": "true",
+            "facing": "down",
+            "part": "x1_y1_z0"
+          }
+        ]
+      },
+      "W": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "false",
+            "connected_front": "true",
+            "facing": "down",
+            "part": "x2_y1_z0"
+          }
+        ]
+      },
+      "X": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "false",
+            "connected_front": "true",
+            "facing": "down",
+            "part": "x0_y2_z0"
+          }
+        ]
+      },
+      "Y": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "false",
+            "connected_front": "true",
+            "facing": "down",
+            "part": "x1_y2_z0"
+          }
+        ]
+      },
+      "Z": {
+        "blocks": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "properties": [
+          {
+            "connected_back": "false",
+            "connected_front": "true",
+            "facing": "down",
+            "part": "x2_y2_z0"
+          }
+        ]
+      }
+    }
+  }
+}

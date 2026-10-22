@@ -1,0 +1,34 @@
+{
+  "type": "anvilcraft:multiblock",
+  "pattern": {
+    "grid": [
+      [
+        "000",
+        "0AA",
+        "000"
+      ],
+      [
+        "000",
+        "0AA",
+        "000"
+      ],
+      [
+        "000",
+        "0AA",
+        "000"
+      ]
+    ],
+    "mapping": {
+      "0": {
+        "blocks": "anvilcraft:cake_base_block"
+      },
+      "A": {
+        "blocks": "anvilcraft:cream_block"
+      }
+    }
+  },
+  "result": {
+    "count": 3,
+    "id": "anvilcraft_pigeon_plus:large_creamy_bread_roll"
+  }
+}

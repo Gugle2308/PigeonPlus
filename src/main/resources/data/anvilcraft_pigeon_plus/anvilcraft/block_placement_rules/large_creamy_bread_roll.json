@@ -1,12 +1,15 @@
 {
   "rules": [
     {
-      "item": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
-      "properties": "part=x1_y1_z1"
+      "item": {
+        "id": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+        "count": 3
+      },
+      "properties": "part=x1_y1_z0,connected_back=true,connected_front=true"
     },
     {
       "item": {},
-      "properties": "!part=x1_y1_z1"
+      "properties": "!part=x1_y1_z0"
     }
   ]
 }
