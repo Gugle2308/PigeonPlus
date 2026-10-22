@@ -35,6 +35,12 @@ public final class PotionBottleTypes {
             || stack.is(AddonItems.LINGERING_BOTTLE.get());
     }
 
+    public static boolean isFilledBottle(ItemStack stack) {
+        return stack.is(Items.POTION)
+            || stack.is(Items.SPLASH_POTION)
+            || stack.is(Items.LINGERING_POTION);
+    }
+
     @Nullable
     public static ItemStack emptyPotionBottleIn(@Nullable BaseStorage<?> storage) {
         if (storage == null) {

@@ -3,7 +3,6 @@ package dev.anvilcraft.pigeonplus.fluid;
 import dev.anvilcraft.pigeonplus.init.AddonFluids;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.material.Fluids;
@@ -25,7 +24,7 @@ public class PotionBottleFluidHandler implements IFluidHandlerItem {
     }
 
     private boolean isWaterBottle() {
-        if (!this.container.is(Items.POTION)) {
+        if (!PotionBottleTypes.isFilledBottle(this.container)) {
             return false;
         }
         PotionContents contents = this.container.get(DataComponents.POTION_CONTENTS);
@@ -35,7 +34,7 @@ public class PotionBottleFluidHandler implements IFluidHandlerItem {
     }
 
     private boolean isPotionBottle() {
-        if (!this.container.has(DataComponents.POTION_CONTENTS)) {
+        if (!PotionBottleTypes.isFilledBottle(this.container)) {
             return false;
         }
         PotionContents contents = this.container.get(DataComponents.POTION_CONTENTS);

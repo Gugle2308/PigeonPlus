@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -20,6 +21,28 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class StorageServerStubMixin {
     @Unique
     private static final ThreadLocal<BaseStorage<?>> PIGEONPLUS_STORAGE = new ThreadLocal<>();
+
+    @ModifyExpressionValue(
+        method = "fillBucketFromStorage(Lnet/minecraft/server/level/ServerPlayer;Ldev/dubhe/anvilcraft/rpc/StorageServerStub$StorageView;Lnet/neoforged/neoforge/fluids/FluidStack;Z)Ldev/dubhe/anvilcraft/rpc/StorageServerStub$FilledBucket;",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/item/ItemStack;is(Lnet/minecraft/world/item/Item;)Z"
+        )
+    )
+    private static boolean pigeonplus$bottleFromCarried(boolean original, @Local(argsOnly = true) ServerPlayer player) {
+        return original || PotionBottleTypes.isEmptyBottle(player.containerMenu.getCarried());
+    }
+
+    @ModifyExpressionValue(
+        method = "takeFluidBucketsIntoInventory",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/item/ItemStack;is(Lnet/minecraft/world/item/Item;)Z"
+        )
+    )
+    private static boolean pigeonplus$bottleFromCarriedBatch(boolean original, @Local(argsOnly = true) ServerPlayer player) {
+        return original || PotionBottleTypes.isEmptyBottle(player.containerMenu.getCarried());
+    }
 
     @ModifyExpressionValue(
         method = "fillBucketFromStorage(Lnet/minecraft/server/level/ServerPlayer;Ldev/dubhe/anvilcraft/rpc/StorageServerStub$StorageView;Lnet/neoforged/neoforge/fluids/FluidStack;ZZ)Ldev/dubhe/anvilcraft/rpc/StorageServerStub$FilledBucket;",
@@ -53,7 +76,11 @@ public class StorageServerStubMixin {
         @Local(argsOnly = true) ServerPlayer player,
         @Local(argsOnly = true) FluidStack fluid
     ) {
-        if (original.isEmpty() || !PotionFluidUtil.isPotion(fluid)) {
+        if (original.isEmpty()) {
+            return original;
+        }
+        // 水与药水都能装进本模组的空瓶：水出喷溅水瓶/滞留水瓶，药水出对应药水。
+        if (!PotionFluidUtil.isPotion(fluid) && !fluid.is(Fluids.WATER)) {
             return original;
         }
         ItemStack carried = player.containerMenu.getCarried();
