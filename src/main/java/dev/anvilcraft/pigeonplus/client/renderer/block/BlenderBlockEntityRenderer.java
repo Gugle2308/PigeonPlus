@@ -7,12 +7,14 @@ import dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus;
 import dev.anvilcraft.pigeonplus.block.BlenderBlock;
 import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -30,9 +32,7 @@ import javax.annotation.Nullable;
 public class BlenderBlockEntityRenderer<T extends BlockEntity>
     implements BlockEntityRenderer<T>, ModelSelectionRenderer<T> {
     private static final float ROTATION_DEGREES_PER_TICK = 45.0f;
-
     private static final float HEAD_LIFT = 0.875f;
-
     private static final double RENDER_BOX_REACH = 1.0;
     private static final double RENDER_BOX_HEIGHT = 4.0;
 
@@ -42,38 +42,31 @@ public class BlenderBlockEntityRenderer<T extends BlockEntity>
     );
 
     private static ModelResourceLocation headModel(String name) {
-        return new ModelResourceLocation(
-            ResourceLocation.fromNamespaceAndPath(AnvilCraftPigeonPlus.MOD_ID, "block/blender/" + name),
-            "standalone");
+        return ModelResourceLocation.standalone(
+            ResourceLocation.fromNamespaceAndPath(AnvilCraftPigeonPlus.MOD_ID, "block/blender/" + name)
+        );
     }
 
     public BlenderBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
 
     @Override
-    public void render(T blockEntity, float partialTick, PoseStack poseStack,
-                       MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-        Level level = blockEntity.getLevel();
-        if (level == null) return;
-        BlockState blockState = blockEntity.getBlockState();
-        ModelResourceLocation headLocation = BlenderBlockEntityRenderer.headLocation(blockState);
-        if (headLocation == null) return;
-
-        BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
-        BakedModel headModel = Minecraft.getInstance().getModelManager().getModel(headLocation);
-        RandomSource random = RandomSource.create();
-        ModelData modelData = ModelData.EMPTY;
-
+    public void render(
+        T blockEntity,
+        float partialTick,
+        PoseStack poseStack,
+        MultiBufferSource bufferSource,
+        int packedLight,
+        int packedOverlay
+    ) {
+        ModelResourceLocation headLocation = headLocation(blockEntity.getBlockState());
+        if (headLocation == null) {
+            return;
+        }
+        int baseLight = getBaseLight(blockEntity, packedLight);
         poseStack.pushPose();
         BlenderBlockEntityRenderer.applyTransform(blockEntity, partialTick, poseStack);
-        for (RenderType renderType : headModel.getRenderTypes(blockState, random, modelData)) {
-            VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
-            dispatcher.getModelRenderer().renderModel(
-                poseStack.last(), vertexConsumer, blockState, headModel,
-                1.0F, 1.0F, 1.0F, packedLight, packedOverlay,
-                modelData, renderType
-            );
-        }
+        renderModel(blockEntity.getBlockState(), headLocation, poseStack, bufferSource, baseLight, packedOverlay);
         poseStack.popPose();
     }
 
@@ -84,8 +77,10 @@ public class BlenderBlockEntityRenderer<T extends BlockEntity>
         PoseStack poseStack,
         ModelConsumer consumer
     ) {
-        ModelResourceLocation headLocation = BlenderBlockEntityRenderer.headLocation(blockEntity.getBlockState());
-        if (headLocation == null) return;
+        ModelResourceLocation headLocation = headLocation(blockEntity.getBlockState());
+        if (headLocation == null) {
+            return;
+        }
         poseStack.pushPose();
         BlenderBlockEntityRenderer.applyTransform(blockEntity, partialTick, poseStack);
         consumer.accept(headLocation, poseStack);
@@ -94,6 +89,9 @@ public class BlenderBlockEntityRenderer<T extends BlockEntity>
 
     @Nullable
     private static ModelResourceLocation headLocation(BlockState blockState) {
+        if (!blockState.hasProperty(BlenderBlock.HEAD)) {
+            return null;
+        }
         return HEAD_MODELS.get(blockState.getValue(BlenderBlock.HEAD));
     }
 
@@ -103,11 +101,10 @@ public class BlenderBlockEntityRenderer<T extends BlockEntity>
         PoseStack poseStack
     ) {
         Level level = blockEntity.getLevel();
-        if (level == null) return;
         BlockState blockState = blockEntity.getBlockState();
-        boolean hasCauldronAbove = BlenderBlockEntityRenderer.isLargeCauldronCore(
+        boolean hasCauldronAbove = level != null && BlenderBlockEntityRenderer.isLargeCauldronCore(
             level, blockEntity.getBlockPos().above(2));
-        float angle = blockState.getValue(BlenderBlock.WORKING)
+        float angle = level != null && blockState.getValue(BlenderBlock.WORKING)
             ? (level.getGameTime() + partialTick) * ROTATION_DEGREES_PER_TICK
             : 0.0f;
         poseStack.translate(0.0, HEAD_LIFT, 0.0);
@@ -127,6 +124,14 @@ public class BlenderBlockEntityRenderer<T extends BlockEntity>
             .expandTowards(0.0, RENDER_BOX_HEIGHT, 0.0);
     }
 
+    private static int getBaseLight(BlockEntity blockEntity, int fallbackLight) {
+        Level level = blockEntity.getLevel();
+        if (level == null) {
+            return fallbackLight;
+        }
+        return LevelRenderer.getLightColor(level, blockEntity.getBlockPos());
+    }
+
     private static boolean isLargeCauldronCore(Level level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
         ResourceLocation id = state.getBlock().builtInRegistryHolder().key().location();
@@ -134,7 +139,41 @@ public class BlenderBlockEntityRenderer<T extends BlockEntity>
             return false;
         }
         Property<?> halfProp = state.getBlock().getStateDefinition().getProperty("half");
-        if (halfProp == null) return false;
+        if (halfProp == null) {
+            return false;
+        }
         return "mid_center".equals(state.getValue(halfProp).toString());
+    }
+
+    private static void renderModel(
+        BlockState state,
+        ModelResourceLocation modelLocation,
+        PoseStack poseStack,
+        MultiBufferSource bufferSource,
+        int packedLight,
+        int packedOverlay
+    ) {
+        Minecraft minecraft = Minecraft.getInstance();
+        ModelManager modelManager = minecraft.getModelManager();
+        BlockRenderDispatcher dispatcher = minecraft.getBlockRenderer();
+        BakedModel model = modelManager.getModel(modelLocation);
+        RandomSource random = RandomSource.create();
+        ModelData modelData = ModelData.EMPTY;
+        for (RenderType renderType : model.getRenderTypes(state, random, modelData)) {
+            VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
+            dispatcher.getModelRenderer().renderModel(
+                poseStack.last(),
+                vertexConsumer,
+                state,
+                model,
+                1.0F,
+                1.0F,
+                1.0F,
+                packedLight,
+                packedOverlay,
+                modelData,
+                renderType
+            );
+        }
     }
 }
