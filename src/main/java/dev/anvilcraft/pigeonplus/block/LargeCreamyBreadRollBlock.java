@@ -4,15 +4,22 @@ import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.pigeonplus.block.state.LargeCreamyBreadRollPart;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
+import dev.dubhe.anvilcraft.util.PlayerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
@@ -21,7 +28,13 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.common.ItemAbilities;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class LargeCreamyBreadRollBlock
     extends FlexibleMultiPartBlock<LargeCreamyBreadRollPart, DirectionProperty, Direction>
@@ -32,6 +45,8 @@ public class LargeCreamyBreadRollBlock
     public static final DirectionProperty FACING = DirectionalBlock.FACING;
     public static final BooleanProperty CONNECTED_FRONT = BooleanProperty.create("connected_front");
     public static final BooleanProperty CONNECTED_BACK = BooleanProperty.create("connected_back");
+    private static final int FOOD_LEVEL = 15;
+    private static final float SATURATION_LEVEL = 0.8F;
 
     public LargeCreamyBreadRollBlock(Properties properties) {
         super(properties);
@@ -129,10 +144,11 @@ public class LargeCreamyBreadRollBlock
         }
         Direction front = frontFacing(state.getValue(FACING));
         if (directionToNeighbour == front) {
-            return updated.setValue(CONNECTED_FRONT, this.connects(neighbourState, state));
+            return updated.setValue(CONNECTED_FRONT, this.connects(pos, updated, front, neighbourState));
         }
         if (directionToNeighbour == front.getOpposite()) {
-            return updated.setValue(CONNECTED_BACK, this.connects(neighbourState, state));
+            return updated.setValue(
+                CONNECTED_BACK, this.connects(pos, updated, front.getOpposite(), neighbourState));
         }
         return updated;
     }
@@ -140,12 +156,26 @@ public class LargeCreamyBreadRollBlock
     private BlockState withConnections(Level level, BlockPos pos, BlockState state) {
         Direction front = frontFacing(state.getValue(FACING));
         return state
-            .setValue(CONNECTED_FRONT, this.connects(level.getBlockState(pos.relative(front)), state))
-            .setValue(CONNECTED_BACK, this.connects(level.getBlockState(pos.relative(front.getOpposite())), state));
+            .setValue(
+                CONNECTED_FRONT,
+                this.connects(pos, state, front, level.getBlockState(pos.relative(front))))
+            .setValue(
+                CONNECTED_BACK,
+                this.connects(pos, state, front.getOpposite(), level.getBlockState(pos.relative(front.getOpposite()))));
     }
 
-    private boolean connects(BlockState neighbourState, BlockState state) {
-        return neighbourState.is(this) && neighbourState.getValue(FACING) == state.getValue(FACING);
+    private boolean connects(
+        BlockPos pos,
+        BlockState state,
+        Direction direction,
+        BlockState neighbourState
+    ) {
+        if (!neighbourState.is(this) || neighbourState.getValue(FACING) != state.getValue(FACING)) {
+            return false;
+        }
+        BlockPos mainPos = this.getMainPartPos(pos, state);
+        BlockPos neighbourMainPos = this.getMainPartPos(pos.relative(direction), neighbourState);
+        return mainPos.relative(direction).equals(neighbourMainPos);
     }
 
     public static String getModelName(BlockState state) {
@@ -164,6 +194,62 @@ public class LargeCreamyBreadRollBlock
             return "large_creamy_bread_roll_part3";
         }
         return "large_creamy_bread_roll";
+    }
+
+    @Override
+    public InteractionResult use(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hit
+    ) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (!stack.getItem().canPerformAction(stack, ItemAbilities.SHOVEL_DIG)) {
+            return InteractionResult.PASS;
+        }
+        if (!player.canEat(false)) {
+            return InteractionResult.PASS;
+        }
+        player.getFoodData().eat(FOOD_LEVEL, SATURATION_LEVEL);
+        if (level.isClientSide()) {
+            return InteractionResult.SUCCESS;
+        }
+        level.playSound(
+            null,
+            pos,
+            SoundEvents.GENERIC_EAT,
+            SoundSource.PLAYERS,
+            1.0F,
+            1.0F + (level.getRandom().nextFloat() - level.getRandom().nextFloat()) * 0.4F
+        );
+        List<BlockPos> parts = new ArrayList<>();
+        this.forEachPart(level, pos, parts::add);
+        for (BlockPos part : parts) {
+            level.setBlock(
+                part,
+                Blocks.AIR.defaultBlockState(),
+                Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE
+            );
+        }
+        this.refreshNeighbourConnections(level, parts);
+        level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
+        stack.hurtAndBreak(1, player, PlayerUtil.handToSlot(hand));
+        return InteractionResult.SUCCESS;
+    }
+
+    private void refreshNeighbourConnections(Level level, List<BlockPos> parts) {
+        for (BlockPos part : parts) {
+            for (Direction direction : Direction.values()) {
+                BlockPos neighbour = part.relative(direction);
+                BlockState neighbourState = level.getBlockState(neighbour);
+                if (!neighbourState.is(this)) {
+                    continue;
+                }
+                level.setBlockAndUpdate(neighbour, this.withConnections(level, neighbour, neighbourState));
+            }
+        }
     }
 
     @Override
