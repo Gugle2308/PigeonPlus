@@ -1,0 +1,33 @@
+{
+  "parent": "anvilcraft_pigeon_plus:paper_block",
+  "criteria": {
+    "compressed_bottle": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft_pigeon_plus:splash_bottle"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft_pigeon_plus.compressed_bottle.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft_pigeon_plus:splash_bottle"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft_pigeon_plus.compressed_bottle.title"
+    }
+  },
+  "requirements": [
+    [
+      "compressed_bottle"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

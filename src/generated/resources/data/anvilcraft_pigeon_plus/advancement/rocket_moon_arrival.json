@@ -1,0 +1,27 @@
+{
+  "parent": "anvilcraft_pigeon_plus:rocket_launch",
+  "criteria": {
+    "rocket_moon_arrival": {
+      "trigger": "anvilcraft_pigeon_plus:rocket_moon_arrival"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft_pigeon_plus.rocket_moon_arrival.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "count": 1,
+      "id": "minecraft:ender_eye"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft_pigeon_plus.rocket_moon_arrival.title"
+    }
+  },
+  "requirements": [
+    [
+      "rocket_moon_arrival"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

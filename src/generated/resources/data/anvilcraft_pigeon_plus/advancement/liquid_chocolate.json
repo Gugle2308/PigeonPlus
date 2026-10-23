@@ -1,0 +1,29 @@
+{
+  "parent": "anvilcraft_pigeon_plus:root",
+  "criteria": {
+    "liquid_chocolate": {
+      "conditions": {
+        "recipeType": "anvilcraft_pigeon_plus:blending"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft_pigeon_plus.liquid_chocolate.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft_pigeon_plus:liquid_chocolate_bucket"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft_pigeon_plus.liquid_chocolate.title"
+    }
+  },
+  "requirements": [
+    [
+      "liquid_chocolate"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -1,0 +1,33 @@
+{
+  "parent": "anvilcraft_pigeon_plus:mixed_biomass",
+  "criteria": {
+    "gaseous_biogas": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft_pigeon_plus:gaseous_biogas_bucket"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft_pigeon_plus.gaseous_biogas.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft_pigeon_plus:gaseous_biogas_bucket"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft_pigeon_plus.gaseous_biogas.title"
+    }
+  },
+  "requirements": [
+    [
+      "gaseous_biogas"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

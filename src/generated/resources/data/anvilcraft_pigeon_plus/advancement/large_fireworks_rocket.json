@@ -1,0 +1,34 @@
+{
+  "parent": "anvilcraft_pigeon_plus:liquid_hydrogen",
+  "criteria": {
+    "large_fireworks_rocket": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft_pigeon_plus:large_fireworks_rocket"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft_pigeon_plus.large_fireworks_rocket.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft_pigeon_plus:large_fireworks_rocket"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft_pigeon_plus.large_fireworks_rocket.title"
+    }
+  },
+  "requirements": [
+    [
+      "large_fireworks_rocket"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

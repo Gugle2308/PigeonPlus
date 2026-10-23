@@ -1,0 +1,34 @@
+{
+  "parent": "anvilcraft_pigeon_plus:eat_bread_roll",
+  "criteria": {
+    "feed_spreader": {
+      "conditions": {
+        "location": [
+          {
+            "block": "anvilcraft_pigeon_plus:feed_spreader",
+            "condition": "minecraft:block_state_property"
+          }
+        ]
+      },
+      "trigger": "minecraft:placed_block"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft_pigeon_plus.feed_spreader.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft_pigeon_plus:feed_spreader"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft_pigeon_plus.feed_spreader.title"
+    }
+  },
+  "requirements": [
+    [
+      "feed_spreader"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

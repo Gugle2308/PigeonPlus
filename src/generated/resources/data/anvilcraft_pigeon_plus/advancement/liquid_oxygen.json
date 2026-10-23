@@ -1,0 +1,34 @@
+{
+  "parent": "anvilcraft_pigeon_plus:compressed_air",
+  "criteria": {
+    "liquid_oxygen": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft_pigeon_plus:liquid_oxygen_bucket"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft_pigeon_plus.liquid_oxygen.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft_pigeon_plus:liquid_oxygen_bucket"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft_pigeon_plus.liquid_oxygen.title"
+    }
+  },
+  "requirements": [
+    [
+      "liquid_oxygen"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

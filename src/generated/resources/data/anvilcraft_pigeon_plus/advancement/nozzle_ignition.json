@@ -1,7 +1,7 @@
 {
-  "parent": "anvilcraft_pigeon_plus:root",
+  "parent": "anvilcraft_pigeon_plus:liquid_hydrogen",
   "criteria": {
-    "activate_nozzle_gas": {
+    "nozzle_ignition": {
       "trigger": "anvilcraft_pigeon_plus:nozzle_gas_activated"
     }
   },
@@ -19,7 +19,7 @@
   },
   "requirements": [
     [
-      "activate_nozzle_gas"
+      "nozzle_ignition"
     ]
   ],
   "sends_telemetry_event": true

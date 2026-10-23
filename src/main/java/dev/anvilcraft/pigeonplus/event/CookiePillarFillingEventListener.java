@@ -3,6 +3,7 @@ package dev.anvilcraft.pigeonplus.event;
 import dev.anvilcraft.pigeonplus.AnvilCraftPigeonPlus;
 import dev.anvilcraft.pigeonplus.init.AddonBlocks;
 import dev.anvilcraft.pigeonplus.init.AddonItems;
+import dev.anvilcraft.pigeonplus.init.ModCriterionTriggers;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
@@ -71,6 +72,9 @@ public class CookiePillarFillingEventListener {
             level.playSound(null, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
         }
         Player player = event.getEntity();
+        if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+            ModCriterionTriggers.COOKIE_PILLAR_FILLED.get().trigger(serverPlayer);
+        }
         if (!player.getAbilities().instabuild) {
             player.setItemInHand(
                 event.getHand(),

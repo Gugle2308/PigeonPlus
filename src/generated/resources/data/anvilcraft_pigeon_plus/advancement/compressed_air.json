@@ -1,0 +1,33 @@
+{
+  "parent": "anvilcraft_pigeon_plus:anvil_pump",
+  "criteria": {
+    "compressed_air": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft_pigeon_plus:compressed_air_bucket"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft_pigeon_plus.compressed_air.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft_pigeon_plus:compressed_air_bucket"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft_pigeon_plus.compressed_air.title"
+    }
+  },
+  "requirements": [
+    [
+      "compressed_air"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

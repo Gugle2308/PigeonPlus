@@ -576,6 +576,7 @@ public class LargeFireworksRocketEntity extends Entity {
             player.getXRot(),
             DimensionTransition.DO_NOTHING
         ));
+        dev.anvilcraft.pigeonplus.init.ModCriterionTriggers.ROCKET_MOON_ARRIVAL.get().trigger(player);
     }
 
     /**
@@ -679,6 +680,10 @@ public class LargeFireworksRocketEntity extends Entity {
         }
         DamageSource source = AddonDamageTypes.escapeTowerFailure(level, this);
         for (Entity rider : riders) {
+            if (rider instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+                dev.anvilcraft.pigeonplus.init.ModCriterionTriggers.ROCKET_RIDER_KILLED.get()
+                    .trigger(serverPlayer);
+            }
             if (rider instanceof LivingEntity) {
                 rider.hurt(source, Float.MAX_VALUE);
             } else {

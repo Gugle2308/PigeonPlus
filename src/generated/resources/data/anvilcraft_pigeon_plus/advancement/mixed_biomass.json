@@ -1,0 +1,33 @@
+{
+  "parent": "anvilcraft_pigeon_plus:root",
+  "criteria": {
+    "mixed_biomass": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft_pigeon_plus:mixed_biomass_bucket"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft_pigeon_plus.mixed_biomass.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft_pigeon_plus:mixed_biomass_bucket"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft_pigeon_plus.mixed_biomass.title"
+    }
+  },
+  "requirements": [
+    [
+      "mixed_biomass"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

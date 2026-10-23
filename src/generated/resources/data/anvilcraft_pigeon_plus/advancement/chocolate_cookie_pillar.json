@@ -1,0 +1,26 @@
+{
+  "parent": "anvilcraft_pigeon_plus:liquid_chocolate",
+  "criteria": {
+    "chocolate_cookie_pillar": {
+      "trigger": "anvilcraft_pigeon_plus:cookie_pillar_filled"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft_pigeon_plus.chocolate_cookie_pillar.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:cookie_pillar"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft_pigeon_plus.chocolate_cookie_pillar.title"
+    }
+  },
+  "requirements": [
+    [
+      "chocolate_cookie_pillar"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

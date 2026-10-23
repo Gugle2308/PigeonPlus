@@ -11,9 +11,9 @@ import java.util.Map;
 public class AddonLangHandler {
 
     /**
-     * 语言文件初始化
+     * 鐠囶叀鈻堥弬鍥︽閸掓繂顫愰崠?
      *
-     * @param provider 提供器
+     * @param provider 閹绘劒绶甸崳?
      */
     public static void init(RegistrumLangProvider provider) {
         ConfigData.readConfigClass(provider, AddonClientConfig.class);
@@ -28,6 +28,113 @@ public class AddonLangHandler {
         provider.add(
             "advancements.anvilcraft_pigeon_plus.nozzle_explosion.description",
             "Seal a firing nozzle completely and let it blow itself up"
+        );
+        provider.add("advancements.anvilcraft_pigeon_plus.paper_block.title", "A Stack of Paper");
+        provider.add(
+            "advancements.anvilcraft_pigeon_plus.paper_block.description",
+            "Compress paper into a block"
+        );
+        provider.add("advancements.anvilcraft_pigeon_plus.compressed_bottle.title", "Bottle That Bursts");
+        provider.add(
+            "advancements.anvilcraft_pigeon_plus.compressed_bottle.description",
+            "Compress a glass bottle into a splash or lingering bottle"
+        );
+        provider.add("advancements.anvilcraft_pigeon_plus.liquid_chocolate.title", "Liquid Happiness");
+        provider.add(
+            "advancements.anvilcraft_pigeon_plus.liquid_chocolate.description",
+            "Use a blender to melt chocolate into a fluid"
+        );
+        provider.add("advancements.anvilcraft_pigeon_plus.chocolate_cookie_pillar.title", "Filled Cookie Pillar");
+        provider.add(
+            "advancements.anvilcraft_pigeon_plus.chocolate_cookie_pillar.description",
+            "Pour a bucket of liquid chocolate into a cookie pillar"
+        );
+        provider.add("advancements.anvilcraft_pigeon_plus.large_creamy_bread_roll.title", "Giant Creamy Bread Roll");
+        provider.add(
+            "advancements.anvilcraft_pigeon_plus.large_creamy_bread_roll.description",
+            "Assemble a 3x3 creamy bread roll"
+        );
+        provider.add("advancements.anvilcraft_pigeon_plus.eat_bread_roll.title", "Shovel It In");
+        provider.add(
+            "advancements.anvilcraft_pigeon_plus.eat_bread_roll.description",
+            "Eat a whole bread roll using a shovel as a spoon"
+        );
+        provider.add("advancements.anvilcraft_pigeon_plus.feed_spreader.title", "Feed the World");
+        provider.add(
+            "advancements.anvilcraft_pigeon_plus.feed_spreader.description",
+            "Place a feed spreader and press it with an anvil"
+        );
+        provider.add("advancements.anvilcraft_pigeon_plus.mixed_biomass.title", "Mixed Biomass");
+        provider.add(
+            "advancements.anvilcraft_pigeon_plus.mixed_biomass.description",
+            "Blend crops with biomass into a mixed biomass fluid"
+        );
+        provider.add("advancements.anvilcraft_pigeon_plus.gaseous_biogas.title", "First Whiff of Biogas");
+        provider.add(
+            "advancements.anvilcraft_pigeon_plus.gaseous_biogas.description",
+            "Ferment mixed biomass into gaseous biogas"
+        );
+        provider.add("advancements.anvilcraft_pigeon_plus.liquefied_biogas.title", "Squeezed to Liquid");
+        provider.add(
+            "advancements.anvilcraft_pigeon_plus.liquefied_biogas.description",
+            "Liquefy gaseous biogas"
+        );
+        provider.add("advancements.anvilcraft_pigeon_plus.anvil_pump.title", "Anvil Driven");
+        provider.add(
+            "advancements.anvilcraft_pigeon_plus.anvil_pump.description",
+            "Place an anvil pump"
+        );
+
+        provider.add("advancements.anvilcraft_pigeon_plus.compressed_air.title", "Put the Air In");
+        provider.add(
+            "advancements.anvilcraft_pigeon_plus.compressed_air.description",
+            "Extract compressed air through a drain driven by a pump"
+        );
+        provider.add("advancements.anvilcraft_pigeon_plus.liquid_oxygen.title", "Liquid Oxygen");
+        provider.add(
+            "advancements.anvilcraft_pigeon_plus.liquid_oxygen.description",
+            "Liquefy compressed air into liquid oxygen"
+        );
+        provider.add("advancements.anvilcraft_pigeon_plus.liquid_hydrogen.title", "Liquid Hydrogen");
+        provider.add(
+            "advancements.anvilcraft_pigeon_plus.liquid_hydrogen.description",
+            "Liquefy compressed air into liquid hydrogen"
+        );
+        provider.add("advancements.anvilcraft_pigeon_plus.blender.title", "Pneumatic Blender");
+        provider.add(
+            "advancements.anvilcraft_pigeon_plus.blender.description",
+            "Place a pneumatic blender"
+        );
+        provider.add("advancements.anvilcraft_pigeon_plus.electric_blender.title", "Powered Blender");
+        provider.add(
+            "advancements.anvilcraft_pigeon_plus.electric_blender.description",
+            "Place an electric blender"
+        );
+        provider.add("advancements.anvilcraft_pigeon_plus.stasis_beacon.title", "Time, Paused");
+        provider.add(
+            "advancements.anvilcraft_pigeon_plus.stasis_beacon.description",
+            "Place a stasis beacon"
+        );
+
+        provider.add("advancements.anvilcraft_pigeon_plus.large_fireworks_rocket.title", "Faster Than NASA");
+        provider.add(
+            "advancements.anvilcraft_pigeon_plus.large_fireworks_rocket.description",
+            "Build a large fireworks rocket"
+        );
+        provider.add("advancements.anvilcraft_pigeon_plus.rocket_rider_killed.title", "Escape Tower Failure");
+        provider.add(
+            "advancements.anvilcraft_pigeon_plus.rocket_rider_killed.description",
+            "Ride a large fireworks rocket and go down with it"
+        );
+        provider.add("advancements.anvilcraft_pigeon_plus.rocket_moon_arrival.title", "One Giant Leap");
+        provider.add(
+            "advancements.anvilcraft_pigeon_plus.rocket_moon_arrival.description",
+            "Ride a large fireworks rocket all the way to the moon"
+        );
+        provider.add("advancements.anvilcraft_pigeon_plus.rocket_launch.title", "Liftoff");
+        provider.add(
+            "advancements.anvilcraft_pigeon_plus.rocket_launch.description",
+            "Ignite a large fireworks rocket and send it flying"
         );
         provider.add("block.anvilcraft_pigeon_plus.gaseous_biogas", "Gaseous Biogas");
         provider.add("block.anvilcraft_pigeon_plus.liquefied_biogas", "Liquefied Biogas");

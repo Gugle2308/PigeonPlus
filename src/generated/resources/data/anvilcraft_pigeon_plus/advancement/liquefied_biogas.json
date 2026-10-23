@@ -1,0 +1,34 @@
+{
+  "parent": "anvilcraft_pigeon_plus:gaseous_biogas",
+  "criteria": {
+    "liquefied_biogas": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft_pigeon_plus:liquefied_biogas_bucket"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft_pigeon_plus.liquefied_biogas.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft_pigeon_plus:liquefied_biogas_bucket"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft_pigeon_plus.liquefied_biogas.title"
+    }
+  },
+  "requirements": [
+    [
+      "liquefied_biogas"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

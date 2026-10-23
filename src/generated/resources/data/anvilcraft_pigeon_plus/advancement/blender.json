@@ -1,0 +1,34 @@
+{
+  "parent": "anvilcraft_pigeon_plus:anvil_pump",
+  "criteria": {
+    "blender": {
+      "conditions": {
+        "location": [
+          {
+            "block": "anvilcraft_pigeon_plus:blender",
+            "condition": "minecraft:block_state_property"
+          }
+        ]
+      },
+      "trigger": "minecraft:placed_block"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft_pigeon_plus.blender.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft_pigeon_plus:blender"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft_pigeon_plus.blender.title"
+    }
+  },
+  "requirements": [
+    [
+      "blender"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -316,6 +316,9 @@ public class LargeFireworksRocketBlock extends SimpleMultiPartBlock<LargeFirewor
         this.removePartsAndUpdate(level, pos);
         LargeFireworksRocketEntity rocket = LargeFireworksRocketEntity.launch(
             serverLevel, mainPos, state.getValue(FACING), player, explosions, pearlOwners);
+        if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+            dev.anvilcraft.pigeonplus.init.ModCriterionTriggers.ROCKET_LAUNCHED.get().trigger(serverPlayer);
+        }
         if (rider != null) {
             // 强制上马：乘客自身的 canRide 检查（例如潜行）在这里不适用。
             // 刻意不给免伤——坐在火箭顶上被自己的烟花炸死是预期行为。

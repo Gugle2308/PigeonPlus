@@ -1,0 +1,27 @@
+{
+  "parent": "anvilcraft_pigeon_plus:large_fireworks_rocket",
+  "criteria": {
+    "rocket_launch": {
+      "trigger": "anvilcraft_pigeon_plus:rocket_launched"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft_pigeon_plus.rocket_launch.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "count": 1,
+      "id": "minecraft:firework_rocket"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft_pigeon_plus.rocket_launch.title"
+    }
+  },
+  "requirements": [
+    [
+      "rocket_launch"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

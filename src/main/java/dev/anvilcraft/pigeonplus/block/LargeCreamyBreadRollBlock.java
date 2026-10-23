@@ -2,11 +2,13 @@ package dev.anvilcraft.pigeonplus.block;
 
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.pigeonplus.block.state.LargeCreamyBreadRollPart;
+import dev.anvilcraft.pigeonplus.init.ModCriterionTriggers;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.util.PlayerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -236,6 +238,9 @@ public class LargeCreamyBreadRollBlock
         this.refreshNeighbourConnections(level, parts);
         level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
         stack.hurtAndBreak(1, player, PlayerUtil.handToSlot(hand));
+        if (player instanceof ServerPlayer serverPlayer) {
+            ModCriterionTriggers.BREAD_ROLL_EATEN.get().trigger(serverPlayer);
+        }
         return InteractionResult.SUCCESS;
     }
 

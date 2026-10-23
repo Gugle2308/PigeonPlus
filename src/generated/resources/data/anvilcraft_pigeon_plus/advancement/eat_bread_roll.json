@@ -1,0 +1,26 @@
+{
+  "parent": "anvilcraft_pigeon_plus:large_creamy_bread_roll",
+  "criteria": {
+    "eat_bread_roll": {
+      "trigger": "anvilcraft_pigeon_plus:bread_roll_eaten"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft_pigeon_plus.eat_bread_roll.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "minecraft:iron_shovel"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft_pigeon_plus.eat_bread_roll.title"
+    }
+  },
+  "requirements": [
+    [
+      "eat_bread_roll"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

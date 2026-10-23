@@ -1,0 +1,27 @@
+{
+  "parent": "anvilcraft_pigeon_plus:rocket_launch",
+  "criteria": {
+    "rocket_rider_killed": {
+      "trigger": "anvilcraft_pigeon_plus:rocket_rider_killed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft_pigeon_plus.rocket_rider_killed.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "count": 1,
+      "id": "minecraft:tnt_minecart"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft_pigeon_plus.rocket_rider_killed.title"
+    }
+  },
+  "requirements": [
+    [
+      "rocket_rider_killed"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

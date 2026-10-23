@@ -9,8 +9,7 @@
     "description": {
       "translate": "advancements.anvilcraft_pigeon_plus.nozzle_explosion.description"
     },
-    "frame": "goal",
-    "hidden": true,
+    "frame": "challenge",
     "icon": {
       "count": 1,
       "id": "anvilcraft_pigeon_plus:nozzle"

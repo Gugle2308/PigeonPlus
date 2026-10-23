@@ -1,0 +1,34 @@
+{
+  "parent": "anvilcraft_pigeon_plus:blender",
+  "criteria": {
+    "electric_blender": {
+      "conditions": {
+        "location": [
+          {
+            "block": "anvilcraft_pigeon_plus:electric_blender",
+            "condition": "minecraft:block_state_property"
+          }
+        ]
+      },
+      "trigger": "minecraft:placed_block"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft_pigeon_plus.electric_blender.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft_pigeon_plus:electric_blender"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft_pigeon_plus.electric_blender.title"
+    }
+  },
+  "requirements": [
+    [
+      "electric_blender"
+    ]
+  ],
+  "sends_telemetry_event": true
+}
