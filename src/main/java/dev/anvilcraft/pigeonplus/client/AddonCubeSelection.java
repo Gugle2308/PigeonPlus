@@ -12,12 +12,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public final class AddonCubeSelection {
     private static final AABB DYNAMIC_BOUNDS = new AABB(-2, -2, -2, 3, 3, 3);
-    private static final double DYNAMIC_MARGIN = 0.001D;
     private static boolean enabled;
     private static boolean excluded;
 
@@ -52,21 +50,6 @@ public final class AddonCubeSelection {
         float partialTick
     ) {
         BlockEntity entity = level.getBlockEntity(pos);
-        if (entity == null) {
-            return List.of();
-        }
-        List<SelectionPart> parts = new ArrayList<>();
-        for (SelectionPart part : ModelBlockSelection.rendererParts(entity, partialTick)) {
-            if (AddonCubeSelection.fitsDynamicBounds(part)) {
-                parts.add(part);
-            }
-        }
-        return parts;
-    }
-
-    private static boolean fitsDynamicBounds(SelectionPart part) {
-        AABB bounds = part.bounds();
-        return DYNAMIC_BOUNDS.inflate(DYNAMIC_MARGIN).contains(bounds.minX, bounds.minY, bounds.minZ)
-            && DYNAMIC_BOUNDS.inflate(DYNAMIC_MARGIN).contains(bounds.maxX, bounds.maxY, bounds.maxZ);
+        return entity == null ? List.of() : ModelBlockSelection.rendererParts(entity, partialTick);
     }
 }
