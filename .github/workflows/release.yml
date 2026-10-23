@@ -1,88 +1,123 @@
-name: Upload Release Asset
+name: Release
+
 on:
   workflow_dispatch:
   release:
     types: [ published ]
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
 jobs:
   build:
-    permissions: write-all
     runs-on: ubuntu-latest
     env:
       BUILD_TYPE: release
       VERSION_TYPE: ${{ github.event.release.prerelease && 'beta' || 'release' }}
     steps:
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Read Properties
-        id: 'properties'
-        uses: christian-draeger/read-properties@1.1.1
-        with:
-          path: gradle.properties
-          properties: 'mod_id mod_name java_version modrinth_id curseforge_id upload'
+      - name: Read gradle.properties
+        id: properties
+        shell: bash
+        run: |
+          read_prop() {
+            grep -E "^$1=" gradle.properties | head -n 1 | cut -d= -f2- | xargs
+          }
+          {
+            echo "mod_id=$(read_prop mod_id)"
+            echo "mod_name=$(read_prop mod_name)"
+            echo "java_version=$(read_prop java_version)"
+            echo "minecraft_version=$(read_prop minecraft_version)"
+            echo "modrinth_id=$(read_prop modrinth_id)"
+            echo "curseforge_id=$(read_prop curseforge_id)"
+            echo "upload=$(read_prop upload)"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Setup Java ${{ steps.properties.outputs.java_version }}
-        uses: actions/setup-java@v3.6.0
+        uses: actions/setup-java@v4
         with:
           distribution: zulu
           java-version: ${{ steps.properties.outputs.java_version }}
 
-      - name: make gradle wrapper executable
-        if: ${{ runner.os != 'Windows' }}
+      - name: Make gradle wrapper executable
         run: chmod +x ./gradlew
 
-      - name: Build with Gradle
-        uses: gradle/actions/setup-gradle@v4.3.1
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Build
-        run: ./gradlew build
+        run: ./gradlew build -x test --stacktrace
 
-      - name: Get Version
-        id: version
+      - name: Resolve artifact
+        id: artifact
+        shell: bash
         run: |
-          MESSAGE=$(ls build/libs/* | grep sources.jar -v | grep shadow.jar -v | grep slim.jar -v | awk -F '${{ steps.properties.outputs.mod_id }}-neoforge-|.jar' '{print $2}')
-          echo "version=$MESSAGE" >> $GITHUB_OUTPUT
+          JAR=$(ls build/libs/*.jar \
+            | grep -v -- '-sources' \
+            | grep -v -- '-shadow' \
+            | grep -v -- '-slim' \
+            | head -n 1)
+          if [ -z "$JAR" ] || [ ! -f "$JAR" ]; then
+            echo "no jar produced in build/libs" >&2
+            ls -l build/libs >&2 || true
+            exit 1
+          fi
+          VERSION=$(basename "$JAR" .jar)
+          VERSION=${VERSION#"${{ steps.properties.outputs.mod_id }}-neoforge-"}
+          SOURCES=$(ls build/libs/*-sources.jar 2>/dev/null | head -n 1)
+          if [ -n "$SOURCES" ]; then
+            echo "sources=$SOURCES" >> "$GITHUB_OUTPUT"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "jar=$JAR" >> "$GITHUB_OUTPUT"
+          NAME=$(echo "${{ steps.properties.outputs.mod_name }} $VERSION" | sed 's/["\\:<>|*?\/]//g')
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
 
-      - name: Get Artifact Name
-        id: artifact_name
-        run: |
-          NAME=$(echo "${{ steps.properties.outputs.mod_name }} ${{ steps.version.outputs.version }}" | sed 's/["\\:<>|*?\/]//g')
-          echo "name=$NAME" >> $GITHUB_OUTPUT
-
-      - name: capture build artifacts
-        uses: actions/upload-artifact@v4.3.3
+      - name: Capture build artifacts
+        uses: actions/upload-artifact@v4
         with:
-          name: "${{ steps.artifact_name.outputs.name }}"
-          path: build/libs/${{ steps.properties.outputs.mod_id }}-neoforge-${{ steps.version.outputs.version }}.jar
+          name: "${{ steps.artifact.outputs.name }}"
+          path: |
+            ${{ steps.artifact.outputs.jar }}
+            ${{ steps.artifact.outputs.sources }}
+          if-no-files-found: error
 
       - name: Publish to maven
-        if: ${{ steps.properties.outputs.upload }}
+        if: steps.properties.outputs.upload == 'true'
+        continue-on-error: true
         run: ./gradlew publish
         env:
           MAVEN_URL: ${{ secrets.MAVEN_URL }}
           MAVEN_USERNAME: ${{ secrets.MAVEN_USER }}
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASS }}
-        continue-on-error: true
 
-      - name: Upload Release Jar
-        uses: softprops/action-gh-release@v0.1.15
+      - name: Upload GitHub release
+        uses: softprops/action-gh-release@v2
         with:
           files: |
-            build/libs/${{ steps.properties.outputs.mod_id }}-neoforge-${{ steps.version.outputs.version }}.jar
+            ${{ steps.artifact.outputs.jar }}
+            ${{ steps.artifact.outputs.sources }}
 
-      - name: publish neoforge mc mod
-        uses: Kir-Antipov/mc-publish@v3.3
-        if: ${{ steps.properties.outputs.upload }}
+      - name: Publish to Modrinth and CurseForge
+        if: steps.properties.outputs.upload == 'true'
         continue-on-error: true
+        uses: Kir-Antipov/mc-publish@v3.3
         with:
-          name: "${{ steps.properties.outputs.mod_name }} For NeoForge v${{ steps.version.outputs.version }}"
-          version: ${{ steps.version.outputs.version }}
-          game-versions: 1.21.1
+          name: "${{ steps.properties.outputs.mod_name }} For NeoForge v${{ steps.artifact.outputs.version }}"
+          version: ${{ steps.artifact.outputs.version }}
           version-type: ${{ env.VERSION_TYPE }}
-          java: 21
+          changelog: ${{ github.event.release.body || format('{0} {1}', steps.properties.outputs.mod_name, steps.artifact.outputs.version) }}
+          loaders: neoforge
+          game-versions: ${{ steps.properties.outputs.minecraft_version }}
+          java: ${{ steps.properties.outputs.java_version }}
           fail-mode: skip
-          changelog: ${{ github.event.release.body }}
+          retry-attempts: 3
 
           modrinth-id: ${{ steps.properties.outputs.modrinth_id }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
@@ -95,5 +130,5 @@ jobs:
             anvilcraft@1.21.1-1.6.0+snapshot.2624(required){modrinth:vuISAWPc}{curseforge:986251}
 
           files: |
-            build/libs/${{ steps.properties.outputs.mod_id }}-neoforge-${{ steps.version.outputs.version }}.jar
-            build/libs/${{ steps.properties.outputs.mod_id }}-neoforge-${{ steps.version.outputs.version }}-sources.jar
+            ${{ steps.artifact.outputs.jar }}
+            ${{ steps.artifact.outputs.sources }}
