@@ -258,5 +258,6 @@ public class BlendingCategory extends AbstractProgressCategory<BlendingRecipe> {
         registration.addRecipeCatalyst(new ItemStack(Items.CAULDRON), AnvilCraftPigeonPlusJeiPlugin.BLENDING);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.FISH_TANK), AnvilCraftPigeonPlusJeiPlugin.BLENDING);
         registration.addRecipeCatalyst(new ItemStack(AddonBlocks.BLENDER), AnvilCraftPigeonPlusJeiPlugin.BLENDING);
+        registration.addRecipeCatalyst(new ItemStack(AddonBlocks.ELECTRIC_BLENDER), AnvilCraftPigeonPlusJeiPlugin.BLENDING);
     }
 }
