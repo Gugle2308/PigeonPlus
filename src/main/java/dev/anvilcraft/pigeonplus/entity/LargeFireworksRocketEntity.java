@@ -31,6 +31,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
@@ -98,6 +99,7 @@ public class LargeFireworksRocketEntity extends Entity {
     private static final double CORE_LENGTH = 1.6;
     /** 箭体高度（格），与实体尺寸一致。 */
     private static final double BODY_HEIGHT = 9.0;
+    private static final float BOUNDING_INSET = 0.1F;
 
     /**
      * 悬浮珍珠相对火箭底部的高度（格）。
@@ -246,6 +248,7 @@ public class LargeFireworksRocketEntity extends Entity {
     public LargeFireworksRocketEntity(EntityType<? extends LargeFireworksRocketEntity> type, Level level) {
         super(type, level);
         this.blocksBuilding = false;
+        this.refreshDimensions();
     }
 
     public LargeFireworksRocketEntity(Level level, double x, double y, double z, int fuse) {
@@ -307,6 +310,15 @@ public class LargeFireworksRocketEntity extends Entity {
             3.0F, 1.0F
         );
         return firework;
+    }
+
+    @Override
+    public EntityDimensions getDimensions(Pose pose) {
+        EntityDimensions base = super.getDimensions(pose);
+        return EntityDimensions.fixed(
+            base.width() - BOUNDING_INSET * 2.0F,
+            base.height() - BOUNDING_INSET * 2.0F
+        ).withEyeHeight(base.eyeHeight());
     }
 
     @Override
