@@ -10,9 +10,5 @@
     "anvilcraft_pigeon_plus:liquid_chocolate_white"
   ],
   "dynamic_selection": [
-    "anvilcraft_pigeon_plus:blender",
-    "anvilcraft_pigeon_plus:electric_blender",
-    "anvilcraft_pigeon_plus:anvil_pump",
-    "anvilcraft_pigeon_plus:feed_spreader"
   ]
 }
